@@ -1,0 +1,11 @@
+Hello World!
+
+
+Dumping This Here as Test...
+
+# 1. Benefits for Annotations:
+
+## Python Shorthands that make reading documentation easy
+- Type the function name Func() then within the parenthesis hit: Shift + Tab to show discription of Function
+- Type Func? then hit Shift + Enter to show parameters of Function
+- Type Func?? then hit Shift + Enter to show entire Documentation and Function Code
