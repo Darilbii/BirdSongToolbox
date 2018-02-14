@@ -201,8 +201,8 @@ def RR_Neural_Master(Frequencies, Num_Trials, Good_Channels, Num_Freq, SN_L=int,
     RR_Trials = []
     Avg_Freq_RR_Trials = []
     for i in xrange(Num_Trials):
-        RR_Trial_hold, Avg_Freq_RR_Trial_hold = RR_Neural_Module(Frequencies[i], Good_Channels, Num_Freq, SN_L=int,
-                                                                 Gp_L=int)
+        RR_Trial_hold, Avg_Freq_RR_Trial_hold = RR_Neural_Module(Frequencies[i], Good_Channels, Num_Freq, SN_L=SN_L,
+                                                                 Gp_L=Gp_L)
         RR_Trials.append(RR_Trial_hold)
         Avg_Freq_RR_Trials.append(Avg_Freq_RR_Trial_hold)
     return RR_Trials, Avg_Freq_RR_Trials
@@ -512,7 +512,7 @@ class Pipeline():
         @wraps(func) # TODO: Make it Able to Return it's Description in the Help Magic view
         def steps(self, *args, **kwargs):
             assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
-            print 'Wrapper Worked'
+            print 'Wrapper Worked' #TODO Edit this Decorator to Print Useful Strings
             self.Make_Backup()  # Back-up Neural Data in case of Mistake
             func(self, *args, **kwargs)  # Pre-Processing Function
             self.Update_Log(self.Log_String)  # Update Log
