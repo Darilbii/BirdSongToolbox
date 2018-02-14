@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import random
 from functools import wraps
+
+import numpy as np
 
 from PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands, Good_Channel_Index
 
@@ -508,7 +509,7 @@ class Pipeline():
     def _StandardStep(func):
         '''Wraper for Processing Steps'''
 
-        @wraps(func)
+        @wraps(func) # TODO: Make it Able to Return it's Description in the Help Magic view
         def steps(self, *args, **kwargs):
             assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
             print 'Wrapper Worked'
