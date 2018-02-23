@@ -575,6 +575,8 @@ class Pipeline():
     # TODO: Make Sure you can't Restore Consectively
     # TODO: The Entire Restore Pipeline is Faulty
     # TODO: Change Discription of Gap_Len to: Total Length (Duration) of time Buffer around Trials (To Determine Buffer Before or After Divide by 2)
+    # TODO: Top and Bottom annotation must be updated to ndarray (Benefit is they are immutable)
+
 
     def Define_Frequencies(self, Instructions, StepSize=20, Lowest=0, Slide=False, suppress=False):
         '''Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
