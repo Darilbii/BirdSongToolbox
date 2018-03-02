@@ -473,6 +473,11 @@ class Pipeline():
         Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
     .Good_Channels: list
         List of Channels that are to be included in a Common Average Filter
+    .All_Last_Motifs: list
+        Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
+    .Good_Mid_Motifs: list
+        Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
+        Analysis
     '''
 
     def __init__(self, Imported_Data):
@@ -497,7 +502,10 @@ class Pipeline():
         self.Last_Motifs = copy.deepcopy(Imported_Data.Last_Motifs)
         self.First_Motifs = copy.deepcopy(Imported_Data.First_Motifs)
         self.All_First_Motifs = copy.deepcopy(Imported_Data.All_First_Motifs)
+        self.All_Last_Motifs = copy.deepcopy(Imported_Data.All_Last_Motifs)
+        self.Good_Mid_Motifs = copy.deepcopy(Imported_Data.Good_Mid_Motifs)
         self.Good_Channels = Good_Channel_Index(self.Num_Chan, self.Bad_Channels)
+        
 
         # Create Processing Operator Instances
         self.Activity_Log = {}  # Initiate a Log of Activity for Recounting Processing Steps
