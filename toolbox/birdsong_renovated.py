@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import os
 import math
-from BirdSongToolbox import *
 
 def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     ''' Plots the Pearson Correlation Coefficient Histogram of Two Classes (Assummed to be Song vs. Silence) with Normalized Mean in solid Line
