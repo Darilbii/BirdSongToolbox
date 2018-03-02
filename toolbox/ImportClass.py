@@ -84,6 +84,8 @@ class Import_PrePd_Data():
         Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
     .All_First_Motifs: list
         Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
+    .All_Last_Motifs: list
+        Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
     '''
 
     def __init__(self, bird_id, sess_name, data_type='LPF_DS'):
@@ -116,6 +118,7 @@ class Import_PrePd_Data():
         self.Locate_Good_Last_Motifs()
         self.Locate_Last_Syll_Dropped()
         self.Locate_Bouts()
+        slf.Locate_All_Last_Motifs()
 
         # Confirm completion of Import to User
         self.Describe()
@@ -318,6 +321,33 @@ class Import_PrePd_Data():
         Last_Motifz = np.where(Last_Holder == 1)  # Create Index of Selected Label
         Last_Motifz = Last_Motifz[0]  # Weird Needed Step
         self.Last_Motifs = Last_Motifz
+        
+    def Locate_All_Last_Motifs(self):
+        ''' Create Index for All Good Motifs
+        Parameters:
+        -----------
+        .Song_Quality
+        .Song_Locations
+        .Song_Syl_Drop
+
+
+        Returns:
+        --------
+        .Last_Motifs:
+        '''
+        # 3. Good Last Motifs
+        # 3.1 Initialize Variables and Memory
+        assert len(self.Song_Locations) == len(self.Song_Quality)
+        All_Last_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory for Indexing
+
+        # 3.2 Fill Logical for Good First Motifs
+        for i in xrange(len(self.Song_Quality)):
+            if self.Song_Locations[i][0] == 'Ending':  # Locate Desired Label Combination
+                All_Last_Holder[i] = 1  # Mark them
+        All_Last_Motifz = np.where(All_Last_Holder == 1)  # Create Index of Selected Label
+        All_Last_Motifz = All_Last_Motifz[0]  # Weird Needed Step
+        self.All_Last_Motifs = All_Last_Motifz
+    
 
     def Locate_Bad_Full_Motifs(self):
         ''' Create Index for All Good Motifs
