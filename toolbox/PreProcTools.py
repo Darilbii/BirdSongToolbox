@@ -387,7 +387,7 @@ def Good_Channel_Index(Num_of_Channels, Bad_Channels):
     print 'All Channels:'
     print Available_Channels
     print 'All Good Channels:'
-    Good_Channels = np.delete(Available_Channels, Bad_Channels)  # Remove Bad Channels from Total List of Channels
+    Good_Channels = list(np.delete(Available_Channels, Bad_Channels))  # Remove Bad Channels from Total List of Channels
     print Good_Channels
     return Good_Channels
 

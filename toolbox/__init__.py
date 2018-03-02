@@ -1,5 +1,5 @@
-import ImportClass
-import PreProcessClass
-import PreProcTools
+from ImportClass import *
+from PreProcessClass import *
+from PreProcTools import *
 # TODO: Once birdsong_renovated Remove this comment
-import birdsong_renovated
+from birdsong_renovated import *
