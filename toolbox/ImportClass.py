@@ -49,6 +49,12 @@ class Import_PrePd_Data():
     .LPF_DS_Song: list
         Lowpass Filtered Neural data during Song Trials (300 Hz. Cutoff)
         [Number of Trials]-> [Trial Length (Samples @ 1KHz) x Ch]
+    .Song_Raw: list
+        Raw Neural data during Silent Trials (300 Hz. Cutoff)
+        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x Ch]
+    .Silence_Raw: list
+        Raw Neural data during Silent Trials (300 Hz. Cutoff)
+        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x Ch]
     .Song_Audio: list
         Audio of Trials, centered on motif
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
@@ -108,8 +114,10 @@ class Import_PrePd_Data():
         self.Get_LPF_DS_Song(Prepd_ss_data_folder)  ## Song: Store the Low Pass Filtered & Downsampled Neural Data
         self.Get_Song_Audio(Prepd_ss_data_folder)  ## Song: Store the Filtered Audio Data
         self.Get_LPF_DS_Silence(Prepd_ss_data_folder)  ## Silence: Store the Low Pass Filtered & Downsampled Neural Data
+        self.Get_Raw_Song(Prepd_ss_data_folder)  ## Song: Store the Raw Neural Data
         self.Get_Silence_Audio(Prepd_ss_data_folder)  ## Silence: Store the Filtered Audio Data
         self.Get_Hand_Labels(Prepd_ss_data_folder)  ## Store the Different Types of Hand Labels into Seperate Lists
+        self.Get_Raw_Silence(Prepd_ss_data_folder)  ## Silence: Store the Raw Neural Data
 
         # Modularized Indexes of Relevant Handlabel Pairs
         self.Locate_All_Good_Motifs()
@@ -118,7 +126,7 @@ class Import_PrePd_Data():
         self.Locate_Good_Last_Motifs()
         self.Locate_Last_Syll_Dropped()
         self.Locate_Bouts()
-        slf.Locate_All_Last_Motifs()
+        self.Locate_All_Last_Motifs()
 
         # Confirm completion of Import to User
         self.Describe()
@@ -174,6 +182,24 @@ class Import_PrePd_Data():
         self.LPF_DS_Song = Song_LPF_DS_Data
         self.Num_Motifs = Numb_Motifs
 
+    def Get_Raw_Song(self, Prepd_ss_data_folder):
+        '''Song: Store the Raw Neural Data
+        Parameters:
+        -----------
+            Song_File: str
+                path to data
+        '''
+        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
+        Song_Raw_Data = []
+        Mat_File = sio.loadmat(Song_File);
+        Mat_File_Filt = Mat_File['Song_Raw'];
+        Numb_Motifs = len(Mat_File_Filt);
+
+        for i in xrange(0, Numb_Motifs):
+            Song_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+        self.Song_Raw = Song_Raw_Data
+
+
     def Get_Song_Audio(self, Prepd_ss_data_folder):
         '''Song: Store the Filtered Audio Data'''
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
@@ -201,6 +227,23 @@ class Import_PrePd_Data():
 
         self.LPF_DS_Silence = Silence_LPF_DS_Data
         self.Num_Silence = Numb_Sil_Ex
+
+    def Get_Raw_Silence(self, Prepd_ss_data_folder):
+        '''Silence: Store the Raw Neural Data
+        Parameters:
+        -----------
+            Song_File: str
+                path to data
+        '''
+        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
+        Silence_Raw_Data = []
+        Mat_File = sio.loadmat(Song_File);
+        Mat_File_Filt = Mat_File['Silence_Raw'];
+        Numb_Motifs = len(Mat_File_Filt);
+
+        for i in xrange(0, Numb_Motifs):
+            Silence_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+        self.Silence_Raw = Silence_Raw_Data
 
     def Get_Silence_Audio(self, Prepd_ss_data_folder):
         '''Silence: Store the Filtered Audio Data'''
