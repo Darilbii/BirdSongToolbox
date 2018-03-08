@@ -133,10 +133,7 @@ class Import_PrePd_Data():
         self.Locate_Last_Syll_Dropped()
         self.Locate_Bouts()
         self.Locate_All_Last_Motifs()
-<<<<<<< HEAD
         self.Locate_Good_Mid_Motifs()
-=======
->>>>>>> 06a1363ea3c0c8ba3c87e195434529e10b9922fe
 
         # Confirm completion of Import to User
         self.Describe()
