@@ -444,14 +444,14 @@ class Pipeline():
     .Fs = int
         Sample Frequency of Data (in Samples)
     .Song_Neural: list
-        Lowpass Filtered Neural data during Song Trials (300 Hz. Cutoff)
-        [Number of Trials]-> [Trial Length (Samples @ 1KHz) x Ch]
+        User Designated Neural data during Song Trials
+        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
     .Song_Audio: list
         Audio of Trials, centered on motif
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
     .Silence_Neural: list
-        Lowpass Filtered Neural data during Silent Trials (300 Hz. Cutoff)
-        [Number of Trials]-> [Trial Length (Samples @ 1KHz) x Ch]
+        User Designated Neural data during Silent Trials
+        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
     .Silence_Audio: list
         Audio of Silents Trials
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
@@ -491,9 +491,9 @@ class Pipeline():
         self.Bad_Channels = copy.deepcopy(Imported_Data.Bad_Channels)  # Debating Hard Passing Bad_Channels
         self.Fs = copy.deepcopy(Imported_Data.Fs)
         self.Song_Audio = copy.deepcopy(Imported_Data.Song_Audio)  # Debating Including Audio
-        self.Song_Neural = copy.deepcopy(Imported_Data.LPF_DS_Song)
+        self.Song_Neural = copy.deepcopy(Imported_Data.Song_Neural)
         self.Silence_Audio = copy.deepcopy(Imported_Data.Silence_Audio)  # Debating Including Audio
-        self.Silence_Neural = copy.deepcopy(Imported_Data.LPF_DS_Silence)
+        self.Silence_Neural = copy.deepcopy(Imported_Data.Silence_Neural)
         self.Num_Motifs = copy.deepcopy(Imported_Data.Num_Motifs)
         self.Num_Silence = copy.deepcopy(Imported_Data.Num_Silence)
         self.Good_Motifs = copy.deepcopy(Imported_Data.Good_Motifs)
