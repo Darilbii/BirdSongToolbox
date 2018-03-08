@@ -5,8 +5,10 @@ import random
 from functools import wraps
 
 import numpy as np
+import decorator
 
 from PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands, Good_Channel_Index
+
 
 
 # Master Function: Handles Flexible Bandpass Filtering
@@ -517,7 +519,7 @@ class Pipeline():
     def _StandardStep(func):
         '''Wraper for Processing Steps'''
 
-        @wraps(func) # TODO: Make it Able to Return it's Description in the Help Magic view
+        @decorator.decorator # TODO: Make it Able to Return it's Description in the Help Magic view
         def steps(self, *args, **kwargs):
             assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
             print 'Wrapper Worked' #TODO Edit this Decorator to Print Useful Strings
