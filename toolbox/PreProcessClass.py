@@ -516,20 +516,17 @@ class Pipeline():
         self.Step_Count = 0  # Initiate Step Counter
 
     ########## Last Here
-    def _StandardStep(func):
-        '''Wraper for Processing Steps'''
-
-        @decorator.decorator # TODO: Make it Able to Return it's Description in the Help Magic view
-        def steps(self, *args, **kwargs):
-            assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
-            print 'Wrapper Worked' #TODO Edit this Decorator to Print Useful Strings
-            self.Make_Backup()  # Back-up Neural Data in case of Mistake
-            func(self, *args, **kwargs)  # Pre-Processing Function
-            self.Update_Log(self.Log_String)  # Update Log
-            del self.Log_String
-            print 'Ooops I meant Decorator'
-
-        return steps
+    
+    @decorator.decorator # Allows all Decorated Functions to give helpful info with help commands
+    def _StandardStep(func, self, *args, **kwargs):
+        assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
+        print 'Wrapper Worked' #TODO Edit this Decorator to Print Useful Strings
+        self.Make_Backup()  # Back-up Neural Data in case of Mistake
+        func(self, *args, **kwargs)  # Pre-Processing Function
+        self.Update_Log(self.Log_String)  # Update Log
+        del self.Log_String
+        print 'Ooops I meant Decorator'
+        return
 
     def Make_Backup(self):
         '''Quickly Backs Up Neural Data '''
