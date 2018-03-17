@@ -93,42 +93,6 @@ def get_chan_geometry(Probe):
 
     return geometry
 
-# Create Function to go from  Dict to List
-
-def convert_probe_to_array(Probe_dict, Num_Chans):
-    ''' Converts Output from Prep_Probe_Geometry to a np.array
-    
-    Notes:
-    ------
-        Missing Channels are automatically assigned [1,1]
-    
-    Parameters:
-    -----------
-    Probe_dict: dict
-        Dictionary of the Probe Geometry
-        {Channel Number: tuple(X-Coordinate, Y-Coordinate)}
-        
-    Num_Chans: int
-        Total Number of Recording Channels
-        
-    Returns:
-    --------
-    Probe_map: ndarray
-        Array of Channels in Order with each entry being: [X-Coordinate, Y-Coordinate]
-    '''
-    # TODO: Handle Missing Channels
-    # TODO: Ask Zeke Why the channels are missing
-    
-    Probe_map = np.ones((Num_Chans, 2))
-    Channels = Probe_dict.keys()
-    for i in xrange(len(Channels)):
-        if Channels[i] in Probe_dict.keys():
-            Probe_map[Channels[i], 0], Probe_map[Channels[i], 1] = Probe_dict[Channels[i]]
-
-    return Probe_map
-
-# Function for saving Probe Geometry
-
 
 def save_Probe_Geometry(Probe_Geomtry, bird_id = str):
     ''' Save Probe geometry using Pickle
@@ -192,6 +156,42 @@ def import_Probe_Geometry(bird_id = str):
     return Probe_Geometry
 
 # Create Function to go from  Dict to List
+
+# Create Function to go from  Dict to List
+
+def convert_probe_to_array(Probe_dict, Num_Chans):
+    ''' Converts Output from Prep_Probe_Geometry to a np.array
+    
+    Notes:
+    ------
+        Missing Channels are automatically assigned [1,1]
+    
+    Parameters:
+    -----------
+    Probe_dict: dict
+        Dictionary of the Probe Geometry
+        {Channel Number: tuple(X-Coordinate, Y-Coordinate)}
+        
+    Num_Chans: int
+        Total Number of Recording Channels
+        
+    Returns:
+    --------
+    Probe_map: ndarray
+        Array of Channels in Order with each entry being: [X-Coordinate, Y-Coordinate]
+    '''
+    # TODO: Handle Missing Channels
+    # TODO: Ask Zeke Why the channels are missing
+    
+    Probe_map = np.ones((Num_Chans, 2))
+    Channels = Probe_dict.keys()
+    for i in xrange(len(Channels)):
+        if Channels[i] in Probe_dict.keys():
+            Probe_map[Channels[i], 0], Probe_map[Channels[i], 1] = Probe_dict[Channels[i]]
+
+    return Probe_map
+
+# Function for saving Probe Geometry
 
 def convert_probe_to_dict(Probe_array):
     ''' Converts Output from Prep_Probe_Geometry to a np.array
