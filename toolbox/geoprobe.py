@@ -190,3 +190,33 @@ def import_Probe_Geometry(bird_id = str):
 
     fileObject.close()
     return Probe_Geometry
+
+# Create Function to go from  Dict to List
+
+def convert_probe_to_dict(Probe_array):
+    ''' Converts Output from Prep_Probe_Geometry to a np.array
+    
+    Notes:
+    ------
+        Missing Channels are automatically assigned [1,1]
+    
+    Parameters:
+    -----------
+    Probe_array: ndarray
+       Array of Channels in Order with each entry being: [X-Coordinate, Y-Coordinate]
+
+    Returns:
+    --------
+    Probe_map: dict
+        Dictionary of the Probe Geometry
+        {Channel Number: tuple(X-Coordinate, Y-Coordinate)}   
+    '''
+    
+    
+    Probe_map = {}
+    
+    for i in xrange(len(Probe_array)):
+        Probe_map[i] = (Probe_array[i,0], Probe_array[i,1])
+
+
+    return Probe_map
