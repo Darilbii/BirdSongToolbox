@@ -51,7 +51,7 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     for k in range(Num_Trials):
         Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((CFT[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
         Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((CFS[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
-    assert p_value1 < .05 and p_value2 < .05, 'P Value too high'
+    assert p_value1 < .05 and p_value2 < .05, 'P Value too high, Song P_Value = '+ str(p_value1)+' Silence P_Value = '+ str(p_value2)
     Feat_Song_men2 = np.mean(Song_CorrCoef)
     Feat_Silence_men2 = np.mean(Silence_CorrCoef)
 
@@ -165,7 +165,7 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
             for k in xrange(len(Trial_Index)):
                 Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((Channel_Freq_Song[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
                 Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((Channel_Freq_Silence[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
-                assert p_value1 < .05 and p_value2< .05, 'Song P_Value = '+ str(p_value1)+' Silence P_Value = '+ str(p_value2)
+                assert p_value1 < .05 and p_value2< .05, 'P Value too high, Song P_Value = '+ str(p_value1)+' Silence P_Value = '+ str(p_value2)
         
             #4.3 Find Difference between Edges to Determine Overlap
             Feat_Seperation_Edges_Corr[CH_Sel,FREQ_SEL] = find_edges(np.median(Song_CorrCoef), np.median(Silence_CorrCoef), Song_CorrCoef, Silence_CorrCoef) # Store Edge Overlap Result
