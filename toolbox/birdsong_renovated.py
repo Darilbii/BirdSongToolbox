@@ -49,9 +49,9 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     Silence_CorrCoef = np.zeros((1,Num_Trials))
 
     for k in range(Num_Trials):
-        Song_CorrCoef[0,k], _ = scipy.stats.pearsonr((CFT[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
-        Silence_CorrCoef[0,k], _ = scipy.stats.pearsonr((CFS[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
-
+        Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((CFT[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
+        Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((CFS[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
+    assert p_value1 < .05 and p_value2 < .05, 'P Value too high'
     Feat_Song_men2 = np.mean(Song_CorrCoef)
     Feat_Silence_men2 = np.mean(Silence_CorrCoef)
 
