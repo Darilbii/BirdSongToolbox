@@ -292,14 +292,18 @@ def Chan_v_Chan_Corr(Song_Templates):
     
     # Initiate List for all Matrixes
     CvC_Corrs = []
+    p_value_count = 0
     
     # Iterate over each Combination of Channels for each Correlation Matrixes
     for i in xrange(Num_Freqs):
         CvC_Holder = np.zeros([Num_Chans, Num_Chans])
         for j in xrange (Num_Chans):
             for k in xrange(Num_Chans):
-                CvC_Holder[j,k], _ =scipy.stats.pearsonr(Song_Templates[j][i], Song_Templates[k][i])
+                CvC_Holder[j,k], p_value =scipy.stats.pearsonr(Song_Templates[j][i], Song_Templates[k][i])
+                if p_value > .05:
+                    p_value_count =+1
         CvC_Corrs.append(CvC_Holder)
+        print 'Number of Bad P-Values: '+ str(p_value_count)
     return CvC_Corrs
 
 def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False):
