@@ -47,14 +47,24 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
 
     Song_CorrCoef = np.zeros((1,Num_Trials))
     Silence_CorrCoef = np.zeros((1,Num_Trials))
+    
+    P_Value_Counter_Song = 0 # TODO: Evalute P_Value Handling
+    P_Value_Counter_Silence = 0 # TODO: Evalute P_Value Handling
 
     for k in range(Num_Trials):
         Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((CFT[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
         Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((CFS[CH_Sel][FREQ_SEL][:,k]),(Template[CH_Sel][FREQ_SEL][:,0]))
-    assert p_value1 < .05 and p_value2 < .05, 'P Value too high, Song P_Value = '+ str(p_value1)+' Silence P_Value = '+ str(p_value2)
+        if p_value1 > .05:
+    #         print 'P Value too high, Song P_Value = '+ str(p_value1)
+            P_Value_Counter_Song = P_Value_Counter_Song + 1
+        if p_value2 > .05:
+    #         print 'P Value too high, Silence P_Value = '+ str(p_value2)
+            P_Value_Counter_Silence = P_Value_Counter_Silence + 1
     Feat_Song_men2 = np.mean(Song_CorrCoef)
     Feat_Silence_men2 = np.mean(Silence_CorrCoef)
-
+    # TODO: Review this Handling of P-Values
+    print 'Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song)
+    print 'Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence)
     plt.figure(figsize = (8,7))
     plt.title('Correlation (Channel %d Frequency Band= %d-%d)' %(CH_Sel, Bottom[FREQ_SEL], Top[FREQ_SEL] ))
     plt.axvline(x=Feat_Song_men2, color = 'coral', linewidth='4')
@@ -150,7 +160,8 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
     #3. Initiat Seperate List for Song and Silence
     Chan_Corr_Song = []
     Chan_Corr_Silence = []
-    
+    P_Value_Counter_Song = 0 # TODO: Evalute P_Value Handling
+    P_Value_Counter_Silence = 0 # TODO: Evalute P_Value Handling
 
     #4. Meat of Function
     for CH_Sel in xrange(Num_Channels):  
@@ -165,7 +176,12 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
             for k in xrange(len(Trial_Index)):
                 Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((Channel_Freq_Song[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
                 Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((Channel_Freq_Silence[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
-                assert p_value1 < .05 and p_value2< .05, 'P Value too high, Song P_Value = '+ str(p_value1)+' Silence P_Value = '+ str(p_value2)
+                if p_value1 > .05:
+#                     print 'P Value too high, Song P_Value = '+ str(p_value1)
+                    P_Value_Counter_Song = P_Value_Counter_Song + 1
+                if p_value2 > .05:
+#                     print 'P Value too high, Silence P_Value = '+ str(p_value2)
+                    P_Value_Counter_Silence = P_Value_Counter_Silence + 1
         
             #4.3 Find Difference between Edges to Determine Overlap
             Feat_Seperation_Edges_Corr[CH_Sel,FREQ_SEL] = find_edges(np.median(Song_CorrCoef), np.median(Silence_CorrCoef), Song_CorrCoef, Silence_CorrCoef) # Store Edge Overlap Result
@@ -186,6 +202,8 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
         #5. Optionally Print Results
     if Plot ==True:
         plot_corr_seperation(Feat_Seperation_Norm_Corr, Top, Bottom, Num_Channels, Num_Freqs)
+        print 'Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song)
+        print 'Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence)
     return Feat_Seperation_Norm_Corr, Feat_Seperation_Edges_Corr,
                                               
                                               
