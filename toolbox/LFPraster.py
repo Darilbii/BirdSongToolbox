@@ -15,6 +15,7 @@ import ipywidgets as widgets
 
 # Chosen_Index & Index
 #*Deprecated overall Chosen
+
 def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, Tr_Len, Gap_Len, Plot_Type= 'Raster', Marker = False, Mark = 0 ):
     ''' Overall Ploting Function for Exploring the Context Features of LFP. Plots Overlaping trials of LFP based on Combination of Hand Labels
     
@@ -32,6 +33,7 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
         Plot_Type
     Returns:
     --------
+    
     '''
     # Input: Neural, Chosen, Index, Top, Bottom
     # Sn_Len, Tr_Len, Designated Index, Top, Bottom, 
@@ -87,13 +89,14 @@ def plot_audio(Audio, Chosen, Index, Channel,Tr_Len, Gap_Len, ax, colors):
     ax[0].set_ylabel('Frequency [Hz]')
     
     for i in range(len(Index) -1): # For Range of Indexed Motifs minus 1
-        ax[0].plot(Audio[Index[i]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-') 
+        ax[0].plot(Audio[Index[i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-') 
     # Save Last Index to Handle the Labels for Legend
     ax[0].plot(Audio[Index[len(Index)-1]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
     
+# TODO: Plot_audio_DEV does not work (I Think). I need to review the indexing of the Index (Should be converted to 0 indexing)
 def plot_audio_DEV(Audio, Chosen, Index, Channel,Tr_Len, Gap_Len, ax, colors):
     '''Plot Overalapping Audio'''
     # 4: Plot Audio
@@ -117,11 +120,12 @@ def plot_raster(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len, Gap_Le
     # 5: Plot Features
     for l in xrange(0, len(Chosen)):     # Num of Selected Indexes Must be Dynamic
         for i in xrange(len(Index[l]) -1): # For Range of Indexed Motifs minus 1
-            ax[1].plot(Neural[Index[l][i]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-') 
+            ax[1].plot(Neural[Index[l][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-') 
         # Save Last Index to Handle the Labels for Legend
-        ax[1].plot(Neural[Index[l][-1]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l]) 
+        ax[1].plot(Neural[Index[l][-1]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l]) 
     ax[1].set_xlim(0, (Tr_Len*3))
 
+# TODO: Plot_raster_single does not work (I Think). I need to review the indexing of the Index (Should be converted to 0 indexing)
 def plot_raster_single(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len, Gap_Len, ax, colors):
     ''' Plots a overlapping view of LFP Activity (Overalapping Indexs)
     ''' 
@@ -161,10 +165,14 @@ def Time_Markers(Tr_Len, ax):
     ax[1].axvline(x = Tr_Len, color = 'red')
     ax[1].axvline(x = Tr_Len*2, color = 'red')
     
+    
+
+## Below is The Interactive GUI Functions in this Package
+
 def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE):
     
     
-    
+    # Widget for Channel Select
     Chan_widget = widgets.IntSlider(value=7, min=0, max= Num_Chan-1, step=1,
                       description='Channel:',
                       disabled=False,
@@ -173,6 +181,8 @@ def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE)
                       readout=True,
                       readout_format='d'
                      )
+    
+    # Widget for Frequency Selection
     Freq_widget = widgets.IntSlider(value=0, min=0, max= len(Top)-1, step=1,
                       description='Frequency Band:',
                       disabled=False,
@@ -182,11 +192,13 @@ def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE)
                       readout_format='d'
                      )
     
+    # Not Sure
     Index_widget = widgets.Dropdown(options={'One': 1, 'Two': 2, 'Three': 3},
                                     value=2,
                                     description='Number:',
                                 )
     
+    # Widgets for User Marker (Consider Deprecating for Speed)
     HandMark_Widget = widgets.IntSlider(value=0, min=0, max= (Tr_Len*3), step=1,
                       description='User Marker:',
                       disabled=False,
@@ -196,6 +208,7 @@ def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE)
                       readout_format='d'
                      )
     
+    # Widget for Including Markers for Onset for Behavior of Interest
     Mark_widget = widgets.ToggleButton(
                                         value=True,
                                         description='With Markers',
@@ -205,6 +218,7 @@ def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE)
                                         icon='check'
                                     )
     
+    # Widget for Selecting what type of Behavior to Visualize
     Index_widget = widgets.SelectMultiple(options=['Good Motifs',
                                                    'Good First Motifs',
                                                    'Good Middle Motifs',
@@ -243,6 +257,18 @@ def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE)
     
     
 def make_index_dict(INSTANCE):
+    ''' Helper Function to Convert the Particular Recording Days Special Labels into a Complete Dictionary of Labels
+    
+    Parameters:
+    -----------
+        INSTANCE: Import Class
+        
+    returns:
+    --------
+        label_indes: dict
+            
+    
+    '''
     label_index = {'Good First Motifs': list(INSTANCE.First_Motifs),
                    'Good Motifs': list(INSTANCE.Good_Motifs),
                    'Bad Full Motifs': list(INSTANCE.Bad_Motifs), 
