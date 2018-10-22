@@ -96,7 +96,7 @@ def plot_audio(Audio, Index,Tr_Len, Gap_Len, ax):
     for i in range(len(Index[0]) -1): # For Range of Indexed Motifs minus 1
         ax[0].plot(Audio[Index[0][i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-')
     # Save Last Index to Handle the Labels for Legend
-    ax[0].plot(Audio[Index[-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
+    ax[0].plot(Audio[Index[0][-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
