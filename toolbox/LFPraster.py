@@ -23,8 +23,11 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
     -----------
         Neural, 
         Audio, 
-        Chosen_Index, 
-        Index, 
+        Chosen_Index: str
+              Options: ['Good Motifs', 'Good First Motifs', 'Good Middle Motifs', 'Good Last Motif', 'All First Motifs',
+               'All Last Motifs', 'Last Syllable Dropped', 'Bad Full Motifs']
+        Index: dict
+            Dictionary of all of the possible context labels of the motif at the center of the Epoch
         Channel, 
         Top, 
         Bottom, 
@@ -43,8 +46,8 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
     fig.suptitle('LFP of Channel %d during all Motifs'%(Channel),y= 1.12, size= 30)
     colors = ['k','g','r','y','c','m', 'maroon','brown', 'indigo','lime']
     
-    Chosen_Index = list(Chosen_Index)
-    Index_List = handle_index_list(Chosen_Index, Index)
+    Chosen_Index = [Chosen_Index]
+    Index_List = handle_index_list(Chosen_Index, Index) # The Selected Indexes in a List format
 
     if type(Index_List)!=list:
         Problem, Name = Index_List
@@ -54,9 +57,9 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
     
     # 4: Plot Audio
     if len(Chosen_Index)==1:
-        plot_audio(Audio, Chosen_Index, Index_List[0], Channel, Tr_Len, Gap_Len, ax = ax, colors = colors)
+        plot_audio(Audio, Index_List, Tr_Len, Gap_Len, ax = ax)
     if len(Chosen_Index)!=1:
-        plot_audio_DEV(Audio, Chosen_Index, Index_List, Channel, Tr_Len, Gap_Len, ax = ax, colors = colors)
+        plot_audio_DEV(Audio, Chosen_Index, Index_List, Tr_Len, Gap_Len, ax = ax, colors = colors)
     
     if Plot_Type=='Raster':
         if len(Chosen_Index)==1:
@@ -76,37 +79,39 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
 def handle_index_list(Chosen_Index, Index):
     '''Creates List of the Chosen Label Indexs for Viewing'''
     Index_List = []
-    
+
+    assert isinstance(Index, dict), "Index isn't type dict"
     for i in xrange(len(Chosen_Index)):
         Index_List.append(Index[Chosen_Index[i]])
         if len(Index[Chosen_Index[i]]) < 1:
             return ('Empty Index Named:', Chosen_Index[i])
     return Index_List
-        
-def plot_audio(Audio, Chosen, Index, Channel,Tr_Len, Gap_Len, ax, colors):
+
+#TODO: Change Name of plot_audio tp plot_audio_single
+def plot_audio(Audio, Index,Tr_Len, Gap_Len, ax):
     '''Plot Overalapping Audio'''
     # 4: Plot Audio
     ax[0].set_ylabel('Frequency [Hz]')
     
-    for i in range(len(Index) -1): # For Range of Indexed Motifs minus 1
-        ax[0].plot(Audio[Index[i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-') 
+    for i in range(len(Index[0]) -1): # For Range of Indexed Motifs minus 1
+        ax[0].plot(Audio[Index[0][i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-')
     # Save Last Index to Handle the Labels for Legend
-    ax[0].plot(Audio[Index[len(Index)-1]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
+    ax[0].plot(Audio[Index[-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
     
 # TODO: Plot_audio_DEV does not work (I Think). I need to review the indexing of the Index (Should be converted to 0 indexing)
-def plot_audio_DEV(Audio, Chosen, Index, Channel,Tr_Len, Gap_Len, ax, colors):
+def plot_audio_DEV(Audio, Chosen, Index,Tr_Len, Gap_Len, ax, colors):
     '''Plot Overalapping Audio'''
     # 4: Plot Audio
     ax[0].set_ylabel('Frequency [Hz]')
     
     for l in xrange(0, len(Chosen)):     # Num of Selected Indexes Must be Dynamic
-        for i in range(len(Index[l]) -1): # For Range of Indexed Motifs minus 1
-            ax[0].plot(Audio[Index[l][i]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', color = colors[l]) 
+        for i in range(len(Index[0][l]) -1): # For Range of Indexed Motifs minus 1
+            ax[0].plot(Audio[Index[0][l][i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', color = colors[l])
         # Save Last Index to Handle the Labels for Legend
-        ax[0].plot(Audio[Index[l][len(Index[l])-1]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-',  color = colors[l])
+        ax[0].plot(Audio[Index[0][l][-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-',  color = colors[l])
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
@@ -119,10 +124,10 @@ def plot_raster(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len, Gap_Le
     
     # 5: Plot Features
     for l in xrange(0, len(Chosen)):     # Num of Selected Indexes Must be Dynamic
-        for i in xrange(len(Index[l]) -1): # For Range of Indexed Motifs minus 1
-            ax[1].plot(Neural[Index[l][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-') 
+        for i in xrange(len(Index[0][l]) -1): # For Range of Indexed Motifs minus 1
+            ax[1].plot(Neural[Index[0][l][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-')
         # Save Last Index to Handle the Labels for Legend
-        ax[1].plot(Neural[Index[l][-1]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l]) 
+        ax[1].plot(Neural[Index[0][l][-1]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l])
     ax[1].set_xlim(0, (Tr_Len*3))
 
 # TODO: Plot_raster_single does not work (I Think). I need to review the indexing of the Index (Should be converted to 0 indexing)
@@ -132,10 +137,11 @@ def plot_raster_single(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len,
 
     
     # 5: Plot Features
-    for i in xrange(len(Index[0])): # For Range of Indexed Motifs minus 1
-        ax[1].plot(Neural[Index[0][i]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], linestyle='-') 
+    for i in xrange(len(Index)):
+        ax[1].plot(Neural[Index[0][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], linestyle='-')
     ax[1].set_xlim(0, (Tr_Len*3))
-    
+
+#TODO: Deprecate the Frequency Part of the GUI
 def plot_raster_Frequency(Neural, Chosen, Index, Channel, Top, Bottom, Tr_Len, Gap_Len, ax, colors):
     ''' Plots a overlapping view of LFP Activity (Overalaping Frequecny Bands)
     
@@ -170,7 +176,24 @@ def Time_Markers(Tr_Len, ax):
 ## Below is The Interactive GUI Functions in this Package
 
 def Overlap_GUI(Neural, Audio, Num_Chan, Top, Bottom, Tr_Len, Gap_Len, INSTANCE):
-    
+    '''
+
+    Note:
+    -----
+        Choosen_Index is a String
+        Index is a constructed Dictionary of all of the Motif Context Labels
+
+    :param Neural:
+    :param Audio:
+    :param Num_Chan:
+    :param Top:
+    :param Bottom:
+    :param Tr_Len:
+    :param Gap_Len:
+    :param INSTANCE:
+
+    :return:
+    '''
     
     # Widget for Channel Select
     Chan_widget = widgets.IntSlider(value=7, min=0, max= Num_Chan-1, step=1,

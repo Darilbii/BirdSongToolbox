@@ -448,6 +448,9 @@ class Pipeline():
     .Song_Neural: list
         User Designated Neural data during Song Trials
         [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
+
+        If Bandpassed:
+            [Number of Trials]-> [Ch] -> [Trial Length (Samples @ User Designated Sample Rate) x Freq_Bands]
     .Song_Audio: list
         Audio of Trials, centered on motif
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
