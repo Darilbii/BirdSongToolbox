@@ -94,9 +94,9 @@ def plot_audio(Audio, Index,Tr_Len, Gap_Len, ax):
     ax[0].set_ylabel('Frequency [Hz]')
     
     for i in range(len(Index[0]) -1): # For Range of Indexed Motifs minus 1
-        ax[0].plot(Audio[Index[0][i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-')
+        ax[0].plot(Audio[Index[0][i]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-')
     # Save Last Index to Handle the Labels for Legend
-    ax[0].plot(Audio[Index[0][-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
+    ax[0].plot(Audio[Index[0][-1]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', )
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
@@ -109,9 +109,9 @@ def plot_audio_DEV(Audio, Chosen, Index,Tr_Len, Gap_Len, ax, colors):
     
     for l in xrange(0, len(Chosen)):     # Num of Selected Indexes Must be Dynamic
         for i in range(len(Index[0][l]) -1): # For Range of Indexed Motifs minus 1
-            ax[0].plot(Audio[Index[0][l][i]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', color = colors[l])
+            ax[0].plot(Audio[Index[0][l][i]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-', color = colors[l])
         # Save Last Index to Handle the Labels for Legend
-        ax[0].plot(Audio[Index[0][l][-1]-1][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-',  color = colors[l])
+        ax[0].plot(Audio[Index[0][l][-1]][((Gap_Len/2)-Tr_Len)*30:((Gap_Len/2)+(Tr_Len*2))*30,0], linestyle='-',  color = colors[l])
     ax[0].set_title('Pressure Wave of Motif' )
     ax[0].set_ylabel('Arbitruary Units')
     ax[0].set_xlim(0, (Tr_Len*3)*30)
@@ -125,9 +125,9 @@ def plot_raster(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len, Gap_Le
     # 5: Plot Features
     for l in xrange(0, len(Chosen)):     # Num of Selected Indexes Must be Dynamic
         for i in xrange(len(Index[0][l]) -1): # For Range of Indexed Motifs minus 1
-            ax[1].plot(Neural[Index[0][l][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-')
+            ax[1].plot(Neural[Index[0][l][i]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-')
         # Save Last Index to Handle the Labels for Legend
-        ax[1].plot(Neural[Index[0][l][-1]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l])
+        ax[1].plot(Neural[Index[0][l][-1]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], color= colors[l], linestyle='-', label = Chosen[l])
     ax[1].set_xlim(0, (Tr_Len*3))
 
 # TODO: Plot_raster_single does not work (I Think). I need to review the indexing of the Index (Should be converted to 0 indexing)
@@ -138,7 +138,7 @@ def plot_raster_single(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len,
     
     # 5: Plot Features
     for i in xrange(len(Index[0])):
-        ax[1].plot(Neural[Index[0][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], linestyle='-')
+        ax[1].plot(Neural[Index[0][i]][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], linestyle='-')
     ax[1].set_xlim(0, (Tr_Len*3))
     
 
