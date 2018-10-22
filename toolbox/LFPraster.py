@@ -137,7 +137,7 @@ def plot_raster_single(Neural, Chosen, Index, Freq, Channel, Top, Bottom,Tr_Len,
 
     
     # 5: Plot Features
-    for i in xrange(len(Index)):
+    for i in xrange(len(Index[0])):
         ax[1].plot(Neural[Index[0][i]-1][Channel][(Gap_Len/2)-Tr_Len:(Gap_Len/2)+(Tr_Len*2), Freq], linestyle='-')
     ax[1].set_xlim(0, (Tr_Len*3))
 
