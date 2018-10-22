@@ -23,7 +23,7 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
     -----------
         Neural, 
         Audio, 
-        Chosen_Index: str
+        Chosen_Index: tuple of str
               Options: ['Good Motifs', 'Good First Motifs', 'Good Middle Motifs', 'Good Last Motif', 'All First Motifs',
                'All Last Motifs', 'Last Syllable Dropped', 'Bad Full Motifs']
         Index: dict
@@ -46,7 +46,7 @@ def index_view(Neural, Audio, Chosen_Index, Index, Freq, Channel, Top, Bottom, T
     fig.suptitle('LFP of Channel %d during all Motifs'%(Channel),y= 1.12, size= 30)
     colors = ['k','g','r','y','c','m', 'maroon','brown', 'indigo','lime']
     
-    Chosen_Index = [Chosen_Index]
+    Chosen_Index = list(Chosen_Index)
     Index_List = handle_index_list(Chosen_Index, Index) # The Selected Indexes in a List format
 
     if type(Index_List)!=list:
