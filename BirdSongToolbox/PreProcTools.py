@@ -136,12 +136,12 @@ def Create_Bands(StepSize=20, Lowest=0, Slide=False, Suppress=False):
 
     ## The Following 5 lines are for Visual Sanity Checks
     if Suppress == False:
-        print 'Number of Bins:' + str(B)
+        print('Number of Bins:' + str(B))
 
-        print 'Roofs:'
-        print Top
-        print 'Floors:'
-        print Bottom
+        print('Roofs:')
+        print(Top)
+        print('Floors:')
+        print(Bottom)
     return Top, Bottom
 
 
@@ -199,10 +199,10 @@ def Sliding_BPF(Channels, SN_L=int, Gp_L=int, StepSize=20, Lowest=0, Order=175, 
     Ch_Num = len(Channels[0, :])
 
     ## Band Pass and Isolate each Frequency Band
-    for i in xrange(Ch_Num):
+    for i in range(Ch_Num):
         Test = Channels[:, i]  # Grab Raw Signal of Select Channel
         Freq_Bins_Holder = np.zeros([SN_L + Gp_L, B])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
-        for l in xrange(0, B):
+        for l in range(0, B):
             if FiltFilt == True:
                 Freq_Bins_Holder[:, l] = bandpass_filter(Test, Bottom[l], Top[l], fs, order_num=Order)
             if FiltFilt == False:
@@ -273,10 +273,10 @@ def Generic_BPF(Channels, SN_L=int, Gp_L=int, Brain_waves=None, Order=175, fs=10
     Ch_Num = len(Channels[0, :])
 
     ## Band Pass and Isolate each Frequency Band
-    for i in xrange(Ch_Num):
+    for i in range(Ch_Num):
         Test = Channels[:, i]  # Grab Raw Signal of Select Channel
         Freq_Bins_Holder = np.zeros([SN_L + Gp_L, B])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
-        for l in xrange(0, B):
+        for l in range(0, B):
             if FiltFilt == True:
                 Freq_Bins_Holder[:, l] = bandpass_filter(Test, Bottom[l], Top[l], fs, order_num=Order)
             if FiltFilt == False:
@@ -348,11 +348,11 @@ def RR_Neural(Frequencies, Good_Channels, Lowest=0, StepSize=20, SN_L=int, Gp_L=
     Avg_Freq_Bins_LFP = np.zeros([SN_L + Gp_L, B])  # Initiate the Memory for the Mean Array
 
     # 1.2 Active Step
-    for l in xrange(0, B):
-        Ch_Freq_Bins_Holder = np.zeros(
-            [SN_L + Gp_L, Z])  # Initiate Memory for Holding 1 Frequency Band for All Channels
+    for l in range(0, B):
+        #TODO: Check the dimensions of Ch_Freq_Bins_Holder particularly the one created by len(Good_Channels. It was just Z but it was undetermined what that was supposed to be
+        Ch_Freq_Bins_Holder = np.zeros([SN_L + Gp_L, len(Good_Channels)])  # Initiate Memory for Holding 1 Frequency Band for All Channels
 
-        for i in xrange(len(Good_Channels)):  # Iterate over List of Good Channels
+        for i in range(len(Good_Channels)):  # Iterate over List of Good Channels
             Holder = Frequencies[Good_Channels[i]]  # Create Temporary Copy(Soft) of Frequencies
             Ch_Freq_Bins_Holder[:, i] = Holder[:, l]  # Store Specified Frequency of the Iterated Channel
         Avg_Freq_Bins_LFP[:, l] = Ch_Freq_Bins_Holder.mean(axis=1)  # Take Mean of Collective Frequencies Trace
@@ -384,11 +384,11 @@ def Good_Channel_Index(Num_of_Channels, Bad_Channels):
         List of Channels to use for Re-Referencing
     '''
     Available_Channels = np.arange(Num_of_Channels)  # Create List of Recording Channels
-    print 'All Channels:'
-    print Available_Channels
-    print 'All Good Channels:'
+    print('All Channels:')
+    print(Available_Channels)
+    print('All Good Channels:')
     Good_Channels = list(np.delete(Available_Channels, Bad_Channels))  # Remove Bad Channels from Total List of Channels
-    print Good_Channels
+    print(Good_Channels)
     return Good_Channels
 
 
@@ -469,7 +469,7 @@ def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silenc
     Chan_StdDev = []  # For Storing Standard Deviation
 
     # [2] Create Variable for Indexing Silence and Number of Bin
-    Silence_Index = random.sample(xrange(Numb_Silence),
+    Silence_Index = random.sample(range(Numb_Silence),
                                   Numb_Motifs)  # Create Index for Silence the same size as Numb_Motifs
 
     if Slide == False:
@@ -480,7 +480,7 @@ def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silenc
     # [3] Line Up all of the Frequencies across All Trials for that Channel
     for i in range(len(Frequencies_Song[0])):  # Index over each Channel
         Chan_Holder = np.zeros((1, len(binwidths)))
-        for k in xrange(Numb_Motifs):  # Index over each Motif Example
+        for k in range(Numb_Motifs):  # Index over each Motif Example
             Current_Chan_Song = Frequencies_Song[k][i]  # Grab Song Motifs
             Current_Chan_Silence = Frequencies_Silence[Silence_Index[k]][i]  # Grab Silence Examples
             Chan_Holder = np.concatenate((Chan_Holder, Current_Chan_Song), axis=0)  # Line Up all Song Trials
@@ -504,7 +504,7 @@ def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silenc
     Z_Scored_Data_Song = []  # For Z-scored Data
     Z_Scored_Data_Sqd_Song = []  # For sqd. Z-scored Data
 
-    for k in xrange(Numb_Motifs):  # Index over Motifs
+    for k in range(Numb_Motifs):  # Index over Motifs
         Current_Motif = Frequencies_Song[k]  # Copy Current Trials data (Soft)
         z_scores = []  # Create Empty List
         z_scores_Sqd = []  # Create Empty List
@@ -519,7 +519,7 @@ def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silenc
     ## Repeat for Silence
     Z_Scored_Data_Silence = []  # For Z-scored Data
     Z_Scored_Data_Sqd_Silence = []  # For sqd. Z-scored Data
-    for k in xrange(Numb_Motifs):  # Index over Motifs
+    for k in range(Numb_Motifs):  # Index over Motifs
         Current_Motif = Frequencies_Silence[k]  # Copy Current Trials data (Soft)
         z_scores = []  # Create Empty List
         z_scores_Sqd = []  # Create Empty List
@@ -546,7 +546,7 @@ def Smooth_data(Data, Numb_Motifs, Window=int):
 
     Smoothed_Data = []
 
-    for k in xrange(Numb_Motifs):  # Index for Motifs
+    for k in range(Numb_Motifs):  # Index for Motifs
         Current_Motif = Data[k]
         sel_smoothed = []
         for i in range(16):  # Index for Channels
@@ -633,7 +633,7 @@ def Prep_pipeline(Song_Data, Numb_Motifs, Silence_Data, Numb_Silence, Good_Chan,
     BPF_Motifs = []
     BPF_RR_Motifs = []
 
-    for i in xrange(Numb_Motifs):  # [x]Eventually Change Numb_Motifs to a Flexible Index of Good_Motifs
+    for i in range(Numb_Motifs):  # [x]Eventually Change Numb_Motifs to a Flexible Index of Good_Motifs
 
         # First: Sliding Band Pass Filters of All Motifs
         Sel_Freq, Top, Bottom = Sliding_BPF(Song_Data[i], SN_L=SN_L,
@@ -651,7 +651,7 @@ def Prep_pipeline(Song_Data, Numb_Motifs, Silence_Data, Numb_Silence, Good_Chan,
     BPF_Silence = []
     BPF_RR_Silence = []
 
-    for i in xrange(Numb_Silence):  # [x]Eventually Change Numb_Motifs to a Flexible Index of Good_Motifs
+    for i in range(Numb_Silence):  # [x]Eventually Change Numb_Motifs to a Flexible Index of Good_Motifs
 
         # First: Sliding Band Pass Filters of All Motifs
         Sel_Freq, Top, Bottom = Sliding_BPF(Silence_Data[i], SN_L=SN_L,

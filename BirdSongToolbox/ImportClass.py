@@ -151,7 +151,7 @@ class Import_PrePd_Data():
         Bad_Channels = {'z020': [2]}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
         Sample_Frequency = {'Raw': 30000, 'LPF': 30000,
                             'LPF_DS': 1000, }  # Dictionary of Possible Sample Frequencies (Samples per Second)
-        print '* Must Create a Table of Birds and Relevant Information on them *'  # To Make Sure I Return to This Idea in the Future
+        print('* Must Create a Table of Birds and Relevant Information on them *')  # To Make Sure I Return to This Idea in the Future
 
         # Validate Input is correct
         assert (self.bird_id in Song_Length.keys()) == True, 'The Bird: %s is not valid for Song_Length' % self.bird_id
@@ -183,7 +183,7 @@ class Import_PrePd_Data():
             self.Song_Neural = self.Get_LPF_Song(Prepd_ss_data_folder)
             self.Silence_Neural = self.Get_LPF_Silence(Prepd_ss_data_folder)
         else:
-            print 'Invalid Neural Data Type'
+            print('Invalid Neural Data Type')
 
     def Get_LPF_DS_Song(self, Prepd_ss_data_folder):
         '''Song: Store the Low Pass Filtered & Downsampled Neural Data
@@ -198,7 +198,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Song_LFP_DS']
         Numb_Motifs = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Motifs):
+        for i in range(0, Numb_Motifs):
             Song_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
         self.Num_Motifs = Numb_Motifs
@@ -218,7 +218,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Song_LFP']
         Numb_Motifs = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Motifs):
+        for i in range(0, Numb_Motifs):
             Song_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
         self.Num_Motifs = Numb_Motifs
@@ -238,7 +238,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Song_Raw']
         Numb_Motifs = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Motifs):
+        for i in range(0, Numb_Motifs):
             Song_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
         self.Num_Motifs = Numb_Motifs
 
@@ -254,7 +254,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Song_Audio']
 
         Song_Audio_Data = []
-        for i in xrange(0, self.Num_Motifs):
+        for i in range(0, self.Num_Motifs):
             Song_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
         self.Song_Audio = Song_Audio_Data
 
@@ -267,7 +267,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Silence_LFP_DS']
         Numb_Sil_Ex = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Sil_Ex):
+        for i in range(0, Numb_Sil_Ex):
             Silence_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
         self.Num_Silence = Numb_Sil_Ex
@@ -282,7 +282,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Silence_LFP']
         Numb_Sil_Ex = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Sil_Ex):
+        for i in range(0, Numb_Sil_Ex):
             Silence_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
         self.Num_Silence = Numb_Sil_Ex
@@ -301,7 +301,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Silence_Raw'];
         Numb_Sil_Ex = len(Mat_File_Filt)
 
-        for i in xrange(0, Numb_Sil_Ex):
+        for i in range(0, Numb_Sil_Ex):
             Silence_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
         self.Num_Silence = Numb_Sil_Ex
@@ -317,7 +317,7 @@ class Import_PrePd_Data():
         Mat_File_Filt = Mat_File['Silence_Audio'];
 
         Silence_Audio_Data = []
-        for i in xrange(0, self.Num_Silence):
+        for i in range(0, self.Num_Silence):
             Silence_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
         self.Silence_Audio = Silence_Audio_Data
 
@@ -337,7 +337,7 @@ class Import_PrePd_Data():
         assert self.Num_Motifs == Numb_Motifs
 
         # Store the Low Pass Filtered & Downsampled Neural Data
-        for i in xrange(0, self.Num_Motifs):
+        for i in range(0, self.Num_Motifs):
             Labels_Quality.append(np.transpose(Mat_File_Filt[i, 0]))
             Labels_Location.append(np.transpose(Mat_File_Filt[i, 1]))
             Labels_Syl_Drop.append(np.transpose(Mat_File_Filt[i, 2]))
@@ -365,7 +365,7 @@ class Import_PrePd_Data():
         Quality_Holder = np.zeros(len(self.Song_Quality))  # Allocate Memory Equal to Number of Motifs for Indexing
 
         # 1.2 Fill Logical Index for finding Good
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':  # Locate Each Good Label
                 Quality_Holder[i] = 1  # Create Index of Selected Label
 
@@ -392,7 +392,7 @@ class Import_PrePd_Data():
         First_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory size of Number of Motifs for Indexing
 
         # 2.2 Fill Logical for Good First Motifs
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':
                 if self.Song_Locations[i][0] == 'Beginning':  # Locate Desired Label Combination
                     First_Holder[i] = 1  # Mark them
@@ -419,7 +419,7 @@ class Import_PrePd_Data():
         Last_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory for Indexing
 
         # 3.2 Fill Logical for Good First Motifs
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':
                 if self.Song_Locations[i][0] == 'Ending':  # Locate Desired Label Combination
                     Last_Holder[i] = 1  # Mark them
@@ -446,7 +446,7 @@ class Import_PrePd_Data():
         All_Last_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory for Indexing
 
         # 3.2 Fill Logical for Good First Motifs
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Locations[i][0] == 'Ending':  # Locate Desired Label Combination
                 All_Last_Holder[i] = 1  # Mark them
         All_Last_Motifz = np.where(All_Last_Holder == 1)  # Create Index of Selected Label
@@ -473,7 +473,7 @@ class Import_PrePd_Data():
         Good_Mid_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory for Indexing
 
         # 3.2 Fill Logical for Good First Motifs
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':
                 if self.Song_Locations[i][0] != 'Ending' and self.Song_Locations[i][0] != 'Beginning':  # Locate Desired Label Combination
                     Good_Mid_Holder[i] = 1  # Mark them
@@ -503,7 +503,7 @@ class Import_PrePd_Data():
         Bad_NDS_Holder = np.zeros(len(self.Song_Syl_Drop))  # Allocate Memory for Indexing
 
         # 4.2 Fill Logical for Bad Motifs (No Dropped Syllables)
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Bad':
                 if self.Song_Syl_Drop[i][0] == 'None':  # Locate Desired Label Combination
                     Bad_NDS_Holder[i] = 1  # Mark them
@@ -529,7 +529,7 @@ class Import_PrePd_Data():
         LS_Drop_Holder = np.zeros(len(self.Song_Syl_Drop))  # Allocate Memory for Indexing
 
         # 5.2 Fill Logical for Bad Motifs (Last Syllable Dropped)
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Bad':
                 if self.Song_Syl_Drop[i][0] == 'Last Syllable':  # Locate Desired Label Combination
                     LS_Drop_Holder[i] = 1  # Mark them
@@ -578,18 +578,18 @@ class Import_PrePd_Data():
         Number of Examples of Silence
         Number of Good Trials
         '''
-        print 'Bird Id: ' + self.bird_id
-        print 'Recording Date: ' + self.date
-        print ''
-        print 'Stats:'
-        print '# of Motifs Total: ' + str(self.Num_Motifs)
-        print '# of Silences Total: ' + str(self.Num_Silence)
-        print '# of Good Motifs: ' + str(len(self.Good_Motifs))
-        print '# of Good First Motifs: ' + str(len(self.First_Motifs))
-        print '# of Bouts Total: ' + str(len(self.All_First_Motifs))
+        print('Bird Id: ' + self.bird_id)
+        print('Recording Date: ' + self.date)
+        print('')
+        print('Stats:')
+        print('# of Motifs Total: ' + str(self.Num_Motifs))
+        print('# of Silences Total: ' + str(self.Num_Silence))
+        print('# of Good Motifs: ' + str(len(self.Good_Motifs)))
+        print('# of Good First Motifs: ' + str(len(self.First_Motifs)))
+        print('# of Bouts Total: ' + str(len(self.All_First_Motifs)))
 
     def Help(self):
         ''' Describe the Function and Revelant tools for using it
         '''
-        print 'Hello Here is a walk through of this Function (Under Development)'
-        print 'The Initializing code does all of the Heavy Lifting If you would like more information use .Describe()'
+        print('Hello Here is a walk through of this Function (Under Development)')
+        print('The Initializing code does all of the Heavy Lifting If you would like more information use .Describe()')

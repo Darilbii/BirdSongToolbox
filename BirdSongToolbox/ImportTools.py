@@ -57,7 +57,7 @@ def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     Mat_File_Filt = Mat_File['Song_LFP_DS'];
     Numb_Motifs = len(Mat_File_Filt);
 
-    for i in xrange(0, Numb_Motifs):
+    for i in range(0, Numb_Motifs):
         Song_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
     ## Song: Store the Filtered Audio Data
@@ -68,7 +68,7 @@ def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     Mat_File_Filt = Mat_File['Song_Audio'];
 
     Song_Audio_Data = []
-    for i in xrange(0, Numb_Motifs):
+    for i in range(0, Numb_Motifs):
         Song_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
     ## Silence: Store the Low Pass Filtered & Downsampled Neural Data
@@ -80,7 +80,7 @@ def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     Mat_File_Filt = Mat_File['Silence_LFP_DS'];
     Numb_Sil_Ex = len(Mat_File_Filt);
 
-    for i in xrange(0, Numb_Sil_Ex):
+    for i in range(0, Numb_Sil_Ex):
         Silence_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
     ## Silence: Store the Filtered Audio Data
@@ -92,7 +92,7 @@ def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     Mat_File_Filt = Mat_File['Silence_Audio'];
 
     Silence_Audio_Data = []
-    for i in xrange(0, Numb_Sil_Ex):
+    for i in range(0, Numb_Sil_Ex):
         Silence_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
 
     # Store the Different Types of Labels into Seperate Lists
@@ -108,7 +108,7 @@ def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     Numb_Motifs = len(Mat_File_Filt);
 
     # Store the Low Pass Filtered & Downsampled Neural Data
-    for i in xrange(0, Numb_Motifs):
+    for i in range(0, Numb_Motifs):
         Labels_Quality.append(np.transpose(Mat_File_Filt[i, 0]))
         Labels_Location.append(np.transpose(Mat_File_Filt[i, 1]))
         Labels_Syl_Drop.append(np.transpose(Mat_File_Filt[i, 2]))
@@ -152,7 +152,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     Quality_Holder = np.zeros(Q_Length)  # Allocate Memory for Indexing
 
     # 1.2 Fill Logical Index for finding Good
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Quality[i][0] == 'Good':  # Locate Each Good Label
             Quality_Holder[i] = 1  # Create Index of Selected Label
 
@@ -166,7 +166,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     First_Holder = np.zeros(Location_Length)  # Allocate Memory for Indexing
 
     # 2.2 Fill Logical for Good First Motifs
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Quality[i][0] == 'Good':
             if Location[i][0] == 'Beginning':  # Locate Desired Label Combination
                 First_Holder[i] = 1  # Mark them
@@ -180,7 +180,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     Last_Holder = np.zeros(Location_Length)  # Allocate Memory for Indexing
 
     # 3.2 Fill Logical for Good First Motifs
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Quality[i][0] == 'Good':
             if Location[i][0] == 'Ending':  # Locate Desired Label Combination
                 Last_Holder[i] = 1  # Mark them
@@ -194,7 +194,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     Bad_NDS_Holder = np.zeros(D_Syl_Length)  # Allocate Memory for Indexing
 
     # 4.2 Fill Logical for Bad Motifs (No Dropped Syllables)
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Quality[i][0] == 'Bad':
             if Dropped_Syl[i][0] == 'None':  # Locate Desired Label Combination
                 Bad_NDS_Holder[i] = 1  # Mark them
@@ -206,7 +206,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     LS_Drop_Holder = np.zeros(D_Syl_Length)  # Allocate Memory for Indexing
 
     # 5.2 Fill Logical for Bad Motifs (Last Syllable Dropped)
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Quality[i][0] == 'Bad':
             if Dropped_Syl[i][0] == 'Last Syllable':  # Locate Desired Label Combination
                 LS_Drop_Holder[i] = 1  # Mark them
@@ -220,7 +220,7 @@ def Grab_Days_Labels(Quality, Location, Dropped_Syl):
     All_First_Holder = np.zeros(Location_Length)  # Allocate Memory for Indexing
 
     # 6.2 Fill Logical for All First Motifs
-    for i in xrange(Q_Length):
+    for i in range(Q_Length):
         if Location[i][0] == 'Beginning':  # Locate Desired Label Combination
             All_First_Holder[i] = 1  # Mark them
     All_First_Motifz = np.where(All_First_Holder == 1)  # Create Index of Selected Label

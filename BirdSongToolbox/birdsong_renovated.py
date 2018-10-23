@@ -63,8 +63,8 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     Feat_Song_men2 = np.mean(Song_CorrCoef)
     Feat_Silence_men2 = np.mean(Silence_CorrCoef)
     # TODO: Review this Handling of P-Values
-    print 'Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song)
-    print 'Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence)
+    print('Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song))
+    print('Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence))
     plt.figure(figsize = (8,7))
     plt.title('Correlation (Channel %d Frequency Band= %d-%d)' %(CH_Sel, Bottom[FREQ_SEL], Top[FREQ_SEL] ))
     plt.axvline(x=Feat_Song_men2, color = 'coral', linewidth='4')
@@ -164,8 +164,8 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
     P_Value_Counter_Silence = 0 # TODO: Evalute P_Value Handling
 
     #4. Meat of Function
-    for CH_Sel in xrange(Num_Channels):  
-        for FREQ_SEL in xrange(len(Top)):
+    for CH_Sel in range(Num_Channels):
+        for FREQ_SEL in range(len(Top)):
             #4.1 Create Memory Space
             Song_CorrCoef = np.zeros((1,len(Trial_Index)))
             Silence_CorrCoef = np.zeros((1,len(Trial_Index)))
@@ -173,7 +173,7 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
             Freq_Holder_Silence= []
 
             #4.2 For Each Trial Find the Correlation Coefficients
-            for k in xrange(len(Trial_Index)):
+            for k in range(len(Trial_Index)):
                 Song_CorrCoef[0,k], p_value1 = scipy.stats.pearsonr((Channel_Freq_Song[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
                 Silence_CorrCoef[0,k], p_value2 = scipy.stats.pearsonr((Channel_Freq_Silence[CH_Sel][FREQ_SEL][:,k]),(Match_Test[CH_Sel][FREQ_SEL][:,0]))
                 if p_value1 > .05:
@@ -202,8 +202,8 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
         #5. Optionally Print Results
     if Plot ==True:
         plot_corr_seperation(Feat_Seperation_Norm_Corr, Top, Bottom, Num_Channels, Num_Freqs)
-        print 'Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song)
-        print 'Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence)
+        print('Number of Song P-Values Greater than .05: ' + str(P_Value_Counter_Song))
+        print('Number of Silence P-Values Greater than .05: ' + str(P_Value_Counter_Silence))
     return Feat_Seperation_Norm_Corr, Feat_Seperation_Edges_Corr,
                                               
                                               
@@ -256,7 +256,7 @@ def plot_corr_seperation(NormSep_Corr, Top, Bottom, Num_Channels, Num_Features):
 
     X_labels = []
 
-    for i in xrange(len(Top)):
+    for i in range(len(Top)):
         X_labels.append( str(Bottom[i]) + '-' +  str(Top[i]))
 
     plt.figure(figsize=(15,15))
@@ -264,8 +264,8 @@ def plot_corr_seperation(NormSep_Corr, Top, Bottom, Num_Channels, Num_Features):
     plt.imshow(NormSep_Corr, cmap='hot',aspect='auto', interpolation='nearest', origin='lower')#, vmax=3)##### Account for Scaling
     plt.xlabel('Frequency'), plt.ylabel('Channel')
     plt.title('Normalized Distance between Means')
-    plt.yticks(range(Num_Channels), range(Num_Channels)) #Dynamic Control of Number of Freq Bands
-    plt.xticks(range(Num_Features), X_labels) #Dynamic Control of Number of Channels
+    plt.yticks(list(range(Num_Channels)), list(range(Num_Channels))) #Dynamic Control of Number of Freq Bands
+    plt.xticks(list(range(Num_Features)), X_labels) #Dynamic Control of Number of Channels
     plt.colorbar()
     
 
@@ -295,15 +295,15 @@ def Chan_v_Chan_Corr(Song_Templates):
     p_value_count = 0
     
     # Iterate over each Combination of Channels for each Correlation Matrixes
-    for i in xrange(Num_Freqs):
+    for i in range(Num_Freqs):
         CvC_Holder = np.zeros([Num_Chans, Num_Chans])
-        for j in xrange (Num_Chans):
-            for k in xrange(Num_Chans):
+        for j in range (Num_Chans):
+            for k in range(Num_Chans):
                 CvC_Holder[j,k], p_value =scipy.stats.pearsonr(Song_Templates[j][i], Song_Templates[k][i])
                 if p_value > .05:
                     p_value_count =+1
         CvC_Corrs.append(CvC_Holder)
-        print 'Number of Bad P-Values: '+ str(p_value_count)
+        print('Number of Bad P-Values: '+ str(p_value_count))
     return CvC_Corrs
 
 def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False):
@@ -325,9 +325,9 @@ def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False)
     
     '''
   
-    X_labels = [x +1 for x in xrange(len(All_CvC_Corr[0]))] #Dynamic Control of Number of Channels
+    X_labels = [x +1 for x in range(len(All_CvC_Corr[0]))] #Dynamic Control of Number of Channels
     
-    Freq_label = [str(Bottom[i]) + '-' +  str(Top[i]) for i in xrange(len(Top))]
+    Freq_label = [str(Bottom[i]) + '-' +  str(Top[i]) for i in range(len(Top))]
     plt.figure(figsize=(10,8))
 
     if Absolute == False:
@@ -337,8 +337,8 @@ def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False)
     
     plt.xlabel('Channel', size = 16), plt.ylabel('Channel', size = 16)
     plt.title('Correlation between Channels Frequency Band (%s)' %(Freq_label[Selected_Freq]), size=25)
-    plt.yticks(range(len(X_labels)), X_labels, size = 12)
-    plt.xticks(range(len(X_labels)), X_labels, size = 12)
+    plt.yticks(list(range(len(X_labels))), X_labels, size = 12)
+    plt.xticks(list(range(len(X_labels))), X_labels, size = 12)
     plt.colorbar()
 
 ## Potentially Add Function that RE-organize the Plot into order of Shanks and Depth
@@ -400,7 +400,7 @@ def Import_Probe_Geometry(bird_id = 'z020', sess_name = 'day-2016-06-02'):
     kwd_files = [f for f in os.listdir(kwd_file_folder) if f.endswith('.kwd')]
     assert(len(kwd_files)==1)
     kwd_file = kwd_files[0]
-    print kwd_file # Sanity Check to Make Sure You are working with the Correct File
+    print(kwd_file) # Sanity Check to Make Sure You are working with the Correct File
     
     Location_files = [f for f in os.listdir(kwd_file_folder) if f.endswith('.npy')]
     

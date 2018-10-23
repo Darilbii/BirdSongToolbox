@@ -4,6 +4,7 @@
 import os
 import pickle
 from six import exec_
+import numpy as np
 
 
 # These Functions are used for Importing from the PRB file and outputting it in a useful manner
@@ -43,11 +44,11 @@ def Prep_Probe_Geometry(bird_id = 'z020', date ='day-2016-06-03'):
     prb_files = [f for f in os.listdir(prb_file_folder) if f.endswith('.prb')]
     assert len(prb_files) > 0, '''.prb file doesn't exist in folder '''  
     
-    print prb_files[0] # To see if printed in order
-    print len(prb_files)
+    print(prb_files[0]) # To see if printed in order
+    print(len(prb_files))
     
     Chan_groups = {}
-    for i in xrange(len(prb_files)):
+    for i in range(len(prb_files)):
         with open(os.path.join(prb_file_folder, prb_files[i]), 'r') as f:
             contents = f.read()
         metadata = {}
@@ -86,15 +87,15 @@ def get_chan_geometry(Probe):
     '''
     geometry = {}
     First_Level = Probe.keys()
-    for i in xrange(len(First_Level)): # Incase of Multiple Probe Files
+    for i in range(len(First_Level)): # Incase of Multiple Probe Files
         Second_Level = Probe[First_Level[i]].keys()
-        for j in xrange(len(Second_Level)):
+        for j in range(len(Second_Level)):
             geometry.update({k: v for (k,v) in Probe[First_Level[i]][Second_Level[j]]['geometry'].items()})
 
     return geometry
 
 
-def save_Probe_Geometry(Probe_Geomtry, bird_id = str):
+def save_Probe_Geometry(Probe_Geometry, bird_id = str):
     ''' Save Probe geometry using Pickle
     
     Parameters:
@@ -185,7 +186,7 @@ def convert_probe_to_array(Probe_dict, Num_Chans):
     
     Probe_map = np.ones((Num_Chans, 2))
     Channels = Probe_dict.keys()
-    for i in xrange(len(Channels)):
+    for i in range(len(Channels)):
         if Channels[i] in Probe_dict.keys():
             Probe_map[Channels[i], 0], Probe_map[Channels[i], 1] = Probe_dict[Channels[i]]
 
@@ -215,7 +216,7 @@ def convert_probe_to_dict(Probe_array):
     
     Probe_map = {}
     
-    for i in xrange(len(Probe_array)):
+    for i in range(len(Probe_array)):
         Probe_map[i] = (Probe_array[i,0], Probe_array[i,1])
 
 

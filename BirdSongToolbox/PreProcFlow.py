@@ -37,7 +37,7 @@ works with the Python Environment
     kwd_files = [f for f in os.listdir(kwd_file_folder) if f.endswith('.kwd')]
     assert (len(kwd_files) == 1)
     kwd_file = kwd_files[0]
-    print kwd_file  # Sanity Check to Make Sure You are working with the Correct File
+    print(kwd_file)  # Sanity Check to Make Sure You are working with the Correct File
 
     # open the file in read mode
     kwd_file = h5py.File(os.path.join(kwd_file_folder, kwd_file), 'r')
@@ -58,7 +58,7 @@ works with the Python Environment
 
     for j in range(0, P):
         k = File_loc + str(j) + '/data'
-        print k  # This is a Sanity Check to Ensure the Correct Data is accessed
+        print(k)  # This is a Sanity Check to Ensure the Correct Data is accessed
         Epoch_data = np.array(kwd_file.get(k))
         Entire_trial.append(Epoch_data)
         j += 1
@@ -67,7 +67,7 @@ works with the Python Environment
     kwe_files = [f for f in os.listdir(kwd_file_folder) if f.endswith('.kwe')]
     assert (len(kwe_files) == 1)
     kwe_file = kwe_files[0]
-    print kwe_file  # Sanity Check to Make Sure You are working with the Correct File
+    print(kwe_file)  # Sanity Check to Make Sure You are working with the Correct File
 
     # open the file in read mode
     kwe_file = h5py.File(os.path.join(kwd_file_folder, kwe_file), 'r')
@@ -76,17 +76,17 @@ works with the Python Environment
 
     # Store the Labels and Markers to Variables
     epoch_label = np.array(kwe_file.get('event_types/singing/motiff_1/recording'))
-    print 'Number of Motifs:', epoch_label.size  # Good to Know/Sanity Check
+    print('Number of Motifs:', epoch_label.size)  # Good to Know/Sanity Check
     # print('')
     start_time = np.array(kwe_file.get('event_types/singing/motiff_1/time_samples'))
-    print 'Number of Start Times:', start_time.size  # Sanity Check The Two Numbers should be equal
+    print('Number of Start Times:', start_time.size)  # Sanity Check The Two Numbers should be equal
 
     assert (start_time.size == epoch_label.size)  # Check to Make Sure they are the same Length
 
     print('')
-    print epoch_label
+    print(epoch_label)
     print('')
-    print start_time
+    print(start_time)
 
     return Entire_trial, epoch_label, start_time
 
@@ -137,7 +137,7 @@ Command that Clips and Store Motifs or Bouts with a given Set of Parameters: Son
         All_Songs.append(Motif_T[:, :])
     # All_Songs.append(Epoch_w_motif[int(start_time[i]-Gp):int(stop_time[i]+Gp),:])
     #         i += 1
-    print 'Song Motifs Acquired'
+    print('Song Motifs Acquired')
     return All_Songs, SN_L, Gp_L, Gp
 
 
