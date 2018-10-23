@@ -7,7 +7,7 @@ from functools import wraps
 import numpy as np
 import decorator
 
-from PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands, Good_Channel_Index
+from .PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands, Good_Channel_Index
 
 
 
@@ -51,10 +51,10 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
     Freq_Bins = []  # For holding the Bandpass Filtered Data
 
     ## Band Pass and Isolate each Frequency Band
-    for i in xrange(Num_Chan):
+    for i in range(Num_Chan):
         Test = Channels[:, i]  # Grab Raw Signal of Select Channel
         Freq_Bins_Holder = np.zeros([SN_L + Gp_L, Num_Freq])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
-        for l in xrange(0, Num_Freq):
+        for l in range(0, Num_Freq):
             if FiltFilt == True:
                 Freq_Bins_Holder[:, l] = bandpass_filter(Test, Bottom[l], Top[l], fs, order_num=order_num)
             if FiltFilt == False:
@@ -103,7 +103,7 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
         [Trial]->[ch]->[Song Length (Samples) x Freq. Bin]
     '''
     BPF_Motifs = []
-    for i in xrange(Num_Trials):
+    for i in range(Num_Trials):
         BPF_Motifs.append(
             BPF_Module(Channels[i], Freq_Bands=Freq_Bands, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan, Num_Freq=Num_Freq,
                        order_num=order_num, fs=fs, FiltFilt=FiltFilt))
@@ -152,11 +152,10 @@ def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
     Avg_Freq_Bins_LFP = np.zeros([SN_L + Gp_L, Num_Freq])  # Initiate the Memory for the Mean Array
 
     # 1.2 Active Step
-    for l in xrange(0, Num_Freq):
-        Ch_Freq_Bins_Holder = np.zeros(
-            [SN_L + Gp_L, len(Good_Channels)])  # Initiate Memory for Holding 1 Frequency Band for All Good Channels
+    for l in range(0, Num_Freq):
+        Ch_Freq_Bins_Holder = np.zeros([SN_L + Gp_L, len(Good_Channels)])  # Initiate Memory for Holding 1 Frequency Band for All Good Channels
 
-        for i in xrange(len(Good_Channels)):  # Iterate over List of Good Channels
+        for i in range(len(Good_Channels)):  # Iterate over List of Good Channels
             Holder = Frequencies[Good_Channels[i]]  # Create Temporary Copy(Soft) of Frequencies
             Ch_Freq_Bins_Holder[:, i] = Holder[:, l]  # Store Specified Frequency of the Iterated Channel
         Avg_Freq_Bins_LFP[:, l] = Ch_Freq_Bins_Holder.mean(axis=1)  # Take Mean of Collective Frequencies Trace
@@ -202,7 +201,7 @@ def RR_Neural_Master(Frequencies, Num_Trials, Good_Channels, Num_Freq, SN_L=int,
     '''
     RR_Trials = []
     Avg_Freq_RR_Trials = []
-    for i in xrange(Num_Trials):
+    for i in range(Num_Trials):
         RR_Trial_hold, Avg_Freq_RR_Trial_hold = RR_Neural_Module(Frequencies[i], Good_Channels, Num_Freq, SN_L=SN_L,
                                                                  Gp_L=Gp_L)
         RR_Trials.append(RR_Trial_hold)
@@ -258,13 +257,13 @@ def Find_Z_Score_Metrics(Frequencies_Song, Frequencies_Silence, Num_Freq, Numb_M
     Chan_StdDev = []  # For Storing Standard Deviation
 
     # [2] Create Variable for Indexing Silence and Number of Bin
-    Silence_Index = random.sample(xrange(Numb_Silence),
+    Silence_Index = random.sample(range(Numb_Silence),
                                   Numb_Motifs)  # Create Index for Silence with same size as Song Trials
 
     # [3] Line Up all of the Frequencies across All Trials for that Channel
     for i in range(len(Frequencies_Song[0])):  # Index over each Channel
         Chan_Holder = np.zeros((1, Num_Freq))
-        for k in xrange(Numb_Motifs):  # Index over each Motif Example
+        for k in range(Numb_Motifs):  # Index over each Motif Example
             Current_Chan_Song = Frequencies_Song[k][i]  # Grab Song Motifs
             Current_Chan_Silence = Frequencies_Silence[Silence_Index[k]][i]  # Grab Silence Examples
             Chan_Holder = np.concatenate((Chan_Holder, Current_Chan_Song), axis=0)  # Line Up all Song Trials
@@ -312,7 +311,7 @@ def Z_Score_Module(Frequencies, Num_Trials, Chan_Mean, Chan_StdDev):
     Z_Scored_Data = []  # For Z-scored Data
 
     # [2] Sample Based Z-Score
-    for k in xrange(Num_Trials):  # Index over Motifs
+    for k in range(Num_Trials):  # Index over Motifs
         Current_Trial = Frequencies[k]  # Copy Current Trials data (Soft)
         z_scores = []  # Create Empty List
         for i in range(len(Frequencies[0])):  # Index over each Channel
@@ -523,12 +522,12 @@ class Pipeline():
     @decorator.decorator # Allows all Decorated Functions to give helpful info with help commands
     def _StandardStep(func, self, *args, **kwargs):
         assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
-        print 'Wrapper Worked' #TODO Edit this Decorator to Print Useful Strings
+        print('Wrapper Worked') #TODO Edit this Decorator to Print Useful Strings
         self.Make_Backup()  # Back-up Neural Data in case of Mistake
         func(self, *args, **kwargs)  # Pre-Processing Function
         self.Update_Log(self.Log_String)  # Update Log
         del self.Log_String
-        print 'Ooops I meant Decorator'
+        print('Ooops I meant Decorator')
         return
 
     def Make_Backup(self):
@@ -544,14 +543,14 @@ class Pipeline():
 
     def identity(self):
         '''Convenience Function: Displays the Bird ID and Recording Date'''
-        print 'bird id: ' + self.bird_id
-        print 'recording: ' + self.date
+        print('bird id: ' + self.bird_id)
+        print('recording: ' + self.date)
 
     def Pipe_Steps(self):
         '''Convenience Function: Prints Pipeline Steps Used'''
         assert len(self.Activity_Log) > 0, 'No Steps Implemented'
-        for i in xrange(len(self.Activity_Log)):
-            print str(i + 1) + ': ' + self.Activity_Log[i + 1]
+        for i in range(len(self.Activity_Log)):
+            print(str(i + 1) + ': ' + self.Activity_Log[i + 1])
 
     # noinspection PyTupleAssignmentBalance
     def Restore(self):
@@ -571,14 +570,14 @@ class Pipeline():
     def Pipe_end(self):
         '''Marks end of Pipeline. Prevents accidental steps after all Processing Steps are Implemented'''
         assert self.Status == True, 'Pipe Already Closed'
-        print 'Pipeline Complete'
+        print('Pipeline Complete')
         self.Status = False
         del self.Backup
 
     def Pipe_Reopen(self):
         '''Re-Opens Pipeline for Further Processing'''
         assert self.Status == False, 'Pipe Already Open'
-        print 'Pipeline Re-opened'
+        print('Pipeline Re-opened')
         self.Status = True
         self.Backup = ()
 
@@ -642,8 +641,8 @@ class Pipeline():
         try:
             self.Top
         except NameError:
-            print 'You Need to Define your Frequency Bands'
-            print 'Try using .Define_Frequencies()'
+            print('You Need to Define your Frequency Bands')
+            print('Try using .Define_Frequencies()')
         else:
             assert len(np.shape(
                 self.Song_Neural)) == 3, 'You have Already Bandpass Filtered '  # BPF Changes Architecture and Cannot be run repeatedly in series.  It Should be Run First
