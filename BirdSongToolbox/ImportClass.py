@@ -145,10 +145,10 @@ class Import_PrePd_Data():
         * Must Create a Table of Birds and Relevant Information on them *
         '''
         # Consider Moving this to be a Global Variable of this Package
-        Song_Length = {'z020': .5, 'z007':.8 }  # Dictionary of Bird's Specific Motif Length (Seconds)
-        Gap_Length = {'z020': 4, 'z007':4}  # Dictio        nary of Bird's Specific Time Buffer (Seconds)
-        Channel_Count = {'z020': 16, 'z007':32}  # Dictionary of Bird's Probe's Channel Count
-        Bad_Channels = {'z020': [2] , 'z007':[]}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
+        Song_Length = {'z020': .5, 'z007': .8}  # Dictionary of Bird's Specific Motif Length (Seconds)
+        Gap_Length = {'z020': 4, 'z007': 4}  # Dictionary of Bird's Specific Time Buffer (Seconds)
+        Channel_Count = {'z020': 16, 'z007': 32}  # Dictionary of Bird's Probe's Channel Count
+        Bad_Channels = {'z020': [2], 'z007': []}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
         Sample_Frequency = {'Raw': 30000, 'LPF': 30000,
                             'LPF_DS': 1000, }  # Dictionary of Possible Sample Frequencies (Samples per Second)
         print('* Must Create a Table of Birds and Relevant Information on them *')  # To Make Sure I Return to This Idea in the Future
@@ -556,7 +556,7 @@ class Import_PrePd_Data():
         All_First_Holder = np.zeros(len(self.Song_Locations))  # Allocate Memory for Indexing
 
         # 6.2 Fill Logical for All First Motifs
-        for i in xrange(len(self.Song_Quality)):
+        for i in range(len(self.Song_Quality)):
             if self.Song_Locations[i][0] == 'Beginning':  # Locate Desired Label Combination
                 All_First_Holder[i] = 1  # Mark them
         All_First_Motifz = np.where(All_First_Holder == 1)  # Create Index of Selected Label
