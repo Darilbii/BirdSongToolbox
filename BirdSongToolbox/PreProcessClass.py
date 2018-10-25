@@ -64,7 +64,7 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
 
 
 def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175,
-               fs=1000, FiltFilt=True):
+               fs=1000, FiltFilt=True, verbose= False):
     '''Bandpass Filter Neural data using User Defined Frequency Bands for All Trials
 
     Strategy:
@@ -103,11 +103,59 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
         [Trial]->[ch]->[Song Length (Samples) x Freq. Bin]
     '''
     BPF_Motifs = []
-    for i in range(Num_Trials):
+    for Trial in range(Num_Trials):
         BPF_Motifs.append(
-            BPF_Module(Channels[i], Freq_Bands=Freq_Bands, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan, Num_Freq=Num_Freq,
+            BPF_Module(Channels[Trial], Freq_Bands=Freq_Bands, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan, Num_Freq=Num_Freq,
                        order_num=order_num, fs=fs, FiltFilt=FiltFilt))
+        if verbose == True:
+            print('Finished Trial: ', Trial)
     return BPF_Motifs
+
+#TODO: Verify this will work as intended then make sure to integrate it into the class function
+def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
+               FiltFilt=True):
+    '''Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
+
+    Strategy:
+    ---------
+        The Following code Bandpass Filters User Defined Frequency Bands of the neural data and outputs a
+    List of each Channel with each element corresponding to a np array of Time(row) vs. Frequencies(column)
+
+    Parameters:
+    -----------
+    Channels: list [Song Length (Samples) x Channel #]
+        Input Neural Data
+    Freq_Bands: tuple
+        Cuttoff Frequencies of Passband for Band Pass Filters, Components of Tuple are Tops and Bottoms which are lists
+        of the High Frequency and Low Frequency Cutoffs, respectively, of the Pass Bands
+        ([Tops], [Bottoms])
+    SN_L: int
+        Stereotyped Length (In Samples) of Motif
+    Gp_L: int
+        Length of Time Buffer Before and After Motif
+    Order: int (Optional)
+            Order of the Filter used, defaults to 175. [If FiltFilt = True then 350]
+    fs: int (Optional)
+        Sample Frequency of Neural Data, defaults to 1 KHz
+    FiltFilt: bool (Optional)
+        Controls whether to Filter Twice to Remove Phase Distortion, defaults to True
+        [FiltFIlt performs zero-phase digital filtering by processing the input data, Channels, in both the forward and reverse directions.]
+
+    Returns:
+    --------
+    Freq_Bins: list [ch]->[Song Length (Samples) x 1]
+        List of Resulting Bandpass Filtered Neural Data per channel
+    '''
+    Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
+    Freq_Bins = []  # For holding the Bandpass Filtered Data
+
+    ## Band Pass and Isolate each Frequency Band
+    for i in range(Num_Chan):
+        Test = Channels[:, i]  # Grab Raw Signal of Select Channel
+        Freq_Bins_Holder = np.zeros([SN_L + Gp_L, 1])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
+        Freq_Bins_Holder[:, 0] = Test
+        Freq_Bins.append(Freq_Bins_Holder[:, :])
+    return Freq_Bins
 
 
 def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
@@ -636,7 +684,7 @@ class Pipeline():
         self.Num_Freq = len(Top)
 
     @_StandardStep
-    def Band_Pass_Filter(self, order_num=175, FiltFilt=True):
+    def Band_Pass_Filter(self, order_num=175, FiltFilt=True, verbose = False):
         ''' Bandpass Filter Data using User Defined Frequency Bands'''
         try:
             self.Top
@@ -646,15 +694,25 @@ class Pipeline():
         else:
             assert len(np.shape(
                 self.Song_Neural)) == 3, 'You have Already Bandpass Filtered '  # BPF Changes Architecture and Cannot be run repeatedly in series.  It Should be Run First
-            self.Song_Neural = BPF_Master(self.Song_Neural, Num_Trials=self.Num_Motifs,
-                                          Freq_Bands=(self.Top, self.Bottom), SN_L=self.Sn_Len, Gp_L=self.Gap_Len,
-                                          Num_Chan=self.Num_Chan, Num_Freq=self.Num_Freq, order_num=order_num,
-                                          fs=self.Fs, FiltFilt=FiltFilt)
-            self.Silence_Neural = BPF_Master(self.Silence_Neural, Num_Trials=self.Num_Silence,
-                                             Freq_Bands=(self.Top, self.Bottom), SN_L=self.Sn_Len, Gp_L=self.Gap_Len,
-                                             Num_Chan=self.Num_Chan, Num_Freq=self.Num_Freq, order_num=order_num,
+            self.Song_Neural = BPF_Master(self.Song_Neural,
+                                          Num_Trials=self.Num_Motifs,
+                                          Freq_Bands=(self.Top, self.Bottom),
+                                          SN_L=self.Sn_Len, Gp_L=self.Gap_Len,
+                                          Num_Chan=self.Num_Chan,
+                                          Num_Freq=self.Num_Freq, order_num=order_num,
+                                          fs=self.Fs, FiltFilt=FiltFilt,
+                                          verbose = verbose)
+
+            self.Silence_Neural = BPF_Master(self.Silence_Neural,
+                                             Num_Trials=self.Num_Silence,
+                                             Freq_Bands=(self.Top, self.Bottom),
+                                             SN_L=self.Sn_Len,
+                                             Gp_L=self.Gap_Len,
+                                             Num_Chan=self.Num_Chan,
+                                             Num_Freq=self.Num_Freq,
+                                             order_num=order_num,
                                              fs=self.Fs,
-                                             FiltFilt=FiltFilt)
+                                             FiltFilt=FiltFilt, verbose = verbose)
 
             # Construct Log Update Components
             if FiltFilt == True:
