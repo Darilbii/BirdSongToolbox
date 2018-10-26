@@ -110,13 +110,13 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
     '''
 
 
-    for Channels in Num_Channels:
-
-        for Freq_Band in Num_Freq_Bands:
-
-            for Instance in Trials:
-                # Grab the Specified Trials
-
+    # for Channels in Num_Channels:
+    #
+    #     for Freq_Band in Num_Freq_Bands:
+    #
+    #         for Instance in Trials:
+    #             # Grab the Specified Trials
+    pass
 
     return
 
@@ -126,22 +126,22 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
 
 def Numel(Index):
     Count = 0
-    for i in xrange(len(Index)):
+    for i in range(len(Index)):
         Count = Count + (len(Index[i]))
     return Count
 
 
 def Numbad(Index, Offset=int, Tr_Length=int):
     Count = 0
-    for i in xrange(len(Index)):
-        Count = Count + len([x for x in xrange(len(Index[i])) if Index[i][x] < (Offset + Tr_Length)])
+    for i in range(len(Index)):
+        Count = Count + len([x for x in range(len(Index[i])) if Index[i][x] < (Offset + Tr_Length)])
     return Count
 
 
 def Numbad2(Index, ClipLen, Offset=int):
     Count = 0
-    for i in xrange(len(Index)):
-        Count = Count + len([x for x in xrange(len(Index[i])) if Index[i][x] - Offset > ClipLen])
+    for i in range(len(Index)):
+        Count = Count + len([x for x in range(len(Index[i])) if Index[i][x] - Offset > ClipLen])
     return Count
 
 
@@ -169,22 +169,20 @@ def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
 
     Dynamic_Templates = []  # Index of all Channels
     Dynamic_Freq_Trials = []
-    for Channel in xrange(0, D):  # Over all Channels
+    for Channel in range(0, D):  # Over all Channels
         Matches = []
         Freq_Trials = []
-        for l in xrange(0, F):  # For Range of All Frequency Bins
+        for l in range(0, F):  # For Range of All Frequency Bins
             Chan_Holder = np.zeros((Tr_Length, NEl))  # Initiate Holder for Trials (Motifs)
             Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
             Freq = Chan[l]
             Counter = 0  # For stackin all examples of label in full trial
-            for Trials in xrange(NT):
-                for Ex in xrange(len(Starts[Trials])):
+            for Trials in range(NT):
+                for Ex in range(len(Starts[Trials])):
                     if Starts[Trials][Ex] - Offset - Tr_Length >= 0 and Starts[Trials][Ex] - Offset < len(Freq):
                         if len(Freq[Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset, Trials]) == 9:
-                            print
-                            Starts[Trials][Ex] - Offset - Tr_Length
-                            print
-                            Starts[Trials][Ex] - Offset  # Select Motif)
+                            print(Starts[Trials][Ex] - Offset - Tr_Length)
+                            print(Starts[Trials][Ex] - Offset)  # Select Motif)
                         Chan_Holder[:, Counter] = Freq[
                                                   Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset,
                                                   Trials]  # Select Motif
