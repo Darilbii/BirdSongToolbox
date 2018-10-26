@@ -1,6 +1,8 @@
-# Created by: Daril Brown II
-# This Module is a updated version of my first feature extraction exploration steps. It is meant to allow me to revisit this 
-# analysis in the future as well as check old findings with ease.
+"""
+Created by: Daril Brown II
+This Module is a updated version of my first feature extraction exploration steps. It is meant to allow me to revisit this
+analysis in the future as well as check old findings with ease.
+"""
 
 import numpy as np
 from ipywidgets import interact, interactive, fixed, interact_manual, IntSlider
@@ -19,7 +21,7 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     -----------
     CFT: list
         (Channel Frequency Trials) Re-organized Neural Data that were used for constructing the Templates
-        [Ch]->[Freq]_>[Time(Samples) x Trials]
+        [Ch]->[Freq]->[Time(Samples) x Trials]
     CFS: list
         (Channel Frequency Seperated) Re-organized Neural Data to be compared against Template's source
         [Ch]->[Freq]_>[Time(Samples) x Trials]

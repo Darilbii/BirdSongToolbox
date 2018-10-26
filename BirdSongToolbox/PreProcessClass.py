@@ -712,7 +712,8 @@ class Pipeline():
                                              Num_Freq=self.Num_Freq,
                                              order_num=order_num,
                                              fs=self.Fs,
-                                             FiltFilt=FiltFilt, verbose = verbose)
+                                             FiltFilt=FiltFilt,
+                                             verbose = verbose)
 
             # Construct Log Update Components
             if FiltFilt == True:
