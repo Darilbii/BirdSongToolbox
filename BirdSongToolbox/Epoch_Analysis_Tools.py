@@ -241,14 +241,121 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
     return Channel_Full_Freq_Trials
 
 
-########################################################################################################################################################################
+########################################################################################################################
+## Label Handling Functions
+# Function to Focus on only one type of Label
 
-#################################
+### Added int() to pipeline on 8/19
+
+def Label_Focus(Focus, Labels, Starts):
+    """ Create a list of every instance of the User defined User Label
+
+    Parameters:
+    -----------
+    Focus: str or int
+        User defined Label to focus on
+    Labels:
+
+    Starts:
+
+
+    Returns:
+    --------
+    Label_Index: list
+        List of all start frames of every instances of the label of focus
+        [Num_Trials]->[Num_Exs]
+    """
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
+        Label_Index.append(Trial_Labels)
+    return Label_Index
+
+
+# Function for Grouping Multiple Labels into 1 Label (e.g. Combine Calls and Introductory Notes)
+
+def Label_Grouper(Focuses, Labels, Starts):
+    """Group Selected Labels together into One Label
+            e.g. Combine Calls and Introductory Notes"""
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Group_Labels = []
+        for j in range(len(Focuses)):
+            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
+            Group_Labels.extend(Trial_Labels)
+        Label_Index.append(Group_Labels)
+    return Label_Index
+
+# Function for grabing more examples from a onset
+
+def Slider(Ext_Starts, Slide=int, Step=False):
+    """
+    Parameters:
+    -----------
+    Ext_Starts: list
+
+    Slide: int (optional)
+
+    Step: bool (optional)
+        (defaults to False)
+    Return:
+    -------
+
+    """
+    Num_Trials = len(Ext_Starts)
+
+    Slid_starts = []
+    for i in range(len(Ext_Starts)):
+        Slid_Trial = []
+        for j in range(len(Ext_Starts[i])):
+            if Step == False:
+                for k in range(Slide):
+                    Slid_Trial.append(Ext_Starts[i][j] + k)
+            if Step == True:
+                for k in range(0, Slide, Step):
+                    Slid_Trial.append(Ext_Starts[i][j] + k)
+        Slid_starts.append(Slid_Trial)
+    return Slid_starts
+
+
+def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
+                           Slide=None, Step=False):
+    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
+
+    Label_Instructions = tells the Function what labels to extract and whether to group them together
+
+    Parameters:
+    -----------
+
+    Returns:
+    -------
+    """
+
+    Clippings = []
+    Templates = []
+
+    for i in range(len(Label_Instructions)):
+        if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
+            Label_Starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
+        else:
+            Label_Starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
+
+        if type(Slide) == int:
+            Label_Starts = Slider(Label_Starts, Slide=Slide, Step=Step)
+
+        Clips, Temps = Dyn_LFP_Clipper(Full_Trials, Label_Starts, Offset=Offset, Tr_Length=Tr_Length)
+        Clippings.append(Clips)
+        Templates.append(Temps)
+    return Clippings, Templates
+
+########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
 
 def Numel(Index):
-    ''' GEt the Number of Elements'''
+    ''' Get the Number of Elements'''
     Count = 0
     for i in range(len(Index)):
         Count = Count + (len(Index[i]))
@@ -263,13 +370,22 @@ def Numbad(Index, Offset=int, Tr_Length=int):
 
 
 def Numbad2(Index, ClipLen, Offset=int):
+    """Returns the number of Label instances that are past the edges of the Epoch (Prevents Index errors propagating)
+
+    :param Index:
+    :param ClipLen:
+    :param Offset:
+    :return:
+    count: int
+        number of bacd indexes
+    """
     Count = 0
     for i in range(len(Index)):
         Count = Count + len([x for x in range(len(Index[i])) if Index[i][x] - Offset > ClipLen])
     return Count
 
 
-def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
+def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
     ''' This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future use.
 
     Information:
@@ -310,6 +426,69 @@ def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
             Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
             Freq = Chan[l]
             Counter = 0  # For stackin all examples of label in full trial
+            for Trials in range(NT):
+                for Ex in range(len(Starts[Trials])):
+                    if Starts[Trials][Ex] - Offset - Tr_Length >= 0 and Starts[Trials][Ex] - Offset < len(Freq):
+                        if len(Freq[Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset, Trials]) == 9:
+                            print(Starts[Trials][Ex] - Offset - Tr_Length)
+                            print(Starts[Trials][Ex] - Offset)  # Select Motif)
+                        Chan_Holder[:, Counter] = Freq[
+                                                  Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset,
+                                                  Trials]  # Select Motif
+                        Counter = Counter + 1
+            Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
+            Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
+            Matches.append(Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
+        Dynamic_Templates.append(Matches)
+        Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
+
+    return Dynamic_Freq_Trials, Dynamic_Templates
+
+
+def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
+    ''' This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future use.
+
+    Information:
+    ------------
+        It iterates over EACH Epoch clipping ALL examples of ONE label in each trial.
+        It should be run repeatedly for clipping all of the designated labels.
+
+        Its output can later be broken into an Initial Training and Final Test Set.
+
+    Parameters:
+    -----------
+    Features: list
+        [Ch]->[Freq]->(Time Samples x Trials)
+
+    Starts: list
+        A list of Lists containing the Start Times of only One type of Label in each Clipping.
+    Also Note that the Starts Argument must be converted to the 1 KHz Sampling Frequency
+
+    Offset = How much prior or after onset
+
+    Returns:
+    --------
+
+    '''
+
+    ### Consider removing the Create_Bands Step and consider using len()
+    ### ESPECIALLY IF YOU CHANGE THE BANDING CODE
+
+    D = len(Features[:])  # Number of Channels
+    F = len(Features[0][:])  # Num of Frequency Bands
+    NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts, len(Features[0][0][:, 0]), Offset=Offset)  # Number of Examples
+
+    Dynamic_Templates = []  # Index of all Channels
+    Dynamic_Freq_Trials = []
+    for Channel in range(0, D):  # Over all Channels
+        Matches = []
+        Freq_Trials = []
+        for l in range(0, F):  # For Range of All Frequency Bins
+            Chan_Holder = np.zeros((Tr_Length, NEl))  # Initiate Holder for Trials (Motifs)
+            Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
+            Freq = Chan[l]
+            Counter = 0  # For stacking all examples of label in full trial
             for Trials in range(NT):
                 for Ex in range(len(Starts[Trials])):
                     if Starts[Trials][Ex] - Offset - Tr_Length >= 0 and Starts[Trials][Ex] - Offset < len(Freq):
