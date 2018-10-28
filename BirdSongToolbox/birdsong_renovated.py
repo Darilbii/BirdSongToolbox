@@ -15,7 +15,7 @@ import os
 import math
 
 def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
-    ''' Plots the Pearson Correlation Coefficient Histogram of Two Classes (Assummed to be Song vs. Silence) with Normalized Mean in solid Line
+    """Plots the Pearson Correlation Coefficient Histogram of Two Classes (Assummed to be Song vs. Silence) with Normalized Mean in solid Line
     
     Parameters:
     -----------
@@ -37,7 +37,7 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
     Bottom: list
         List of Low Frequency Cutoffs
     
-    '''
+    """
     # TODO: Add Asserts
     # TODO: Validate it works as intended
     # TODO: Push to Module?
@@ -80,8 +80,8 @@ def view_corr_sep(CFT, CFS, Template, CH_Sel, FREQ_SEL, Top, Bottom):
 
     
 def corr_sep_GUI(Song, Silence, All_Temp, Top, Bottom, Num_Chan ):
-    '''GUI for Viewing Compared Correlations Plots
-    
+    """GUI for Viewing Compared Correlations Plots
+
     Parameters:
     -----------
     CFT: list
@@ -103,18 +103,18 @@ def corr_sep_GUI(Song, Silence, All_Temp, Top, Bottom, Num_Chan ):
         List of Low Frequency Cutoffs
     Num_Chan: int
         Number of Channels
-    '''
-    
+    """
+
     Channel_widget = widgets.IntSlider(value=0, min=0, max= Num_Chan-1,step=1,description='Channel')
     Freq_widget = widgets.IntSlider(value=0, min=0, max= len(Top)-1 ,step=1,description='Freq')
-    
-    interact(view_corr_sep, CFT =fixed(Song) , CFS = fixed(Silence), Template = fixed(All_Temp), 
+
+    interact(view_corr_sep, CFT =fixed(Song) , CFS = fixed(Silence), Template = fixed(All_Temp),
              CH_Sel =Channel_widget, FREQ_SEL= Freq_widget, Top = fixed(Top), Bottom= fixed(Bottom))
 
 def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Channels, Num_Freqs,  Top, Bottom, Trial_Index, Plot= False):
-    
-    
-    ''' Create a Heatmap that seeks to visualize the discernability between instances of Song Activity and Silence
+
+
+    """Create a Heatmap that seeks to visualize the discernability between instances of Song Activity and Silence
     
     Parameters:
     -----------
@@ -149,7 +149,7 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
         Distance between Edges of the Histogram of Correlation Coefficients
         [Channels x Freq. Bands]
         
-    '''
+    """
     #1. Dynamic Handeling of Channels, Frequency Bands, and Trials
     Num_Channels = len(Channel_Freq_Song)
     Num_Trials = len(Channel_Freq_Song[0][0][1,:]) ##### This needs to be made more Dynamics
@@ -210,7 +210,7 @@ def Corr_Seperation(Channel_Freq_Song, Channel_Freq_Silence, Match_Test, Num_Cha
                                               
                                               
 def find_edges(Feat_Song_med_holder, Feat_Silence_med_holder, Song_CorrCoef, Silence_CorrCoef):   
-    '''Find Difference between Edges to Determine Overlap
+    """Find Difference between Edges to Determine Overlap
     
     Parameters:
     -----------
@@ -230,7 +230,7 @@ def find_edges(Feat_Song_med_holder, Feat_Silence_med_holder, Song_CorrCoef, Sil
     -------
     Result_Holder: float
         A niave approximation of the distance between the boundaries of the Histograms of Pearson Correlation Coefficients
-    '''
+    """
     if Feat_Song_med_holder >= Feat_Silence_med_holder:
         Result_Holder = np.amin(Song_CorrCoef)- np.amax(Silence_CorrCoef)
     elif Feat_Song_med_holder < Feat_Silence_med_holder:
@@ -240,7 +240,7 @@ def find_edges(Feat_Song_med_holder, Feat_Silence_med_holder, Song_CorrCoef, Sil
                                               
                                           
 def plot_corr_seperation(NormSep_Corr, Top, Bottom, Num_Channels, Num_Features):
-    ''' Plot seperation in Pearons Correlation Coefficients in a Heatmap
+    """Plot seperation in Pearons Correlation Coefficients in a Heatmap
     Parameter:
     ----------
     NormSep_Corr:  list
@@ -254,7 +254,7 @@ def plot_corr_seperation(NormSep_Corr, Top, Bottom, Num_Channels, Num_Features):
         Number of recording Channels
     Num_Features: int
         Number of Frequency Bands
-    '''
+    """
 
     X_labels = []
 
@@ -273,7 +273,7 @@ def plot_corr_seperation(NormSep_Corr, Top, Bottom, Num_Channels, Num_Features):
 
 # Channel v. Channel Correlation (Per Freq. Band)
 def Chan_v_Chan_Corr(Song_Templates):
-    ''' Channel v. Channel Correlation Comparision (per Freq. Band)
+    """Channel v. Channel Correlation Comparision (per Freq. Band)
     
     Parameters:
     -----------
@@ -286,7 +286,7 @@ def Chan_v_Chan_Corr(Song_Templates):
     CvC_Corrs: list
         Templates (Mean) of Every Frequency Band for Each Channel
         [Freq]->[Channel v. Channel]  
-    '''
+    """
     
     # Find Number of Channels and Frequency Bands
     Num_Freqs = len(Song_Templates[0]) # Number of Frequency Bands
@@ -309,7 +309,7 @@ def Chan_v_Chan_Corr(Song_Templates):
     return CvC_Corrs
 
 def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False):
-    '''Function for Visualizing the Channel vs. Channel Heatmap
+    """Function for Visualizing the Channel vs. Channel Heatmap
   
     Parameters:
     -----------
@@ -325,7 +325,7 @@ def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False)
     Absolute: bool
         (Defaults to False)
     
-    '''
+    """
   
     X_labels = [x +1 for x in range(len(All_CvC_Corr[0]))] #Dynamic Control of Number of Channels
     
@@ -345,7 +345,7 @@ def CvC_Corr_Heatmap(All_CvC_Corr, Selected_Freq, Top, Bottom, Absolute = False)
 
 ## Potentially Add Function that RE-organize the Plot into order of Shanks and Depth
 def CvC_Gui(CvC_Corr_Results, Top, Bottom):
-    ''' Interactively View Channel v. Channel Correlation Heatmap
+    """Interactively View Channel v. Channel Correlation Heatmap
     
     Parameters:
     -----------
@@ -356,7 +356,7 @@ def CvC_Gui(CvC_Corr_Results, Top, Bottom):
         List of High Frequency Cuttoffs of Bandpass's used
     Bottom: ndarray
         List of Low Frequency Cutoffs   
-    '''
+    """
     
     Num_Bands = len(CvC_Corr_Results)
     
@@ -377,7 +377,7 @@ def CvC_Gui(CvC_Corr_Results, Top, Bottom):
 ## Need to Make a Program that Reads the .prb (Text File) to Get the Locations [Develop this on Spatial Development]
 
 def Import_Probe_Geometry(bird_id = 'z020', sess_name = 'day-2016-06-02'):
-    '''Import the .npy files that seem to be the probe's geometry (Not Everyday has these Files)
+    """Import the .npy files that seem to be the probe's geometry (Not Everyday has these Files)
     
     Parameters:
     -----------
@@ -394,7 +394,7 @@ def Import_Probe_Geometry(bird_id = 'z020', sess_name = 'day-2016-06-02'):
     Channel_map: np.memmap
         Identities of the Contact Points
         (1 x Number of Contact Points)
-    '''
+    """
 
     experiment_folder = '/net/expData/birdSong/'
     ss_data_folder = os.path.join(experiment_folder, 'ss_data')
@@ -419,7 +419,7 @@ def Import_Probe_Geometry(bird_id = 'z020', sess_name = 'day-2016-06-02'):
 # Code for Plotting the Probe Geometry
 
 def Plot_Geometry(Ch_Locations, Ch_map, bird_id):
-    '''
+    """
     Parameters:
     -----------
     Channel_Locations: np.memmap
@@ -430,7 +430,7 @@ def Plot_Geometry(Ch_Locations, Ch_map, bird_id):
         (1 x Number of Contact Points)
     bird_id: str
         Bird Indentifier to Locate Specified Bird's data folder
-    '''
+    """
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(111)
 
