@@ -6,7 +6,7 @@ import scipy.io as sio
 # Class function for Importing PrePd Data
 ### Confirm this works as intended
 class Import_PrePd_Data():
-    ''' Import Prepared (PrePd) Data and its accompanying meta-data into the workspace for analysis
+    """Import Prepared (PrePd) Data and its accompanying meta-data into the workspace for analysis
 
     Note: This data has been prepared using self created Matlab scripts that required hand labeling.
     Make sure that you have used the correct Data Preping script.
@@ -91,10 +91,10 @@ class Import_PrePd_Data():
     .Good_Mid_Motifs: list
         Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
         Analysis
-    '''
+    """
 
     def __init__(self, bird_id, sess_name, data_type='LPF_DS'):
-        ''' Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug
+        """Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug
 
         Parameters:
         -----------
@@ -104,7 +104,7 @@ class Import_PrePd_Data():
                 Experiment Day to Locate it's Folder
             data_type: string
                 String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
-        '''
+        """
         assert type(bird_id) == str
         assert type(sess_name) == str
 
@@ -139,11 +139,11 @@ class Import_PrePd_Data():
         self.Describe()
 
     def Identify_Bird(self):
-        '''Acquire Standard Descriptive Information on Data based on Bird Identity and User Instructions
+        """Acquire Standard Descriptive Information on Data based on Bird Identity and User Instructions
 
         This Function Must Be Maintained and Updated as More Birds are added
         * Must Create a Table of Birds and Relevant Information on them *
-        '''
+        """
         # Consider Moving this to be a Global Variable of this Package
         Song_Length = {'z020': .5, 'z007': .8}  # Dictionary of Bird's Specific Motif Length (Seconds)
         Gap_Length = {'z020': 4, 'z007': 4}  # Dictionary of Bird's Specific Time Buffer (Seconds)
@@ -171,7 +171,7 @@ class Import_PrePd_Data():
         self.Fs = Sample_Frequency[self.data_type]
 
     def _ImportSwitch(self, Prepd_ss_data_folder):
-        ''' Functional Switch to Control what type of Neural Data is imported'''
+        """Functional Switch to Control what type of Neural Data is imported"""
 
         if self.data_type == 'LPF_DS':
             self.Song_Neural = self.Get_LPF_DS_Song(Prepd_ss_data_folder)
@@ -186,12 +186,12 @@ class Import_PrePd_Data():
             print('Invalid Neural Data Type')
 
     def Get_LPF_DS_Song(self, Prepd_ss_data_folder):
-        '''Song: Store the Low Pass Filtered & Downsampled Neural Data
+        """Song: Store the Low Pass Filtered & Downsampled Neural Data
         Parameters:
         -----------
             Song_File: str
                 path to data
-        '''
+        """
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP_DS.mat')
         Song_LPF_DS_Data = []
         Mat_File = sio.loadmat(Song_File)
@@ -206,12 +206,12 @@ class Import_PrePd_Data():
         return Song_LPF_DS_Data
 
     def Get_LPF_Song(self, Prepd_ss_data_folder):
-        '''Song: Store the Low Pass Filtered & Downsampled Neural Data
+        """Song: Store the Low Pass Filtered & Downsampled Neural Data
         Parameters:
         -----------
             Song_File: str
                 path to data
-        '''
+        """
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP.mat')
         Song_LPF_Data = []
         Mat_File = sio.loadmat(Song_File)
@@ -226,12 +226,12 @@ class Import_PrePd_Data():
         return Song_LPF_Data
 
     def Get_Raw_Song(self, Prepd_ss_data_folder):
-        '''Song: Store the Raw Neural Data
+        """Song: Store the Raw Neural Data
         Parameters:
         -----------
             Song_File: str
                 path to data
-        '''
+        """
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
         Song_Raw_Data = []
         Mat_File = sio.loadmat(Song_File)
@@ -246,7 +246,7 @@ class Import_PrePd_Data():
 
 
     def Get_Song_Audio(self, Prepd_ss_data_folder):
-        '''Song: Store the Filtered Audio Data'''
+        """Song: Store the Filtered Audio Data"""
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
 
         Song_Audio_Data = []
@@ -259,7 +259,7 @@ class Import_PrePd_Data():
         self.Song_Audio = Song_Audio_Data
 
     def Get_LPF_DS_Silence(self, Prepd_ss_data_folder):
-        '''Silence: Store the Low Pass Filtered & Downsampled Neural Data'''
+        """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
 
         Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP_DS.mat')
         Silence_LPF_DS_Data = []
@@ -274,7 +274,7 @@ class Import_PrePd_Data():
         return Silence_LPF_DS_Data
 
     def Get_LPF_Silence(self, Prepd_ss_data_folder):
-        '''Silence: Store the Low Pass Filtered & Downsampled Neural Data'''
+        """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
 
         Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP.mat')
         Silence_LPF_Data = []
@@ -289,12 +289,12 @@ class Import_PrePd_Data():
         return Silence_LPF_Data
 
     def Get_Raw_Silence(self, Prepd_ss_data_folder):
-        '''Silence: Store the Raw Neural Data
+        """Silence: Store the Raw Neural Data
         Parameters:
         -----------
             Song_File: str
                 path to data
-        '''
+        """
         Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
         Silence_Raw_Data = []
         Mat_File = sio.loadmat(Song_File);
@@ -308,7 +308,7 @@ class Import_PrePd_Data():
         return Silence_Raw_Data
 
     def Get_Silence_Audio(self, Prepd_ss_data_folder):
-        '''Silence: Store the Filtered Audio Data'''
+        """Silence: Store the Filtered Audio Data"""
 
         Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Audio.mat')
 
@@ -322,7 +322,7 @@ class Import_PrePd_Data():
         self.Silence_Audio = Silence_Audio_Data
 
     def Get_Hand_Labels(self, Prepd_ss_data_folder):
-        '''Stores the Different Types of Labels into Seperate Lists'''
+        """Stores the Different Types of Labels into Seperate Lists"""
 
         Labels_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Labels_py.mat')
 
@@ -347,7 +347,7 @@ class Import_PrePd_Data():
         self.Song_Syl_Drop = Labels_Syl_Drop
 
     def Locate_All_Good_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -358,7 +358,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .Good_Motifs:
-        '''
+        """
 
         # 1. All Good Motifs
         # 1.1 Initialize Variables and Memory
@@ -374,7 +374,7 @@ class Import_PrePd_Data():
         self.Good_Motifs = Good_Motifz
 
     def Locate_Good_First_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -385,7 +385,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .First_Motifs:
-        '''
+        """
         # 2. Good First Motifs
         # 2.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -401,7 +401,7 @@ class Import_PrePd_Data():
         self.First_Motifs = First_Motifz
 
     def Locate_Good_Last_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -412,7 +412,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .Last_Motifs:
-        '''
+        """
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -428,7 +428,7 @@ class Import_PrePd_Data():
         self.Last_Motifs = Last_Motifz
         
     def Locate_All_Last_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -439,7 +439,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .Last_Motifs:
-        '''
+        """
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -455,7 +455,7 @@ class Import_PrePd_Data():
         
         
     def Locate_Good_Mid_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -466,7 +466,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .Last_Motifs:
-        '''
+        """
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -485,7 +485,7 @@ class Import_PrePd_Data():
     
 
     def Locate_Bad_Full_Motifs(self):
-        ''' Create Index for All Good Motifs
+        """Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -496,7 +496,8 @@ class Import_PrePd_Data():
         Returns:
         --------
         .Bad_Motifs:
-        '''
+        """
+
         # 4. Bad Motifs w/ NO Dropped Syllables
         # 4.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Syl_Drop)
@@ -512,7 +513,7 @@ class Import_PrePd_Data():
         self.Bad_Motifs = Bad_Motifz
 
     def Locate_Last_Syll_Dropped(self):
-        ''' Create Index for All Good Motifs
+        """ Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -523,7 +524,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .LS_Drop:
-        '''
+        """
         # 5. Bad Motifs w/ LAST Syllable Dropped
         # 5.1 Initialize Variables and Memory
         LS_Drop_Holder = np.zeros(len(self.Song_Syl_Drop))  # Allocate Memory for Indexing
@@ -538,7 +539,7 @@ class Import_PrePd_Data():
         self.LS_Drop = LS_Dropz
 
     def Locate_Bouts(self):
-        ''' Create Index for All Good Motifs
+        """ Create Index for All Good Motifs
         Parameters:
         -----------
         .Song_Quality
@@ -549,7 +550,7 @@ class Import_PrePd_Data():
         Returns:
         --------
         .All_First_Motifs:
-        '''
+        """
         # 6. All First Motifs
         # 6.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -568,7 +569,7 @@ class Import_PrePd_Data():
     #         self.Song_Syl_Drop = Labels_Syl_Drop
 
     def Describe(self):
-        ''' Describe relevant shorthand information about this particular trial
+        """Describe relevant shorthand information about this particular trial
 
         Prints:
         -------
@@ -577,7 +578,7 @@ class Import_PrePd_Data():
         Number of Examples of Song
         Number of Examples of Silence
         Number of Good Trials
-        '''
+        """
         print('Bird Id: ' + self.bird_id)
         print('Recording Date: ' + self.date)
         print('')
@@ -589,7 +590,7 @@ class Import_PrePd_Data():
         print('# of Bouts Total: ' + str(len(self.All_First_Motifs)))
 
     def Help(self):
-        ''' Describe the Function and Revelant tools for using it
-        '''
+        """Describe the Function and Revelant tools for using it
+        """
         print('Hello Here is a walk through of this Function (Under Development)')
         print('The Initializing code does all of the Heavy Lifting If you would like more information use .Describe()')
