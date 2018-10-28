@@ -1,6 +1,7 @@
 """
 Epoch_Analysis_Tools
 Tools for analyzing the predictive power of LFP and SUA for predicting Syllable onset
+
 """
 
 import scipy
@@ -21,6 +22,8 @@ import random
 
 def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet=0):
     ''' Re-Organizes Data for Machine Learning and Visualization. It also Finds the Mean of Each Frequency Band on Each Channel
+
+    ** Limit: This code can only parse the central motif of the Epoch **
 
     Parameters:
     -----------
@@ -70,7 +73,7 @@ def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet
             Chan_Holder = np.delete(Chan_Holder, 0, 1)  # Delete the First Column (Initialized Column)
             Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
             Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
-            Chan_StdDevs = np.std(Chan_Holder, axis=1)  ### STD kinda depricated at this point
+            # Chan_StdDevs = np.std(Chan_Holder, axis=1)  ### STD kinda depricated at this point
             Matches.append(
                 Chan_Means.reshape(Sn_Len, 1))  # Store all Match Filters for Every Frequency for that Channel
 
@@ -120,11 +123,132 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
 
     return
 
+################################################################################################################################################################################################
+## First Function for Offline Epoch Predictions
+
+# This function is the start of a way to dynamically clip trials for realtime classification code.
+# For Zeke
+
+
+## The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
+## ***Structural Detail Notes were made on 4/27/17***
+##This was copied over from Feature Classification...(Development)
+############ IT HAS SINCE BEEN CHANGED From Original ############
+# Added Functionality for Handling Sliding Frequency Band (5/23/2017)
+# This is a Altered Version of Mean_Match. It Intakes the Full PrePd Motif Trials (Including Gaps)
+
+def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2, Sliding=False, SUPP=False):
+    ''' Grabs every epoch in Sel_Motifs for Each Frequency Band on Each Channel and returns them in a structure list
+
+    :param Features:
+    :param Sel_Motifs:
+    :param SS:
+    :param Low:
+    :param Sel_Feature:
+    :param Sliding:
+    :param SUPP:
+    :return:
+
+    Returns:
+    --------
+     Channel_Full_Freq_Trials: list
+        [Ch]->[Freq]->(Time Samples x Trials)
+
+    '''
+    # Remove:  Sel_Freq, Channel = 1, SN = 1,
+    # Offset = How much prior or after onset
+
+    TOP, BOTTOM = Create_Bands(StepSize=SS, Lowest=Low, Slide=Sliding,
+                               Suppress=SUPP)  # Run Function to create variables for the Frequency Bands
+
+    # 2: Initiate Variables
+
+    Selected_Feature_Type = []  # Holder for Selected Feature Type (from Sel_Feature)
+
+    #     Chan = Features[Channel - 1]
+    # Selected_Feature_Type = Features[Sel_Feature]
+    #
+    # B = len(Features[Sel_Feature][0][0][:, 0])  # Length of full Trial
+    # D = len(Features[Sel_Feature][0][:])
+
+    Channel_Matches = []  # Index of all Channels
+    Channel_Freq_Trials = []
+    Channel_Full_Freq_Trials = []
+
+    for Channel in range(0, D):  # Over all Channels
+        Freq_Trials = []
+        Freq_Full_Trials = []
+        for l in range(0, len(TOP)):  # For Range of All Frequency Bins
+            Chan_Full_Holder = np.zeros((4500, 1))  # Initiate Holder for Trials (Motifs)
+            for motif in Sel_Motifs:  # For each value of Sel_Motifs
+                # MOTIF = Selected_Feature_Type[motif - 1]  # Select Motif
+                # Chan = MOTIF[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
+                # Current_Full_Motif = Chan[:, l]  # Select Motif
+                Current_Full_Motif = Selected_Feature_Type[motif - 1][Channel - 1][:, l]  # Select[Motif][Ch][Epoch, Freq]
+
+                # Line Up all of the Selected Frequencies across All Trials for that Channel
+                Chan_Full_Holder = np.column_stack((Chan_Full_Holder, Current_Full_Motif))
+            Chan_Full_Holder = np.delete(Chan_Full_Holder, 0, 1)  # Delete the First Column (Initialized Column)
+            Freq_Full_Trials.append(Chan_Full_Holder)  # Save all of the Trials for that Frequency on that Channel
+        Channel_Full_Freq_Trials.append(Freq_Full_Trials)
+
+    return Channel_Full_Freq_Trials
+
+
+def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_Len):
+    ''' Grabs every epoch in Sel_Motifs for Each Frequency Band on Each Channel and returns them in a structure list
+
+    Parameters:
+    -----------
+    Neural:
+        [Number of Trials]-> [Ch] -> [Trial Length (Samples @ User Designated Sample Rate) x Freq_Bands]
+    Sel_Motifs:m list
+        List of Epochs to be used based on Designated Label
+    Num_Freq: int
+        Number of Band Passed Filtered Signals
+    Num_Chan: int
+        Number of Recording Channels
+    Sn_Len: int
+        Stereotyped Length (In Samples) of Motif
+    Gap_Len: int
+        Length of Time Buffer Before and After Motif
+
+    Returns:
+    --------
+     Channel_Full_Freq_Trials: list
+        [Ch]->[Freq]->(Time Samples x Trials)
+
+    '''
+
+    # 1: Initiate Variables
+
+    Channel_Full_Freq_Trials = []
+
+    for Channel in range(Num_Chan):  # Over all Channels
+        Freq_Trials = []
+        Freq_Full_Trials = []
+        for Freq in range(Num_Freq):  # For Range of All Frequency Bins
+            Chan_Full_Holder = np.zeros((Sn_Len + Gap_Len, 1))  # Initiate Holder for Trials (Motifs)
+            for motif in Sel_Motifs:  # For each value of Sel_Motifs
+                Current_Full_Motif = Neural[motif - 1][Channel - 1][:, Freq]  # Select[Motif][Ch][Epoch, Freq]
+
+                # Line Up all of the Selected Frequencies across All Trials for that Channel
+                Chan_Full_Holder = np.column_stack((Chan_Full_Holder, Current_Full_Motif))
+            Chan_Full_Holder = np.delete(Chan_Full_Holder, 0, 1)  # Delete the First Column (Initialized Column)
+            Freq_Full_Trials.append(Chan_Full_Holder)  # Save all of the Trials for that Frequency on that Channel
+        Channel_Full_Freq_Trials.append(Freq_Full_Trials)
+
+    return Channel_Full_Freq_Trials
+
+
+########################################################################################################################################################################
+
 #################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
 
 def Numel(Index):
+    ''' GEt the Number of Elements'''
     Count = 0
     for i in range(len(Index)):
         Count = Count + (len(Index[i]))
@@ -146,26 +270,35 @@ def Numbad2(Index, ClipLen, Offset=int):
 
 
 def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
-    ''' This Function Dynamically clips Neural data attributed to a selected label and organizes
-    them for future steps. It iterates over EACH full trial clipping ALL examples of ONE label in each trial.
-    It should be run repeatedly for clipping all of the designated labels.
+    ''' This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future use.
 
-    Its output can later be broken into an Initial Training and Final Test Set.
+    Information:
+    ------------
+        It iterates over EACH Epoch clipping ALL examples of ONE label in each trial.
+        It should be run repeatedly for clipping all of the designated labels.
 
+        Its output can later be broken into an Initial Training and Final Test Set.
 
-    Starts is a list of Lists containing the Start Times of only One type of Label in each Clipping.
+    Parameters:
+    -----------
+    Starts: list
+        A list of Lists containing the Start Times of only One type of Label in each Clipping.
     Also Note that the Starts Argument must be converted to the 1 KHz Sampling Frequency
 
-    Offset = How much prior or after onset'''
+    Offset = How much prior or after onset
+
+    Returns:
+    --------
+
+    '''
+
     ### Consider removing the Create_Bands Step and consider using len()
     ### ESPECIALLY IF YOU CHANGE THE BANDING CODE
 
     D = len(Features[:])  # Number of Channels
     F = len(Features[0][:])  # Num of Frequency Bands
     NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts,
-                                                                                       len(Features[0][0][:, 0]),
-                                                                                       Offset=Offset)  # Number of Examples
+    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts, len(Features[0][0][:, 0]), Offset=Offset)  # Number of Examples
 
     Dynamic_Templates = []  # Index of all Channels
     Dynamic_Freq_Trials = []
@@ -189,8 +322,7 @@ def Dyn_LFP_Clipper(Features, Starts, Offset=int, Tr_Length=int):
                         Counter = Counter + 1
             Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
             Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
-            Matches.append(
-                Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
+            Matches.append(Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
         Dynamic_Templates.append(Matches)
         Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
 
