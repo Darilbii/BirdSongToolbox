@@ -431,6 +431,50 @@ def ML_Order_Pipeline(Extracted_Features):
     ML_Labels = np.delete(ML_Labels, 0, 0)
     return ML_Ready, ML_Labels, Ordered_Index
 
+
+# Functions for Ordering Features into useful Feature Drop Format
+# Need to add Function to Selectively Drop Frequencies
+## Made Corrections on 10/27/2017 additional ones on 10/30/2017
+
+def ML_Order(Features):
+    """Reorganizes the Extracted Features into a Useful Machine Learning Format
+
+    Output Shape [Number of Examples vs. Number of Features]
+
+    Parameters:
+    -----------
+
+    Returns:
+    --------
+    Ordered_Trials:
+
+    Column_Index:
+        ?????(Ch, freq_trials)???? Not Sure!
+    """
+    # Create Variable for Indexing
+    #     D = len(Features[:]) # Number of Channels
+    # B = len(Features[0][0][:, 0])  # Length of Dynam. Clipped Training Set
+    #     NT = len(Features[0][0][0,:]) # Number of Trials of Dynam. Clipped Training Set
+
+    # Create Initial Array
+    Column_Index = []
+    # Initialize Dummy Array with Length of Dynam. Clipped Training Set
+    Ordered_Trials = np.zeros((len(Features[0][0][:, 0]), 1))
+
+    # Channel Based Ordering
+    for channel in range(Features):  # Over all Channels
+        Corr_Trials = []  # Create Dummy Lists
+        for freq_trials in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            # Current_Feature = Features[channel][freq_trials]
+            Ordered_Trials = np.concatenate((Ordered_Trials, Features[channel][freq_trials]), axis=1)
+            Tuple = (channel, freq_trials)  # Tuple that contains (Channel #, Freq Band #)
+            Column_Index.append(Tuple)  # Append Index Tuple in Column Order
+
+    Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
+
+    return Ordered_Trials, Column_Index
+
+
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
