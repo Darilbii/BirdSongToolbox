@@ -16,6 +16,19 @@ import os
 import scipy.io as sio
 import random
 
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import train_test_split
+# from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+
+# TODO: Check out what is Happening in the Below Deprecation Warning
+# /home/debrown/anaconda2/lib/python2.7/site-packages/sklearn/cross_validation.py:41: DeprecationWarning: This module
+#  was deprecated in version 0.18 in favor of the model_selection module into which all the refactored classes and
+# functions are moved. Also note that the interface of the new CV iterators are different from that of this module.
+# This module will be removed in 0.20. #   "This module will be removed in 0.20.", DeprecationWarning)
+# TODO: Check out what is Happening in the Above Deprecation Warning
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
 # Edited/Written 2/14/2018
@@ -248,233 +261,6 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
 
     return Channel_Full_Freq_Trials
 
-
-########################################################################################################################
-## Label Handling Functions
-# Function to Focus on only one type of Label
-
-### Added int() to pipeline on 8/19
-
-def Label_Focus(Focus, Labels, Starts):
-    """ Create a list of every instance of the User defined User Label
-
-    Parameters:
-    -----------
-    Focus: str or int
-        User defined Label to focus on
-    Labels:
-
-    Starts:
-
-
-    Returns:
-    --------
-    Label_Index: list
-        List of all start frames of every instances of the label of focus
-        [Num_Trials]->[Num_Exs]
-    """
-    Label_Index = []
-
-    for i in range(len(Labels)):
-        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
-        Label_Index.append(Trial_Labels)
-    return Label_Index
-
-
-# Function for Grouping Multiple Labels into 1 Label (e.g. Combine Calls and Introductory Notes)
-
-def Label_Grouper(Focuses, Labels, Starts):
-    """Group Selected Labels together into One Label
-            e.g. Combine Calls and Introductory Notes"""
-    Label_Index = []
-
-    for i in range(len(Labels)):
-        Group_Labels = []
-        for j in range(len(Focuses)):
-            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
-            Group_Labels.extend(Trial_Labels)
-        Label_Index.append(Group_Labels)
-    return Label_Index
-
-# Function for grabing more examples from a onset
-
-def Slider(Ext_Starts, Slide=int, Step=False):
-    """
-    Parameters:
-    -----------
-    Ext_Starts: list
-
-    Slide: int (optional)
-
-    Step: bool (optional)
-        (defaults to False)
-    Return:
-    -------
-
-    """
-    Num_Trials = len(Ext_Starts)
-
-    Slid_starts = []
-    for i in range(len(Ext_Starts)):
-        Slid_Trial = []
-        for j in range(len(Ext_Starts[i])):
-            if Step == False:
-                for k in range(Slide):
-                    Slid_Trial.append(Ext_Starts[i][j] + k)
-            if Step == True:
-                for k in range(0, Slide, Step):
-                    Slid_Trial.append(Ext_Starts[i][j] + k)
-        Slid_starts.append(Slid_Trial)
-    return Slid_starts
-
-
-def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
-                           Slide=None, Step=False):
-    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
-
-    Label_Instructions = tells the Function what labels to extract and whether to group them together
-
-    Parameters:
-    -----------
-
-    Returns:
-    -------
-    clippings:
-
-    templates:
-    """
-
-    clippings = []
-    templates = []
-
-    for i in range(len(Label_Instructions)):
-        if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
-            label_starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
-        else:
-            label_starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
-
-        if type(Slide) == int:
-            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
-
-        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
-        clippings.append(clips)
-        templates.append(temps)
-    return clippings, templates
-
-
-def Power_Extraction(Clipped_Trials):
-    """
-
-    :param Clipped_Trials:
-    :return:
-    """
-    Extracted_Power = []
-    for i in range(len(Clipped_Trials)):
-        Extracted_Power.append(Find_Power(Clipped_Trials[i]))
-    return Extracted_Power
-
-
-
-#TODO: Need to change this to doing:  (RMS, Log_RMS, MS) Consider Log Scale
-
-def Find_Power(Features, Pow_Method='Basic'):
-    """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
-
-    Features: list
-        Structure:
-    Pow_Method: str
-        Method by which power is taken (Options: 'Basic': Mean , 'MS': Mean Squared, 'RMS': Root Mean Square)
-    :return:
-    """
-    # Create Variable for IndexingF
-    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-
-    # Create Lists
-    Power_Trials = []
-
-    for Channel in range(len(Features[:])):  # Over all Channels
-        Freq_Trials = []
-        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            #             print abs(Features[Channel - 1][l])
-            if Pow_Method == 'Basic':
-                chan_holder = np.average(abs(Features[Channel][l]), axis=0)
-            if Pow_Method == 'MS':
-                chan_holder = np.mean(np.power(Features[Channel][l], 2), axis=0)
-            if Pow_Method == 'RMS':
-                chan_holder = np.power(np.mean(np.power(Features[Channel][l], 2), axis=0), .5)
-
-            chan_holder = np.reshape(chan_holder, (num_trials, 1))
-            Freq_Trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
-        Power_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
-    return Power_Trials
-
-
-def ML_Order_Pipeline(Extracted_Features):
-    """
-
-    :param Extracted_Features:
-    :return:
-    """
-    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
-    ML_Labels = np.zeros((1, 1))
-    for i in range(len(Extracted_Features)):
-        Ordered_Trials, Ordered_Index = ML_Order(Extracted_Features[i])
-        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
-
-        # Handels Labels so they are flexible when grouping
-        ROW, COLL = np.shape(Ordered_Trials)
-        Dyn_Labels = np.zeros([ROW, 1])
-        Dyn_Labels[:, 0] = i
-        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
-
-    ML_Ready = np.delete(ML_Ready, 0, 0)
-    ML_Labels = np.delete(ML_Labels, 0, 0)
-    return ML_Ready, ML_Labels, Ordered_Index
-
-
-# Functions for Ordering Features into useful Feature Drop Format
-# Need to add Function to Selectively Drop Frequencies
-## Made Corrections on 10/27/2017 additional ones on 10/30/2017
-
-def ML_Order(Features):
-    """Reorganizes the Extracted Features into a Useful Machine Learning Format
-
-    Output Shape [Number of Examples vs. Number of Features]
-
-    Parameters:
-    -----------
-
-    Returns:
-    --------
-    Ordered_Trials:
-
-    Column_Index:
-        ?????(Ch, freq_trials)???? Not Sure!
-    """
-    # Create Variable for Indexing
-    #     D = len(Features[:]) # Number of Channels
-    # B = len(Features[0][0][:, 0])  # Length of Dynam. Clipped Training Set
-    #     NT = len(Features[0][0][0,:]) # Number of Trials of Dynam. Clipped Training Set
-
-    # Create Initial Array
-    Column_Index = []
-    # Initialize Dummy Array with Length of Dynam. Clipped Training Set
-    Ordered_Trials = np.zeros((len(Features[0][0][:, 0]), 1))
-
-    # Channel Based Ordering
-    for channel in range(Features):  # Over all Channels
-        Corr_Trials = []  # Create Dummy Lists
-        for freq_trials in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            # Current_Feature = Features[channel][freq_trials]
-            Ordered_Trials = np.concatenate((Ordered_Trials, Features[channel][freq_trials]), axis=1)
-            Tuple = (channel, freq_trials)  # Tuple that contains (Channel #, Freq Band #)
-            Column_Index.append(Tuple)  # Append Index Tuple in Column Order
-
-    Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
-
-    return Ordered_Trials, Column_Index
-
-
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
@@ -666,3 +452,390 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     return Dynamic_Freq_Trials, Dynamic_Templates
 
 ########################################################################################################################
+## Label Handling Functions
+# Function to Focus on only one type of Label
+
+### Added int() to pipeline on 8/19
+
+def Label_Focus(Focus, Labels, Starts):
+    """ Create a list of every instance of the User defined User Label
+
+    Parameters:
+    -----------
+    Focus: str or int
+        User defined Label to focus on
+    Labels:
+
+    Starts:
+
+
+    Returns:
+    --------
+    Label_Index: list
+        List of all start frames of every instances of the label of focus
+        [Num_Trials]->[Num_Exs]
+    """
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
+        Label_Index.append(Trial_Labels)
+    return Label_Index
+
+
+# Function for Grouping Multiple Labels into 1 Label (e.g. Combine Calls and Introductory Notes)
+
+def Label_Grouper(Focuses, Labels, Starts):
+    """Group Selected Labels together into One Label
+            e.g. Combine Calls and Introductory Notes"""
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Group_Labels = []
+        for j in range(len(Focuses)):
+            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
+            Group_Labels.extend(Trial_Labels)
+        Label_Index.append(Group_Labels)
+    return Label_Index
+
+def Find_Power(Features, Pow_Method='Basic'):
+    """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
+
+    Features: list
+        Structure:
+    Pow_Method: str
+        Method by which power is taken (Options: 'Basic': Mean , 'MS': Mean Squared, 'RMS': Root Mean Square)
+    :return:
+    """
+    # Create Variable for IndexingF
+    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+
+    # Create Lists
+    Power_Trials = []
+
+    for Channel in range(len(Features[:])):  # Over all Channels
+        Freq_Trials = []
+        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            #             print abs(Features[Channel - 1][l])
+            if Pow_Method == 'Basic':
+                chan_holder = np.average(abs(Features[Channel][l]), axis=0)
+            if Pow_Method == 'MS':
+                chan_holder = np.mean(np.power(Features[Channel][l], 2), axis=0)
+            if Pow_Method == 'RMS':
+                chan_holder = np.power(np.mean(np.power(Features[Channel][l], 2), axis=0), .5)
+
+            chan_holder = np.reshape(chan_holder, (num_trials, 1))
+            Freq_Trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
+        Power_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
+    return Power_Trials
+
+
+def Pearson_Coeff_Finder(Features, Templates):
+    ''' This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
+    It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
+    '''
+
+    # Create Variable for IndexingF
+    NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    Num_Temps = len(Templates)
+
+    # Create Lists
+    Corr_Trials = []
+
+    for Channel in range(0, len(Features[:])):  # Over all Channels
+        Freq_Trials = []
+        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            Corr_Holder = np.zeros([NT, Num_Temps])
+
+            for i in range(NT):
+                for j in range(Num_Temps):
+                    Corr_Holder[i, j], _ = scipy.stats.pearsonr(Features[Channel][l][:, i],
+                                                                Templates[j][Channel][l][:, 0])
+            #             Chan_Holder = np.average(abs(Features[Channel - 1][l]), axis = 0)
+            #             Chan_Holder = np.reshape(Chan_Holder, (NT,1))
+            Freq_Trials.append(Corr_Holder)  # Save all of the Trials for that Frequency on that Channel
+        Corr_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
+    return Corr_Trials
+
+def Pearson_Extraction(Clipped_Trials, Templates):
+    Extracted_Pearson = []
+    for i in xrange(len(Clipped_Trials)):
+        Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates = Templates))
+    return Extracted_Pearson
+
+
+# Function for getting the Pearson Coefficient for Classification
+def Pearson_ML_Order(Features):
+    '''Reorganizes the Extracted Features into a Useful Machine Learning Format
+
+    Output Shape [Number of Examples vs. Number of Features]'''
+    # Create Variable for Indexing
+    #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
+    NT = len(Features[0][0][:, 0])  # Number of Trials
+    # Create Initial Array
+    Column_Index = []
+    Ordered_Trials = np.zeros((NT, 1))  # Initialize Dummy Array
+
+    # Channel Based Ordering
+    for Channel in range(len(Features)):  # Over all Channels
+        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            for Temps in range(len(Features[0][0][0, :])):
+                Ordered_Trials = np.concatenate((Ordered_Trials,
+                                                 np.reshape(Features[Channel][l][:, Temps], (NT, 1))), axis=1)
+                Tuple = (Channel, l, Temps)  # Tuple that contains (Channel #, Freq Band #)
+                Column_Index.append(Tuple)  # Append Index Tuple in Column Order
+    Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
+    return Ordered_Trials, Column_Index
+
+
+def Pearson_ML_Order_Pipeline(Extracted_Features):
+    ''' '''
+    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
+    ML_Labels = np.zeros((1, 1))
+    for i in range(len(Extracted_Features)):
+        Ordered_Trials, Ordered_Index = Pearson_ML_Order(Extracted_Features[i])
+        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
+
+        # Handles Labels so they are flexible when grouping
+        ROW, COLL = np.shape(Ordered_Trials)
+        Dyn_Labels = np.zeros([ROW, 1])
+        Dyn_Labels[:, 0] = i
+        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
+
+    ML_Ready = np.delete(ML_Ready, 0, 0)
+    ML_Labels = np.delete(ML_Labels, 0, 0)
+    return ML_Ready, ML_Labels, Ordered_Index
+
+# Function for grabing more examples from a onset
+
+
+
+
+
+def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
+                           Slide=None, Step=False):
+    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
+
+    Label_Instructions = tells the Function what labels to extract and whether to group them together
+
+    Parameters:
+    -----------
+
+    Returns:
+    -------
+    clippings:
+
+    templates:
+    """
+
+    clippings = []
+    templates = []
+
+    for i in range(len(Label_Instructions)):
+        if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
+            label_starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
+        else:
+            label_starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
+
+        if type(Slide) == int:
+            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
+
+        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
+        clippings.append(clips)
+        templates.append(temps)
+    return clippings, templates
+
+
+def Power_Extraction(Clipped_Trials):
+    """
+
+    :param Clipped_Trials:
+    :return:
+    """
+    Extracted_Power = []
+    for i in range(len(Clipped_Trials)):
+        Extracted_Power.append(Find_Power(Clipped_Trials[i]))
+    return Extracted_Power
+
+
+
+
+
+
+
+def ML_Order_Pipeline(Extracted_Features):
+    """
+
+    :param Extracted_Features:
+    :return:
+    """
+    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
+    ML_Labels = np.zeros((1, 1))
+    for i in range(len(Extracted_Features)):
+        Ordered_Trials, Ordered_Index = ML_Order(Extracted_Features[i])
+        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
+
+        # Handels Labels so they are flexible when grouping
+        ROW, COLL = np.shape(Ordered_Trials)
+        Dyn_Labels = np.zeros([ROW, 1])
+        Dyn_Labels[:, 0] = i
+        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
+
+    ML_Ready = np.delete(ML_Ready, 0, 0)
+    ML_Labels = np.delete(ML_Labels, 0, 0)
+    return ML_Ready, ML_Labels, Ordered_Index
+
+
+def Select_Classifier(Model=str, Strategy=str):
+    if Model == 'GNB':
+        classifier = GaussianNB()
+    if Model == 'LDA':
+        classifier = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
+
+    if Strategy == '1vAll':
+        classifier = OneVsRestClassifier(classifier)
+    return classifier
+
+
+
+# Functions for Ordering Features into useful Feature Drop Format
+# Need to add Function to Selectively Drop Frequencies
+## Made Corrections on 10/27/2017 additional ones on 10/30/2017
+
+def ML_Order(Features):
+    '''Reorganizes the Extracted Features into a Useful Machine Learning Format
+
+    Parameters:
+    -----------
+
+    Returns:
+    --------
+    Ordered_Trials:
+
+    Column_Index:
+        ?????(Ch, freq_trials)???? Not Sure!
+        Output Shape [Number of Examples vs. Number of Features]
+    '''
+    # Create Variable for Indexing
+    #     D = len(Features[:]) # Number of Channels
+    B = len(Features[0][0][:, 0])  # Length of Dynam. Clipped Training Set
+    #     NT = len(Features[0][0][0,:]) # Number of Trials of Dynam. Clipped Training Set
+
+    # Create Initial Array
+    Column_Index = []
+    Ordered_Trials = np.zeros((B, 1))  # Initialize Dummy Array
+
+    # Channel Based Ordering
+    for Channel in range(0, len(Features)):  # Over all Channels
+        Corr_Trials = []  # Create Dummy Lists
+        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            Current_Feature = Features[Channel][l]
+            Ordered_Trials = np.concatenate((Ordered_Trials, Current_Feature), axis=1)
+            Tuple = (Channel, l)  # Tuple that contains (Channel #, Freq Band #)
+            Column_Index.append(Tuple)  # Append Index Tuple in Column Order
+
+    Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
+
+    return Ordered_Trials, Column_Index
+
+
+
+def Slider(Ext_Starts, Slide=int, Step=False):
+    """
+    Parameters:
+    -----------
+    Ext_Starts: list
+
+    Slide: int (optional)
+
+    Step: bool (optional)
+        (defaults to False)
+    Return:
+    -------
+
+    """
+    Num_Trials = len(Ext_Starts)
+
+    Slid_starts = []
+    for i in range(len(Ext_Starts)):
+        Slid_Trial = []
+        for j in range(len(Ext_Starts[i])):
+            if Step == False:
+                for k in range(Slide):
+                    Slid_Trial.append(Ext_Starts[i][j] + k)
+            if Step == True:
+                for k in range(0, Slide, Step):
+                    Slid_Trial.append(Ext_Starts[i][j] + k)
+        Slid_starts.append(Slid_Trial)
+    return Slid_starts
+
+
+def Key_Operator(Column_Key):
+    """Function for Organizing Channel/Frequency specific Dropping
+
+    :param Column_Key:
+    :return:
+    """
+    CH, FREQ = max(Column_Key)
+    CH = CH + 1
+    FREQ = FREQ + 1
+    # Work for Pulling out Useful Keys
+    Chan_Index = {}
+    Freq_Index = {}
+
+    for i in range(CH):
+        Chan_Holder = []
+        for k in range(len(Column_Key)):
+            h, p = Column_Key[k]
+            if h == i:
+                Chan_Holder.append(k)
+        Chan_Index[i] = Chan_Holder
+
+    for j in range(FREQ):
+        Freq_Holder = []
+        for k in range(len(Column_Key)):
+            h, p = Column_Key[k]
+            if p == j:
+                Freq_Holder.append(k)
+        Freq_Index[j] = Freq_Holder
+
+    return Chan_Index, Freq_Index
+
+
+
+def Drop_Features(Features, Keys, Desig_Drop):
+    """Function for Selectively Removing Columns for Feature Dropping
+    Des_igDrop is short for Designated to be Dropped"""
+    Full_Drop = []
+
+    for i in range(len(Desig_Drop)):
+        Full_Drop.extend(Keys[Desig_Drop[i]])
+
+    Remaining_Features = np.delete(Features, Full_Drop, axis=1)
+
+    return Remaining_Features, Full_Drop
+
+#TODO: Machine_Learning_Prep needs to be re-evaluated. Particularly it may need to be done after taking a Validation Set
+def Machine_Learning_PreP(Song_Trials, Silence_Trials, verbose=False):
+    """Determine Number of Examples of Song and Silence
+
+    """
+    num_Songs = len(Song_Trials[:, 0])  # Number of Examples of Song
+    num_Silences = len(Silence_Trials[:, 0])  # Number of Examples of Silence
+
+    Song_Labels = np.ndarray([num_Songs])  # Make ndarray
+    Song_Labels[:] = 1
+    Silence_Labels = np.ndarray([num_Silences])
+    Silence_Labels[:] = 0
+
+    K = 4
+
+    # Prep Data for K-Fold Function
+    X = np.concatenate((Song_Trials, Silence_Trials), axis=0)
+    y = np.concatenate((Song_Labels, Silence_Labels), axis=0)  # Create Label Array
+
+    # X = np.transpose(X)
+    # y = np.array([0, 0, 0])
+    skf = StratifiedKFold(y, n_folds=K)
+
+    return X, y, skf
