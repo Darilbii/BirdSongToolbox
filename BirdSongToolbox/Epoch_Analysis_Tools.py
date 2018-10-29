@@ -339,24 +339,97 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructi
 
     Returns:
     -------
+    clippings:
+
+    templates:
     """
 
-    Clippings = []
-    Templates = []
+    clippings = []
+    templates = []
 
     for i in range(len(Label_Instructions)):
         if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
-            Label_Starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
+            label_starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
         else:
-            Label_Starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
+            label_starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
 
         if type(Slide) == int:
-            Label_Starts = Slider(Label_Starts, Slide=Slide, Step=Step)
+            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
 
-        Clips, Temps = Dyn_LFP_Clipper(Full_Trials, Label_Starts, Offset=Offset, Tr_Length=Tr_Length)
-        Clippings.append(Clips)
-        Templates.append(Temps)
-    return Clippings, Templates
+        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
+        clippings.append(clips)
+        templates.append(temps)
+    return clippings, templates
+
+
+def Power_Extraction(Clipped_Trials):
+    """
+
+    :param Clipped_Trials:
+    :return:
+    """
+    Extracted_Power = []
+    for i in range(len(Clipped_Trials)):
+        Extracted_Power.append(Find_Power(Clipped_Trials[i]))
+    return Extracted_Power
+
+
+
+#TODO: Need to change this to doing:  (RMS, Log_RMS, MS) Consider Log Scale
+
+def Find_Power(Features, Pow_Method='Basic'):
+    """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
+
+    Features: list
+        Structure:
+    Pow_Method: str
+        Method by which power is taken (Options: 'Basic': Mean , 'MS': Mean Squared, 'RMS': Root Mean Square)
+    :return:
+    """
+    # Create Variable for IndexingF
+    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+
+    # Create Lists
+    Power_Trials = []
+
+    for Channel in range(len(Features[:])):  # Over all Channels
+        Freq_Trials = []
+        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            #             print abs(Features[Channel - 1][l])
+            if Pow_Method == 'Basic':
+                chan_holder = np.average(abs(Features[Channel][l]), axis=0)
+            if Pow_Method == 'MS':
+                chan_holder = np.mean(np.power(Features[Channel][l], 2), axis=0)
+            if Pow_Method == 'RMS':
+                chan_holder = np.power(np.mean(np.power(Features[Channel][l], 2), axis=0), .5)
+
+            chan_holder = np.reshape(chan_holder, (num_trials, 1))
+            Freq_Trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
+        Power_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
+    return Power_Trials
+
+
+def ML_Order_Pipeline(Extracted_Features):
+    """
+
+    :param Extracted_Features:
+    :return:
+    """
+    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
+    ML_Labels = np.zeros((1, 1))
+    for i in range(len(Extracted_Features)):
+        Ordered_Trials, Ordered_Index = ML_Order(Extracted_Features[i])
+        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
+
+        # Handels Labels so they are flexible when grouping
+        ROW, COLL = np.shape(Ordered_Trials)
+        Dyn_Labels = np.zeros([ROW, 1])
+        Dyn_Labels[:, 0] = i
+        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
+
+    ML_Ready = np.delete(ML_Ready, 0, 0)
+    ML_Labels = np.delete(ML_Labels, 0, 0)
+    return ML_Ready, ML_Labels, Ordered_Index
 
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
@@ -419,7 +492,7 @@ def Numbad2(Index, ClipLen, Offset=int):
 
 
 def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
-    """This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future use.
+    """This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future ML use.
     (Prior Neural Data Only)
 
     Information:
@@ -547,3 +620,5 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
         Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
 
     return Dynamic_Freq_Trials, Dynamic_Templates
+
+########################################################################################################################
