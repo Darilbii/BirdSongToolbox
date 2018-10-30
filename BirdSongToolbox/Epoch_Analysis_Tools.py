@@ -23,6 +23,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 
+
 # TODO: Check out what is Happening in the Below Deprecation Warning
 # /home/debrown/anaconda2/lib/python2.7/site-packages/sklearn/cross_validation.py:41: DeprecationWarning: This module
 #  was deprecated in version 0.18 in favor of the model_selection module into which all the refactored classes and
@@ -98,7 +99,7 @@ def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet
 # Needs to be made into a more Flexible GUI
 
 
-def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
+def Get_LFP_Templates(Trials, Tr_Len, Gap_Len, Buffer):
     '''Function grabs the time segment of Neural Activity during the designated time Vocal Behavior
 
     Steps:
@@ -125,7 +126,6 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
 
     '''
 
-
     # for Channels in Num_Channels:
     #
     #     for Freq_Band in Num_Freq_Bands:
@@ -135,6 +135,7 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len,  Buffer):
     pass
 
     return
+
 
 ################################################################################################################################################################################################
 ## First Function for Offline Epoch Predictions
@@ -202,6 +203,8 @@ def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2
     return Channel_Full_Freq_Trials
 
 
+# TODO: Build Test for Full_Trial_LFP_Clipper  here is a template: Pipe_1.Song_Neural[0][0][:,0] == Dataset[0][0][:,0]
+
 def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_Len):
     """Grabs every epoch in Sel_Motifs for Each Frequency Band on Each Channel and returns them in a structure list
 
@@ -249,6 +252,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
         Channel_Full_Freq_Trials.append(Freq_Full_Trials)
 
     return Channel_Full_Freq_Trials
+
 
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
@@ -340,7 +344,9 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
     D = len(Features[:])  # Number of Channels
     F = len(Features[0][:])  # Num of Frequency Bands
     NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts, len(Features[0][0][:, 0]), Offset=Offset)  # Number of Examples
+    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts,
+                                                                                       len(Features[0][0][:, 0]),
+                                                                                       Offset=Offset)  # Number of Examples
 
     Dynamic_Templates = []  # Index of all Channels
     Dynamic_Freq_Trials = []
@@ -364,7 +370,8 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
                         Counter = Counter + 1
             Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
             Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
-            Matches.append(Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
+            Matches.append(
+                Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
         Dynamic_Templates.append(Matches)
         Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
 
@@ -413,7 +420,8 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     num_chan = len(Features[:])  # Number of Channels
     freq_bands = len(Features[0][:])  # Num of Frequency Bands
     num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-    num_examples = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts, len(Features[0][0][:, 0]), Offset=Offset)  # Number of Examples
+    num_examples = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length) - Numbad2(Starts, len(
+        Features[0][0][:, 0]), Offset=Offset)  # Number of Examples
 
     Dynamic_Templates = []  # Index of all Channels
     Dynamic_Freq_Trials = []
@@ -426,19 +434,25 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
             Counter = 0  # For stacking all examples of label in full trial
             for epoch in range(num_trials):
                 for example in range(len(Starts[epoch])):
-                    if Starts[epoch][example] - Offset - Tr_Length >= 0 and Starts[epoch][example] - Offset < len(sel_freq_epochs):
+                    if Starts[epoch][example] - Offset - Tr_Length >= 0 and Starts[epoch][example] - Offset < len(
+                            sel_freq_epochs):
                         # if len(sel_freq_epochs[Starts[epoch][example] - Offset - Tr_Length:Starts[epoch][example] - Offset, epoch]) == 9:
                         #     print(Starts[epoch][example] - Offset - Tr_Length)
                         #     print(Starts[epoch][example] - Offset)  # Select Motif)
-                        Chan_Holder[:, Counter] = sel_freq_epochs[Starts[epoch][example] - Offset - Tr_Length:Starts[epoch][example] - Offset, epoch]  # Select Motif
+                        Chan_Holder[:, Counter] = sel_freq_epochs[
+                                                  Starts[epoch][example] - Offset - Tr_Length:Starts[epoch][
+                                                                                                  example] - Offset,
+                                                  epoch]  # Select Motif
                         Counter = Counter + 1
             Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
             Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
-            Matches.append(Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
+            Matches.append(
+                Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
         Dynamic_Templates.append(Matches)
         Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
 
     return Dynamic_Freq_Trials, Dynamic_Templates
+
 
 ########################################################################################################################
 ## Label Handling Functions
@@ -486,6 +500,7 @@ def Label_Grouper(Focuses, Labels, Starts):
             Group_Labels.extend(Trial_Labels)
         Label_Index.append(Group_Labels)
     return Label_Index
+
 
 def Find_Power(Features, Pow_Method='Basic'):
     """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
@@ -546,10 +561,11 @@ def Pearson_Coeff_Finder(Features, Templates):
         Corr_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
     return Corr_Trials
 
+
 def Pearson_Extraction(Clipped_Trials, Templates):
     Extracted_Pearson = []
     for i in range(len(Clipped_Trials)):
-        Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates = Templates))
+        Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates=Templates))
     return Extracted_Pearson
 
 
@@ -595,10 +611,8 @@ def Pearson_ML_Order_Pipeline(Extracted_Features):
     ML_Labels = np.delete(ML_Labels, 0, 0)
     return ML_Ready, ML_Labels, Ordered_Index
 
+
 # Function for grabing more examples from a onset
-
-
-
 
 
 def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
@@ -647,11 +661,6 @@ def Power_Extraction(Clipped_Trials):
     return Extracted_Power
 
 
-
-
-
-
-
 def ML_Order_Pipeline(Extracted_Features):
     """
 
@@ -684,7 +693,6 @@ def Select_Classifier(Model=str, Strategy=str):
     if Strategy == '1vAll':
         classifier = OneVsRestClassifier(classifier)
     return classifier
-
 
 
 # Functions for Ordering Features into useful Feature Drop Format
@@ -726,7 +734,6 @@ def ML_Order(Features):
     Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
 
     return Ordered_Trials, Column_Index
-
 
 
 def Slider(Ext_Starts, Slide=int, Step=False):
@@ -791,7 +798,6 @@ def Key_Operator(Column_Key):
     return Chan_Index, Freq_Index
 
 
-
 def Drop_Features(Features, Keys, Desig_Drop):
     """Function for Selectively Removing Columns for Feature Dropping
     Des_igDrop is short for Designated to be Dropped"""
@@ -804,7 +810,8 @@ def Drop_Features(Features, Keys, Desig_Drop):
 
     return Remaining_Features, Full_Drop
 
-#TODO: Machine_Learning_Prep needs to be re-evaluated. Particularly it may need to be done after taking a Validation Set
+
+# TODO: Machine_Learning_Prep needs to be re-evaluated. Particularly it may need to be done after taking a Validation Set
 def Machine_Learning_PreP(Song_Trials, Silence_Trials, verbose=False):
     """Determine Number of Examples of Song and Silence
 
