@@ -183,14 +183,6 @@ def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2
 
     Selected_Feature_Type = []  # Holder for Selected Feature Type (from Sel_Feature)
 
-    #     Chan = Features[Channel - 1]
-    # Selected_Feature_Type = Features[Sel_Feature]
-    #
-    # B = len(Features[Sel_Feature][0][0][:, 0])  # Length of full Trial
-    # D = len(Features[Sel_Feature][0][:])
-
-    Channel_Matches = []  # Index of all Channels
-    Channel_Freq_Trials = []
     Channel_Full_Freq_Trials = []
 
     for Channel in range(0, D):  # Over all Channels
@@ -199,10 +191,7 @@ def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2
         for l in range(0, len(TOP)):  # For Range of All Frequency Bins
             Chan_Full_Holder = np.zeros((4500, 1))  # Initiate Holder for Trials (Motifs)
             for motif in Sel_Motifs:  # For each value of Sel_Motifs
-                # MOTIF = Selected_Feature_Type[motif - 1]  # Select Motif
-                # Chan = MOTIF[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
-                # Current_Full_Motif = Chan[:, l]  # Select Motif
-                Current_Full_Motif = Selected_Feature_Type[motif][Channel - 1][:, l]  # Select[Motif][Ch][Epoch, Freq]
+                Current_Full_Motif = Selected_Feature_Type[motif][Channel][:, l]  # Select[Motif][Ch][Epoch, Freq]
 
                 # Line Up all of the Selected Frequencies across All Trials for that Channel
                 Chan_Full_Holder = np.column_stack((Chan_Full_Holder, Current_Full_Motif))
@@ -360,7 +349,7 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
         Freq_Trials = []
         for l in range(0, F):  # For Range of All Frequency Bins
             Chan_Holder = np.zeros((Tr_Length, NEl))  # Initiate Holder for Trials (Motifs)
-            Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
+            Chan = Features[Channel]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
             Freq = Chan[l]
             Counter = 0  # For stackin all examples of label in full trial
             for Trials in range(NT):
