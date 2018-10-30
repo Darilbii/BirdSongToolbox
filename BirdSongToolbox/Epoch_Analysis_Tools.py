@@ -202,7 +202,7 @@ def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2
                 # MOTIF = Selected_Feature_Type[motif - 1]  # Select Motif
                 # Chan = MOTIF[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
                 # Current_Full_Motif = Chan[:, l]  # Select Motif
-                Current_Full_Motif = Selected_Feature_Type[motif - 1][Channel - 1][:, l]  # Select[Motif][Ch][Epoch, Freq]
+                Current_Full_Motif = Selected_Feature_Type[motif][Channel - 1][:, l]  # Select[Motif][Ch][Epoch, Freq]
 
                 # Line Up all of the Selected Frequencies across All Trials for that Channel
                 Chan_Full_Holder = np.column_stack((Chan_Full_Holder, Current_Full_Motif))
@@ -251,7 +251,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
         for Freq in range(Num_Freq):  # For Range of All Frequency Bins
             Chan_Full_Holder = np.zeros((Sn_Len + Gap_Len, 1))  # Initiate Holder for Trials (Motifs)
             for motif in Sel_Motifs:  # For each value of Sel_Motifs
-                Current_Full_Motif = Neural[motif - 1][Channel][:, Freq]  # Select[Motif][Ch][Epoch, Freq]
+                Current_Full_Motif = Neural[motif][Channel][:, Freq]  # Select[Motif][Ch][Epoch, Freq]
 
                 # Line Up all of the Selected Frequencies across All Trials for that Channel
                 Chan_Full_Holder = np.column_stack((Chan_Full_Holder, Current_Full_Motif))
@@ -559,7 +559,7 @@ def Pearson_Coeff_Finder(Features, Templates):
 
 def Pearson_Extraction(Clipped_Trials, Templates):
     Extracted_Pearson = []
-    for i in xrange(len(Clipped_Trials)):
+    for i in range(len(Clipped_Trials)):
         Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates = Templates))
     return Extracted_Pearson
 
