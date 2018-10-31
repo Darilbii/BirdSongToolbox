@@ -634,11 +634,11 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructi
     clippings = []
     templates = []
 
-    for i in range(len(Label_Instructions)):
-        if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
-            label_starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps)
+    for instruction in range(len(Label_Instructions)):
+        if type(Label_Instructions[instruction]) == int or type(Label_Instructions[instruction]) == str:
+            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Time_Stamps)
         else:
-            label_starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps)
+            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Time_Stamps)
 
         if type(Slide) == int:
             label_starts = Slider(label_starts, Slide=Slide, Step=Step)
