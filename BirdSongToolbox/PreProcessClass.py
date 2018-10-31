@@ -52,10 +52,17 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
     freq_holder = []
     for freq in range(Num_Freq):
         if FiltFilt == True:
-            freq_holder.append(
-                bandpass_filter(np.transpose(Channels[:, :]), Bottom[freq], Top[freq], fs, order_num=order_num))
+            freq_holder.append(bandpass_filter(np.transpose(Channels[:, :]),
+                                               Bottom[freq],
+                                               Top[freq],
+                                               fs,
+                                               order_num= order_num))
         if FiltFilt == False:
-            freq_holder.append(bandpass_filter_causal(Channels[:, :], Bottom[freq], Top[freq], fs, order_num=order_num))
+            freq_holder.append(bandpass_filter_causal(Channels[:, :],
+                                                      Bottom[freq],
+                                                      Top[freq],
+                                                      fs,
+                                                      order_num=order_num))
 
     # Re-orginize structure to Legacy Format (Could Potentially re-work all downstream code to not need this)
     Freq_Bins = []  # For holding the Bandpass Filtered Data
@@ -703,8 +710,8 @@ class Pipeline():
             print('You Need to Define your Frequency Bands')
             print('Try using .Define_Frequencies()')
         else:
-            assert len(np.shape(
-                self.Song_Neural)) == 3, 'You have Already Bandpass Filtered '  # BPF Changes Architecture and Cannot be run repeatedly in series.  It Should be Run First
+            assert len(np.shape(self.Song_Neural)) == 3, 'You have Already Bandpass Filtered '
+            # BPF Changes Architecture and Cannot be run repeatedly in series.  It Should be Run First
             self.Song_Neural = BPF_Master(self.Song_Neural,
                                           Num_Trials=self.Num_Motifs,
                                           Freq_Bands=(self.Top, self.Bottom),

@@ -12,7 +12,7 @@ import random
 # These Commands implement a method Aashish used
 
 def bandpass(lowcut, highcut, fs, order=203):
-    ''' Design FIR Bandpass Filter
+    """Design FIR Bandpass Filter
     Parameters:
     -----------
     lowcut: int
@@ -29,7 +29,7 @@ def bandpass(lowcut, highcut, fs, order=203):
 
     a: int
         Filter Denominator's Coefficients (Defaults to 1)
-    '''
+    """
 
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -40,7 +40,7 @@ def bandpass(lowcut, highcut, fs, order=203):
 
 
 def bandpass_filter(data, lowcut, highcut, fs, order_num=204):
-    ''' Bandpass Filter input data using FIR Filter created using parameters passed. The Filter is used twice using the FiltFilt command to remove phase distortion
+    """Bandpass Filter input data using FIR Filter created using parameters passed. The Filter is used twice using the FiltFilt command to remove phase distortion
 
     Parameters:
     -----------
@@ -60,7 +60,7 @@ def bandpass_filter(data, lowcut, highcut, fs, order_num=204):
     --------
     y: List
         Bandpass Filtered Data
-    '''
+    """
 
     b, a = bandpass(lowcut, highcut, fs, order=order_num)
 
@@ -215,7 +215,7 @@ def Sliding_BPF(Channels, SN_L=int, Gp_L=int, StepSize=20, Lowest=0, Order=175, 
 ## !!!!!!!!!! Add Functionality to alter these frequency bands !!!!!!!!!!!
 
 def Generic_BPF(Channels, SN_L=int, Gp_L=int, Brain_waves=None, Order=175, fs=1000, FiltFilt=True):
-    '''Bandpass Filter Neural data using Frequency Bands Described in literature (Pulled from Wikipedia)
+    """Bandpass Filter Neural data using Frequency Bands Described in literature (Pulled from Wikipedia)
 
     Strategy:
     ---------
@@ -259,7 +259,7 @@ def Generic_BPF(Channels, SN_L=int, Gp_L=int, Brain_waves=None, Order=175, fs=10
         List of High Frequency Cuttoffs of Bandpass's used
     Bottom: list
         List of Low Frequency Cutoffs
-    '''
+    """
 
     Freq_Bins = []  # For holding the Bandpass Filtered Data
     Top = [1, 4, 8, 13, 30, 70]
@@ -291,7 +291,7 @@ def Generic_BPF(Channels, SN_L=int, Gp_L=int, Brain_waves=None, Order=175, fs=10
 # Additional Functionality Added= Sliding Set Band Width [5/23/2017]
 
 def RR_Neural(Frequencies, Good_Channels, Lowest=0, StepSize=20, SN_L=int, Gp_L=int, Slide=False):
-    '''Re-reference All Frequencies on All Channels for ONE Behavioral Trial. *Must Be Run For Each Trial*
+    """Re-reference All Frequencies on All Channels for ONE Behavioral Trial. *Must Be Run For Each Trial*
 
     Strategy:
     ---------
@@ -329,7 +329,7 @@ def RR_Neural(Frequencies, Good_Channels, Lowest=0, StepSize=20, SN_L=int, Gp_L=
     Avg_Freq_Bins_LFP: np.array
         Array of the Mean Activity of each frequency band accross all included Channels
         [Time (Samples) x Frequency Band]
-    '''
+    """
 
     ##[0] Initialize Variables for Filtering and Channel Exclusion
 
@@ -369,7 +369,7 @@ def RR_Neural(Frequencies, Good_Channels, Lowest=0, StepSize=20, SN_L=int, Gp_L=
 # Added on 5/23/2017
 
 def Good_Channel_Index(Num_of_Channels, Bad_Channels):
-    ''' Creates List of Good Channels
+    """Creates List of Good Channels
 
     Parameters:
     -----------
@@ -382,7 +382,7 @@ def Good_Channel_Index(Num_of_Channels, Bad_Channels):
     --------
     Good_Channels: list
         List of Channels to use for Re-Referencing
-    '''
+    """
     Available_Channels = np.arange(Num_of_Channels)  # Create List of Recording Channels
     print('All Channels:')
     print(Available_Channels)
@@ -404,7 +404,7 @@ def Good_Channel_Index(Num_of_Channels, Bad_Channels):
 
 def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silence, Lowest=0, StepSize=20,
                  Slide=False):  # Eventually the Numb_Motifs needs to be changed
-    ''' Z-Score Based on Neural Activity during Both Song and Silence
+    """Z-Score Based on Neural Activity during Both Song and Silence
 
     Equation Used: z = (x – μ) / σ
 
@@ -461,7 +461,7 @@ def Z_Score_data(Frequencies_Song, Frequencies_Silence, Numb_Motifs, Numb_Silenc
     Chan_StdDev: list
         List of Each Channels Standard Deviation Over all Trials for Each Frequency Band
         [Ch]->[1 (Mean) x Freq. Band]
-    '''
+    """
 
     # [1] Initialize variables
     Freq_Bins_norm = []  # For Normalized Data
@@ -571,7 +571,7 @@ def Smooth_data(Data, Numb_Motifs, Window=int):
 
 def Prep_pipeline(Song_Data, Numb_Motifs, Silence_Data, Numb_Silence, Good_Chan, SN_L=500, Gp_L=4000, StepSize=15,
                   Lowest=5, Order=175, fs=1000, window=10, filtfilt=True, Sliding=False, Suppress=False):
-    '''
+    """
 
     Parameters:
     -----------
@@ -627,7 +627,7 @@ def Prep_pipeline(Song_Data, Numb_Motifs, Silence_Data, Numb_Silence, Good_Chan,
         [z-Scored Squared    ]
         [Smothed Z-Scored    ]
         [Smothed z-Scored Sq.]
-    '''
+    """
     # Need to Improve SN_L & Gp_L handling
 
     BPF_Motifs = []
