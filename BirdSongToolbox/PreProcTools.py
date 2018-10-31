@@ -68,7 +68,7 @@ def bandpass_filter(data, lowcut, highcut, fs, order_num=204):
     return y
 
 def bandpass_filter_causal(data, lowcut, highcut, fs, order_num=204):
-    ''' Bandpass Filter input data using FIR Filter created using parameters passed (Calls Func.: bandpass()) The Filter is passed once to show Causal Filtered Data
+    """Bandpass Filter input data using FIR Filter created using parameters passed (Calls Func.: bandpass()) The Filter is passed once to show Causal Filtered Data
 
     Parameters:
     -----------
@@ -88,7 +88,7 @@ def bandpass_filter_causal(data, lowcut, highcut, fs, order_num=204):
     --------
     y: List
         Bandpass Filtered Data
-    '''
+    """
 
     Correct_order_num = order_num *2
     b, a = bandpass(lowcut, highcut, fs, order=Correct_order_num)
@@ -101,7 +101,7 @@ def bandpass_filter_causal(data, lowcut, highcut, fs, order_num=204):
 # Additional Functionality Added= Sliding Set Band Width [5/23/2017]
 
 def Create_Bands(StepSize=20, Lowest=0, Slide=False, Suppress=False):
-    ''' Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
+    """Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
     Parameters:
     -----------
     StepSize: int
@@ -119,7 +119,7 @@ def Create_Bands(StepSize=20, Lowest=0, Slide=False, Suppress=False):
         List of High Frequency Cuttoffs of Bandpass's used
     Bottom: list
         List of Low Frequency Cutoffs
-    '''
+    """
     Top = []  # For holding the Top of all the pass bands
     Bottom = []  # For holding the Bottom of all the pass bands
 
@@ -151,7 +151,7 @@ def Create_Bands(StepSize=20, Lowest=0, Slide=False, Suppress=False):
 
 def Sliding_BPF(Channels, SN_L=int, Gp_L=int, StepSize=20, Lowest=0, Order=175, fs=1000, FiltFilt=True, Slide=False,
                 SUPP=False):
-    '''Consecutive Bandpass Filtering of Neural data to create Discrete Frequency Band Features
+    """Consecutive Bandpass Filtering of Neural data to create Discrete Frequency Band Features
 
     Strategy:
     ---------
@@ -191,7 +191,7 @@ def Sliding_BPF(Channels, SN_L=int, Gp_L=int, StepSize=20, Lowest=0, Order=175, 
         List of High Frequency Cuttoffs of Bandpass's used
     Bottom: list
         List of Low Frequency Cutoffs
-    '''
+    """
 
     Freq_Bins = []  # For holding the Bandpass Filtered Data
     Top, Bottom = Create_Bands(StepSize=StepSize, Lowest=Lowest, Slide=Slide, Suppress=SUPP)

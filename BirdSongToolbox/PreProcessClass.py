@@ -10,7 +10,6 @@ import decorator
 from .PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands, Good_Channel_Index
 
 
-
 # Master Function: Handles Flexible Bandpass Filtering
 
 def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
@@ -69,8 +68,8 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
 
 
 def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175,
-               fs=1000, FiltFilt=True, verbose= False):
-    '''Bandpass Filter Neural data using User Defined Frequency Bands for All Trials
+               fs=1000, FiltFilt=True, verbose=False):
+    """Bandpass Filter Neural data using User Defined Frequency Bands for All Trials
 
     Strategy:
     ---------
@@ -106,19 +105,26 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
     BPF_Motifs: list
         List of All Trial's Resulting Bandpass Filtered Neural Data per channel
         [Trial]->[ch]->[Song Length (Samples) x Freq. Bin]
-    '''
+    """
     BPF_Motifs = []
     for Trial in range(Num_Trials):
-        BPF_Motifs.append(
-            BPF_Module(Channels[Trial], Freq_Bands=Freq_Bands, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan, Num_Freq=Num_Freq,
-                       order_num=order_num, fs=fs, FiltFilt=FiltFilt))
+        BPF_Motifs.append(BPF_Module(Channels[Trial],
+                                     Freq_Bands=Freq_Bands,
+                                     SN_L=SN_L,
+                                     Gp_L=Gp_L,
+                                     Num_Chan=Num_Chan,
+                                     Num_Freq=Num_Freq,
+                                     order_num=order_num,
+                                     fs=fs,
+                                     FiltFilt=FiltFilt))
         if verbose == True:
             print('Finished Trial: ', Trial)
     return BPF_Motifs
 
-#TODO: Verify this will work as intended then make sure to integrate it into the class function
+
+# TODO: Verify this will work as intended then make sure to integrate it into the class function
 def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
-               FiltFilt=True):
+                    FiltFilt=True):
     """Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
 
     Strategy:
@@ -206,7 +212,8 @@ def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
 
     # 1.2 Active Step
     for l in range(0, Num_Freq):
-        Ch_Freq_Bins_Holder = np.zeros([SN_L + Gp_L, len(Good_Channels)])  # Initiate Memory for Holding 1 Frequency Band for All Good Channels
+        Ch_Freq_Bins_Holder = np.zeros(
+            [SN_L + Gp_L, len(Good_Channels)])  # Initiate Memory for Holding 1 Frequency Band for All Good Channels
 
         for i in range(len(Good_Channels)):  # Iterate over List of Good Channels
             Holder = Frequencies[Good_Channels[i]]  # Create Temporary Copy(Soft) of Frequencies
@@ -562,7 +569,6 @@ class Pipeline():
         self.All_Last_Motifs = copy.deepcopy(Imported_Data.All_Last_Motifs)
         self.Good_Mid_Motifs = copy.deepcopy(Imported_Data.Good_Mid_Motifs)
         self.Good_Channels = Good_Channel_Index(self.Num_Chan, self.Bad_Channels)
-        
 
         # Create Processing Operator Instances
         self.Activity_Log = {}  # Initiate a Log of Activity for Recounting Processing Steps
@@ -571,12 +577,13 @@ class Pipeline():
         self.Step_Count = 0  # Initiate Step Counter
 
     ########## Last Here
-    
-    @decorator.decorator # Allows all Decorated Functions to give helpful info with help commands
-    def _StandardStep(func, self, *args, **kwargs):
+
+    @decorator.decorator  # Allows all Decorated Functions to give helpful info with help commands
+    def _StandardStep(func, self, Safe= True, *args, **kwargs):
         assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
-        print('Wrapper Worked') #TODO Edit this Decorator to Print Useful Strings
-        self.Make_Backup()  # Back-up Neural Data in case of Mistake
+        print('Wrapper Worked')  # TODO Edit this Decorator to Print Useful Strings
+        if Safe == True:
+            self.Make_Backup()  # Back-up Neural Data in case of Mistake
         func(self, *args, **kwargs)  # Pre-Processing Function
         self.Update_Log(self.Log_String)  # Update Log
         del self.Log_String
@@ -584,30 +591,30 @@ class Pipeline():
         return
 
     def Make_Backup(self):
-        '''Quickly Backs Up Neural Data '''
+        """Quickly Backs Up Neural Data """
         assert self.Status == True  # Evaluate Status of Data in Pipeline
         self.Backup = self.Song_Neural, self.Silence_Neural
 
     def Update_Log(self, step):
-        '''Updates Log recording Processing Steps Implemented'''
+        """Updates Log recording Processing Steps Implemented"""
         assert type(step) == str
         self.Step_Count = self.Step_Count + 1
         self.Activity_Log[self.Step_Count] = step
 
     def identity(self):
-        '''Convenience Function: Displays the Bird ID and Recording Date'''
+        """Convenience Function: Displays the Bird ID and Recording Date"""
         print('bird id: ' + self.bird_id)
         print('recording: ' + self.date)
 
     def Pipe_Steps(self):
-        '''Convenience Function: Prints Pipeline Steps Used'''
+        """Convenience Function: Prints Pipeline Steps Used"""
         assert len(self.Activity_Log) > 0, 'No Steps Implemented'
         for i in range(len(self.Activity_Log)):
             print(str(i + 1) + ': ' + self.Activity_Log[i + 1])
 
     # noinspection PyTupleAssignmentBalance
     def Restore(self):
-        '''Conveniece Function: Restores Neural Data to the Immediate Prior Step'''
+        """Conveniece Function: Restores Neural Data to the Immediate Prior Step"""
         assert self.Step_Count > 0
         assert self.Status == True, 'Pipe Closed'  # Evaluate Status of Data in Pipeline
         assert type(self.Backup) == tuple
@@ -638,7 +645,6 @@ class Pipeline():
     # TODO: The Entire Restore Pipeline is Faulty
     # TODO: Change Discription of Gap_Len to: Total Length (Duration) of time Buffer around Trials (To Determine Buffer Before or After Divide by 2)
     # TODO: Top and Bottom annotation must be updated to ndarray (Benefit is they are immutable)
-
 
     def Define_Frequencies(self, Instructions, StepSize=20, Lowest=0, Slide=False, suppress=False):
         """Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
@@ -689,7 +695,7 @@ class Pipeline():
         self.Num_Freq = len(Top)
 
     @_StandardStep
-    def Band_Pass_Filter(self, order_num=175, FiltFilt=True, verbose = False):
+    def Band_Pass_Filter(self, order_num=175, FiltFilt=True, verbose=False):
         """Bandpass Filter Data using User Defined Frequency Bands"""
         try:
             self.Top
@@ -706,7 +712,7 @@ class Pipeline():
                                           Num_Chan=self.Num_Chan,
                                           Num_Freq=self.Num_Freq, order_num=order_num,
                                           fs=self.Fs, FiltFilt=FiltFilt,
-                                          verbose = verbose)
+                                          verbose=verbose)
 
             self.Silence_Neural = BPF_Master(self.Silence_Neural,
                                              Num_Trials=self.Num_Silence,
@@ -718,7 +724,7 @@ class Pipeline():
                                              order_num=order_num,
                                              fs=self.Fs,
                                              FiltFilt=FiltFilt,
-                                             verbose = verbose)
+                                             verbose=verbose)
 
             # Construct Log Update Components
             if FiltFilt == True:
@@ -755,5 +761,3 @@ class Pipeline():
         self.Log_String = 'Z-Scored Data [Eqn: z = (x – μ) / σ]'  # Construct Log String
 
 ################### LAST WORKING HERE: Clean Up Documentation, Unit Test, Back-up on Github, and Work on Analysis
-
-
