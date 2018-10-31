@@ -579,11 +579,11 @@ class Pipeline():
     ########## Last Here
 
     @decorator.decorator  # Allows all Decorated Functions to give helpful info with help commands
-    def _StandardStep(func, self, Safe= True, *args, **kwargs):
+    def _StandardStep(func, self, *args, **kwargs):
         assert self.Status == True, 'Pipe is Closed. To re-open use Pipe_Reopen'
         print('Wrapper Worked')  # TODO Edit this Decorator to Print Useful Strings
-        if Safe == True:
-            self.Make_Backup()  # Back-up Neural Data in case of Mistake
+        # if Safe == True:
+        #     self.Make_Backup()  # Back-up Neural Data in case of Mistake
         func(self, *args, **kwargs)  # Pre-Processing Function
         self.Update_Log(self.Log_String)  # Update Log
         del self.Log_String
