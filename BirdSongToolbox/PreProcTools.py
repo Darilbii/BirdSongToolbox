@@ -276,7 +276,7 @@ def Generic_BPF(Channels, SN_L=int, Gp_L=int, Brain_waves=None, Order=175, fs=10
     for i in range(Ch_Num):
         Test = Channels[:, i]  # Grab Raw Signal of Select Channel
         Freq_Bins_Holder = np.zeros([SN_L + Gp_L, B])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
-        for l in range(0, B):
+        for l in range(B):
             if FiltFilt == True:
                 Freq_Bins_Holder[:, l] = bandpass_filter(Test, Bottom[l], Top[l], fs, order_num=Order)
             if FiltFilt == False:
