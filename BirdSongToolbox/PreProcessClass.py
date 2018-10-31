@@ -48,18 +48,23 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
         List of Resulting Bandpass Filtered Neural Data per channel
     '''
     Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
-    Freq_Bins = []  # For holding the Bandpass Filtered Data
 
-    ## Band Pass and Isolate each Frequency Band
-    for i in range(Num_Chan):
-        Test = Channels[:, i]  # Grab Raw Signal of Select Channel
-        Freq_Bins_Holder = np.zeros([SN_L + Gp_L, Num_Freq])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
-        for l in range(0, Num_Freq):
-            if FiltFilt == True:
-                Freq_Bins_Holder[:, l] = bandpass_filter(Test, Bottom[l], Top[l], fs, order_num=order_num)
-            if FiltFilt == False:
-                Freq_Bins_Holder[:, l] = bandpass_filter_causal(Test, Bottom[l], Top[l], fs, order_num=order_num)
-        Freq_Bins.append(Freq_Bins_Holder[:, :])
+    # Filter all Channels over each Frequency Band
+    freq_holder = []
+    for freq in range(Num_Freq):
+        if FiltFilt == True:
+            freq_holder.append(
+                bandpass_filter(np.transpose(Channels[:, :]), Bottom[freq], Top[freq], fs, order_num=order_num))
+        if FiltFilt == False:
+            freq_holder.append(bandpass_filter_causal(Channels[:, :], Bottom[freq], Top[freq], fs, order_num=order_num))
+
+    # Re-orginize structure to Legacy Format (Could Potentially re-work all downstream code to not need this)
+    Freq_Bins = []  # For holding the Bandpass Filtered Data
+    for chan in range(Num_Chan):
+        freq_bins_holder = np.zeros([SN_L + Gp_L, Num_Freq])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
+        for freq in range(Num_Freq):
+            freq_bins_holder[:, freq] = np.transpose(freq_holder[freq][chan, :])
+        Freq_Bins.append(freq_bins_holder[:, :])
     return Freq_Bins
 
 
@@ -114,7 +119,7 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
 #TODO: Verify this will work as intended then make sure to integrate it into the class function
 def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
                FiltFilt=True):
-    '''Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
+    """Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
 
     Strategy:
     ---------
@@ -145,7 +150,7 @@ def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int
     --------
     Freq_Bins: list [ch]->[Song Length (Samples) x 1]
         List of Resulting Bandpass Filtered Neural Data per channel
-    '''
+    """
     Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
     Freq_Bins = []  # For holding the Bandpass Filtered Data
 
@@ -217,7 +222,7 @@ def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
 
 
 def RR_Neural_Master(Frequencies, Num_Trials, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
-    '''Re-reference All Frequencies on All Channels for All Behavioral Trials.
+    """Re-reference All Frequencies on All Channels for All Behavioral Trials.
 
     Strategy:
     ---------
@@ -246,7 +251,7 @@ def RR_Neural_Master(Frequencies, Num_Trials, Good_Channels, Num_Freq, SN_L=int,
     Avg_Freq_Bins_LFP: np.array
         Array of the Mean Activity of each frequency band accross all included Channels
         [Trials]->[Time (Samples) x Frequency Band]
-    '''
+    """
     RR_Trials = []
     Avg_Freq_RR_Trials = []
     for i in range(Num_Trials):
