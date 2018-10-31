@@ -439,7 +439,7 @@ import copy
 
 
 class Pipeline():
-    ''' Class for Pre-Processing Neural Data
+    """Class for Pre-Processing Neural Data
 
     Description:
     ------------
@@ -535,7 +535,7 @@ class Pipeline():
     .Good_Mid_Motifs: list
         Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
         Analysis
-    '''
+    """
 
     def __init__(self, Imported_Data):
         '''Initiallizes by hardcopying the input data for Pre-Processing'''
@@ -641,7 +641,7 @@ class Pipeline():
 
 
     def Define_Frequencies(self, Instructions, StepSize=20, Lowest=0, Slide=False, suppress=False):
-        '''Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
+        """Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
 
         Parameters:
         -----------
@@ -669,7 +669,7 @@ class Pipeline():
             List of High Frequency Cuttoffs
         .Bottom: list
             List of Low Frequency Cutoffs
-        '''
+        """
         assert self.Status == True, 'Pipe is Closed. This Function SHOULD NOT be run on its own'
         assert type(Instructions) == str or type(Instructions) == tuple  # Ensure Instructions follow Assumptions
         if type(Instructions) == tuple:
@@ -690,7 +690,7 @@ class Pipeline():
 
     @_StandardStep
     def Band_Pass_Filter(self, order_num=175, FiltFilt=True, verbose = False):
-        ''' Bandpass Filter Data using User Defined Frequency Bands'''
+        """Bandpass Filter Data using User Defined Frequency Bands"""
         try:
             self.Top
         except NameError:
@@ -732,8 +732,8 @@ class Pipeline():
 
     @_StandardStep
     def Re_Reference(self):
-        '''Re-Reference Data using a Common Average Reference Filter that Excludes Channels Directed by User
-        '''
+        """Re-Reference Data using a Common Average Reference Filter that Excludes Channels Directed by User
+        """
         assert type(self.Good_Channels) == list, 'Something is Wrong with .Good_Channels'
         self.Song_Neural, self.Song_CAR = RR_Neural_Master(self.Song_Neural, Num_Trials=self.Num_Motifs,
                                                            Good_Channels=self.Good_Channels,
@@ -746,8 +746,8 @@ class Pipeline():
 
     @_StandardStep
     def Z_Score(self):
-        ''' Z-Score Input Data based on Equal Number of Song and Silence Trials
-        '''
+        """Z-Score Input Data based on Equal Number of Song and Silence Trials
+        """
         ### !!!!!! Validate Proper Steps have been made made!!!!!!!
         self.Song_Neural, self.Silence_Neural, self.Means, self.StdDevs = Z_Score_data_Master(
             Frequencies_Song=self.Song_Neural, Frequencies_Silence=self.Silence_Neural, Numb_Freq=self.Num_Freq,
