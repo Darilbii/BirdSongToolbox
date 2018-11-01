@@ -1290,38 +1290,49 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
 
     Parameters:
     -----------
-    :param Features:
-    :param Offset:
-    :param Tr_Length:
-    :param Feature_Type:
-    :param Temps:
+    Features: list
+        [Ch]->[Freq]->(Time Samples x Trials)
+    Offset: int
+
+    Tr_Length: int
+
+    Feature_Type: int
+
+    Temps:
 
     Returns:
     --------
-
+    full_trial_teatures: list
+        [Epoch]->[Samples/Time x Features]
     """
     Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
 
     if Feature_Type == 'Power':
-        Series_Power = Find_Power(Series_Trial)
-        Series_Ordered, _ = ML_Order(Series_Power)
+        series_power = Find_Power(Series_Trial)
+        series_ordered, _ = ML_Order(series_power)
 
-    if Feature_Type == 'Pearson':
-        print('Under Development')
-        # Function for Finding Pearson
-        ## [Probably should add *kwargs]
-        # Fucntion for Ordering Pearson
-        Series_Pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        Series_Ordered, _ = Pearson_ML_Order(Series_Pearson)
+    elif Feature_Type == 'Pearson':
+        series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
+        series_ordered, _ = Pearson_ML_Order(series_pearson)
 
-    Full_Trial_Features = []
+    elif Feature_Type == 'Both':
+        series_power = Find_Power(Series_Trial)
+        series_power_ordered, _ = ML_Order(series_power)
+        series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
+        series_pearson_ordered, _ = Pearson_ML_Order(series_pearson)
+        series_ordered = np.concatenate((series_power_ordered, series_pearson_ordered), axis=1)
+    else:
+        print(" You didn't input a Valid Feature Type")
+        return
 
-    Trial_Length = len(Features[0][0][:, 0]) - Offset - Tr_Length
+    full_trial_features = []
+    trial_length = len(Features[0][0][:, 0]) - Offset - Tr_Length
 
+    # Break the long time series back into the Constituent Epochs
     for i in range(len(Features[0][0][0, :])):
-        Full_Trial_Features.append(Series_Ordered[Trial_Length * (i):Trial_Length * (i + 1), :])
+        full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
 
-    return Full_Trial_Features
+    return full_trial_features
 
 
 def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
