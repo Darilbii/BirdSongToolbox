@@ -1257,7 +1257,7 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     return dynamic_freq_trials
 
 
-def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions):
+def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, undetermined=False):
     """ Creates a timeline of the syllable Labels for Visualization
 
     Parameters:
@@ -1273,11 +1273,12 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions):
         Machine Learning encoding of labels based on label_instructions
 
     """
-    def label_conversion(label, instructions):
+    def label_conversion(label, instructions, spec_instr):
         """Function converts the labels to a integer that is of the structure of the label_instructions parameter
 
         Parameters:
         -----------
+        :param spec_instr:
         :param label:
         :param instructions:
 
@@ -1288,8 +1289,14 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions):
         """
         count = 0
         for instruction in instructions:
-            if label in instruction:
+            if label == instruction:
                 conversion = count
+            elif label in instruction:
+                conversion = count
+            elif isinstance(spec_instr, int):
+                conversion = spec_instr
+            else:
+                print(" You did not include one of the labels in your instructions (Likely 'C')")
             count += 1
         return conversion
 
@@ -1304,7 +1311,9 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions):
         sel_label = labels
         start_int = int(starts / 30)
         end_int = int(ends / 30)
-        time_series_labels[start_int: end_int, 0] = label_conversion(sel_label, label_instructions)
+        time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
+                                                                     label_instructions,
+                                                                     spec_instr=undetermined)
         # for internal_ind in range(end_int - start_int):
         #     if (start_int + internal_ind) < 4500:
         #         time_series_labels[start_int + internal_ind, 0] = label_conversion(sel_label, label_instructions)
