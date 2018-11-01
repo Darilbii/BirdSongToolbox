@@ -258,7 +258,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
 # Functions for Handling the new Dictionary Format of the Hand labels
 
 
-def get_handlabels(bird_id='z020', sess_name='day-2016-06-03', supp_path='/home/debrown/Handlabels'):
+def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, local=False):
     ''' Function Imports the Hand Labels of the Specified Recording
 
     Inputs:
@@ -277,8 +277,10 @@ def get_handlabels(bird_id='z020', sess_name='day-2016-06-03', supp_path='/home/
                                         |-> Labels: [Event_Labels]
                                         |-> Onsets: [[Starts], [Ends]]
     '''
-
-    if supp_path:
+#TODO: Make this function more reasonable
+    if local == False:
+        folder_path = '/home/debrown/Handlabels'
+    elif local:
         assert isinstance(supp_path, str), "Supplemental path must be a String"
         folder_path = os.path.join(supp_path, bird_id, sess_name)
     else:
