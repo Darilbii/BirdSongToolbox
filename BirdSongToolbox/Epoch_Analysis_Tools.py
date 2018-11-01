@@ -739,17 +739,29 @@ def Pearson_Coeff_Finder(Features, Templates):
     # Create Lists
     corr_trials = []
 
+    # for channel in range(0, len(Features[:])):  # Over all Channels
+    #     freq_trials = []
+    #     for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+    #         corr_holder = np.zeros([num_trials, num_temps])
+    #
+    #         for instance in range(num_trials):
+    #             for temp in range(num_temps):
+    #                 corr_holder[instance, temp], _ = scipy.stats.pearsonr(Features[channel][frequency][:, instance],
+    #                                                                       Templates[temp][channel][frequency][:, 0])
+    #         freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
+    #     corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+
     for channel in range(0, len(Features[:])):  # Over all Channels
         freq_trials = []
         for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
             corr_holder = np.zeros([num_trials, num_temps])
-
-            for instance in range(num_trials):
-                for temp in range(num_temps):
-                    corr_holder[instance, temp], _ = scipy.stats.pearsonr(Features[channel][frequency][:, instance],
-                                                                          Templates[temp][channel][frequency][:, 0])
+            for temp in range(num_temps):
+                corr_holder[:, temp] = efficient_pearson_1d_v_2d(Templates[temp][channel][frequency][:, 0],
+                                                                 np.transpose(Features[channel][frequency]))
             freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
         corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+
+
     return corr_trials
 
 
@@ -777,12 +789,79 @@ def Pearson_Extraction(Clipped_Trials, Templates):
     return Extracted_Pearson
 
 
+def efficient_pearson_1d_v_2d(one_dim, two_dim):
+    """Finds the Pearson correlation of all rows of the two dimensional array with the one dimensional array
+
+    Source:
+    -------
+        https://www.quora.com/How-do-I-calculate-the-correlation-of-every-row-in-a-2D-array-to-a-1D-array-of-the-same-length
+
+    Info:
+    -----
+        The Pearson correlation coefficient measures the linear relationship
+     between two datasets. Strictly speaking, Pearson's correlation requires
+     that each dataset be normally distributed. Like other correlation
+     coefficients, this one varies between -1 and +1 with 0 implying no
+     correlation. Correlations of -1 or +1 imply an exact linear
+     relationship. Positive correlations imply that as x increases, so does
+     y. Negative correlations imply that as x increases, y decreases.
+
+
+    Parameters:
+    ----------
+    one_dim = ndarray
+        1-Dimensional Array
+    two_dim= ndarray
+        2-Dimensional array it's row length must be equal to the length of one_dim
+
+    Returns:
+    --------
+    pearsons: ndarray
+
+
+
+    Example:
+    --------
+    x = np.random.randn(10)
+    y = np.random.randn(100, 10)
+
+    The numerators is shape (100,) and denominators is shape (100,)
+    Pearson = efficient_pearson_1d_v_2d(one_dim = x, two_dim = y)
+    """
+    x_bar = np.mean(one_dim)
+    x_intermediate = one_dim - x_bar
+    y_bar = np.mean(two_dim, axis=1)  # this flattens y to be (100,) which is a 1D array.
+    # The problem is that y is 100, 10 so numpy's broadcasting doesn't know which axis to treat as the one to broadcast over.
+    y_bar = y_bar[:, np.newaxis]
+    # By adding this extra dimension, we're forcing numpy to treat the 0th axis as the one to broadcast over
+    # which makes the next step possible. y_bar is now 100, 1
+    y_intermediate = two_dim - y_bar
+    numerators = y_intermediate.dot(x_intermediate)  # or x_intermediate.dot(y_intermediate.T)
+    x_sq = np.sum(np.square(x_intermediate))
+    y_sqs = np.sum(np.square(y_intermediate), axis=1)
+    denominators = np.sqrt(x_sq * y_sqs)  # scalar times vector
+    pearsons = (numerators / denominators)  # numerators is shape (100,) and denominators is shape (100,)
+
+    return pearsons
+
 # Function for getting the Pearson Coefficient for Classification
 def Pearson_ML_Order(Features):
     """Reorganizes the Extracted Features into a Useful Machine Learning Format
 
     Output Shape [Number of Examples vs. Number of Features]
 
+    Parameters:
+    -----------
+    Features: list
+        list of Pearson Correlation Values between each instance and the LFP Template of each Label
+        [ch] -> [freq] -> ( Number of Instances x Number of Labels/Templates)
+
+    Returns:
+    --------
+    ordered_trials:
+        [
+
+    column_index:
     """
     # Create Variable for Indexing
     #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
@@ -790,14 +869,20 @@ def Pearson_ML_Order(Features):
     # Create Initial Array
     column_index = []
     ordered_trials = np.zeros((NT, 1))  # Initialize Dummy Array
-
+    channel_count = 0
     # Channel Based Ordering
     for channel in Features:  # Over all Channels
+        frequency_count = 0
         for frequency in channel:  # For Range of All Frequency Bins
+            ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
             for temps in range(len(frequency[0, :])):
-                ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
-                universal_index = (channel, frequency, temps)  # Tuple that contains (Channel #, Freq Band #)
+                #TODO: Refactor Pearson_ML_Order to run faster
+                # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
+                # ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
+                universal_index = (channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
+            frequency_count += 1
+        channel_count += 1
     ordered_trials = np.delete(ordered_trials, 0, 1)  # Delete the First Row (Initialized Row)
     return ordered_trials, column_index
 
@@ -1095,6 +1180,14 @@ def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
 
 
 def Make_Full_Trial_Index(Features, Offset=int, Tr_Length=int):
+    """
+
+    :param Features:
+    :param Offset:
+    :param Tr_Length:
+    :return:
+    """
+
     FT_Index = []
     for i in range(len(Features[0][0][0, :])):
         Time_List = np.arange(Offset + Tr_Length, 4500)
@@ -1111,10 +1204,17 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     Its output can later be broken into an Initial Training and Final Test Set.
 
 
+    Parameters:
+    -----------
     Starts is a list of Lists containing the Start Times of only One type of Label in each Clipping.
     Also Note that the Starts Argument must be converted to the 1 KHz Sampling Frequency
 
     Offset = How much prior or after onset
+
+    Returns:
+    --------
+
+
     """
 
     starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length)
