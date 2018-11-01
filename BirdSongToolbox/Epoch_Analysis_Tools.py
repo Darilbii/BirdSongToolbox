@@ -1297,16 +1297,17 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions):
     # # Make Dummy List (THIS is really bad coding)
     # for i in range(4500):
     #     timeseries_labels.append(6)  # 6 is Silence for original Labling
-    time_series_labels = np.zeros(4500, 1)
+    time_series_labels = np.zeros((4500, 1))
 
     #     TIMESERIES_LABELS = np.zeros([4500, 1])
     for labels, starts, ends, in zip(labels[sel_epoch], clippings[0][sel_epoch], clippings[1][sel_epoch]):
         sel_label = labels
         start_int = int(starts / 30)
         end_int = int(ends / 30)
-        for internal_ind in range(end_int - start_int):
-            if (start_int + internal_ind) < 4500:
-                time_series_labels[start_int + internal_ind] = label_conversion(sel_label, label_instructions)
+        time_series_labels[start_int: end_int, 0] = label_conversion(sel_label, label_instructions)
+        # for internal_ind in range(end_int - start_int):
+        #     if (start_int + internal_ind) < 4500:
+        #         time_series_labels[start_int + internal_ind, 0] = label_conversion(sel_label, label_instructions)
 
     return time_series_labels
 
