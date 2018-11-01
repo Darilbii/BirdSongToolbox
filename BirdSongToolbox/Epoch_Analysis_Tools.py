@@ -879,7 +879,7 @@ def Pearson_ML_Order(Features):
     for channel in Features:  # Over all Channels
         frequency_count = 0
         for frequency in channel:  # For Range of All Frequency Bins
-            ordered_trials = np.concatenate(ordered_trials, frequency, axis=1)
+            ordered_trials = np.concatenate((ordered_trials, frequency), axis=1)
             for temps in range(len(frequency[0, :])):
                 #TODO: Refactor Pearson_ML_Order to run faster
                 # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
