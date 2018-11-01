@@ -1202,7 +1202,10 @@ def Make_Full_Trial_Index(Features, Offset: int, Tr_Length: int, Epoch_Len: int)
 
     FT_Index = []
     for i in range(len(Features[0][0][0, :])):
-        time_list = np.arange(Offset + Tr_Length, Epoch_Len)
+        if Offset + Tr_Length >= 0
+            time_list = np.arange(Offset + Tr_Length, Epoch_Len)
+        else: # Prevents unintended indexing if neural activity is include non-causal information
+            time_list = np.arange(0, Epoch_Len + Offset + Tr_Length)
         FT_Index.append(list(time_list))
     return FT_Index
 
@@ -1278,7 +1281,10 @@ def series_lfp_label_clipper(labels, clippings, label_instructions, Offset: int,
                                              sel_epoch=epoch,
                                              label_instructions=label_instructions,
                                              undetermined=undetermined)
-        series_labels.append(epoch_labels[Offset + Tr_Length:, 0])
+        if Offset + Tr_Length >= 0:
+            series_labels.append(epoch_labels[Offset + Tr_Length:, 0])
+        else: # Prevents unintended indexing if neural activity is include non-causal information
+            series_labels.append(epoch_labels[:Offset + Tr_Length, 0])
     return series_labels
 
 
