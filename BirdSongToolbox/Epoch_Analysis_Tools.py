@@ -3,6 +3,7 @@ Epoch_Analysis_Tools
 Tools for analyzing the predictive power of LFP and SUA for predicting Syllable onset
 
 """
+import pickle
 
 import scipy
 import numpy as np
@@ -253,7 +254,97 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
 
     return Channel_Full_Freq_Trials
 
+########################################################################################################################
+# Functions for Handling the new Dictionary Format of the Hand labels
 
+
+def get_handlabels(bird_id='z020', sess_name='day-2016-06-03', supp_path='/home/debrown/Handlabels'):
+    ''' Function Imports the Hand Labels of the Specified Recording
+
+    Inputs:
+    -------
+    bird_id: str
+        Bird Identification; defaults to 'z020'
+    sess_name: sstr
+        Recording Date; defaults to 'day-2016-06-02',
+    supp_path: str
+        ; defaults to None
+
+    Returns:
+    --------
+    Epoch_Dict: dict (If Save = False)
+        Dictionary of the Handlabels; {Epoch_Numb : (Labels, Onsets)}
+                                        |-> Labels: [Event_Labels]
+                                        |-> Onsets: [[Starts], [Ends]]
+    '''
+
+    if supp_path:
+        assert isinstance(supp_path, str), "Supplemental path must be a String"
+        folder_path = os.path.join(supp_path, bird_id, sess_name)
+    else:
+        folder_path = os.path.join(bird_id, sess_name)
+        print('Here')
+    file_name = bird_id + '_' + sess_name + '.pckl'
+    Destination = os.path.join(folder_path, file_name)
+
+    print(Destination)
+    file = open(Destination, 'rb')
+    Epoch_Dict = pickle.load(file)
+    file.close()
+    return Epoch_Dict
+
+
+
+def Prep_Handlabels_for_ML(Hand_labels, Index):
+    """Restructures the Dictionary of Hand labels to a list for use in Machine Learning Pipeline
+
+    Parameters:
+    -----------
+    Hand_labels: dict
+        Dictionary of the Handlabels; {Epoch_Numb : (Labels, Onsets)}
+                                        |-> Labels: [Event_Labels]
+                                        |-> Onsets: [[Starts], [Ends]]
+    Index: list
+        Index of Epochs to grab from the Handlabels dictionary
+
+    Returns:
+    --------
+    labels_list: list
+        [Epoch] -> [Labels]
+    onsets_list: list
+        [Epoch] -> ([Start Times], [End Times])
+
+    """
+
+    labels_list = []
+    onsets_list = []
+
+    for epoch in Index:
+        labels_list.append(Hand_labels[epoch][0])
+        onsets_list.append(Hand_labels[epoch][1])
+
+    return labels_list, onsets_list
+
+
+def Get_Validation_Test_Sets(Epoch_Index):
+    """Breaks Epochs of a certain day into a Validation and Test Set
+
+    Parameters:
+    -----------
+    Epoch_Index: list
+        List of all Epochs to be used (Typically the All_First_Motifs Epochs)
+
+    Returns:
+    --------
+    validation_set: list
+        Index of Epochs reserved for the Validation Set
+    test_set: list
+        Index of the Epochs to be used for K-Fold Cross Validation Testing
+    """
+
+    test_set, validation_set = train_test_split(Epoch_Index, random_state=0)
+
+    return validation_set, test_set
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
@@ -835,3 +926,376 @@ def Machine_Learning_PreP(Song_Trials, Silence_Trials, verbose=False):
     skf = StratifiedKFold(y, n_folds=K)
 
     return X, y, skf
+
+
+########################################################################################################################
+################################ Code for Handling Full Series Operations ##############################################
+########################################################################################################################
+
+# This function is the Second half of Run_GNB
+# It is broken in half to cut down time for computation (K-fold and Label creation only done once)
+
+from sklearn import metrics
+
+
+def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
+                         verbose=False):  # , SKF, verbose=False):
+    ''' This Function is a Flexible Machine Learning Function that Trains FOUR Classifiers and determines metrics of each
+    The metrics it determines are:
+                [1] Accuracy & StdERR
+                [2] Confusion Matrix
+                [3] Reciever Operating Curve
+    It stores all of the trained Classifiers into a Dictionary and pairs it with a
+    Dictionary of the Corresponding Test Index. The Pair are returned as a tuple'''
+
+    K = 4
+    class_index = list(set(Data_Labels))
+    X = Data_Set
+    y = Data_Labels
+
+    #     y = label_binarize(Data_Labels, classes=list(set(Data_Labels)))
+
+    skf = StratifiedKFold(Data_Labels, n_folds=K)
+
+    acc = np.zeros(K)
+    c = []  # Just Added
+    ROC = []  # Just Added too 8/10
+    foldNum = 0
+
+    Trained_Classifiers = dict()
+    Trained_Index = dict()
+    for train, test in skf:
+        if verbose:
+            print("Fold %s..." % foldNum)
+        # print "%s %s" % (train, test)
+        X_train, y_train = X[train, :], y[train]
+        X_test, y_test = X[test, :], y[test]
+
+        Classifier = Select_Classifier(Model=Method, Strategy=Strategy)
+        Classifier.fit(X_train, y_train)
+
+        y_pred = Classifier.predict(X_test)
+
+        C = confusion_matrix(y_test, y_pred).astype(float)
+        numTestTrials = len(y_test)
+        acc[foldNum] = sum(np.diag(C)) / numTestTrials
+        foldNum += 1
+
+        Trained_Classifiers[foldNum - 1] = Classifier
+        Trained_Index[foldNum - 1] = test
+
+        if verbose:
+            print(C)
+        c.append(C)
+    #         ROC.append(roc_holder)
+
+    meanAcc_nb = np.mean(acc)
+    stdErr_nb = np.std(acc) / np.sqrt(K)
+    Classifier_Components = (Trained_Classifiers, Trained_Index)
+
+    if verbose:
+        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+
+    return meanAcc_nb, stdErr_nb, Classifier_Components, c
+
+
+def Make_Full_Trial_Index(Features, Offset = int, Tr_Length= int):
+    FT_Index = []
+    for i in range(len(Features[0][0][0,:])):
+        Time_List = np.arange(Offset + Tr_Length, 4500)
+        FT_Index.append(list(Time_List))
+    return FT_Index
+
+# Function needs to be able to Selectively choose which Trials to run full Trial
+def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
+    """This Function Sequentially clips Neural data attributed for a full trial and organizes
+    them for future steps. It iterates over EACH full trial clipping.
+    It should be run once.
+
+    Its output can later be broken into an Initial Training and Final Test Set.
+
+
+    Starts is a list of Lists containing the Start Times of only One type of Label in each Clipping.
+    Also Note that the Starts Argument must be converted to the 1 KHz Sampling Frequency
+
+    Offset = How much prior or after onset
+    """
+
+    ### Consider removing the Create_Bands Step and consider using len()
+    ### ESPECIALLY IF YOU CHANGE THE BANDING CODE
+
+    Starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length)
+
+    D = len(Features[:])  # Number of Channels
+    F = len(Features[0][:])  # Num of Frequency Bands
+    NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length)  # Number of Examples
+
+    Dynamic_Freq_Trials = []
+    for Channel in range(0, D):  # Over all Channels
+        Matches = []
+        Freq_Trials = []
+        for l in range(0, F):  # For Range of All Frequency Bins
+            Chan_Holder = np.zeros((Tr_Length, NEl))  # Initiate Holder for Trials (Motifs)
+            Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
+            Freq = Chan[l]
+            Counter = 0  # For stackin all examples of label in full trial
+            for Trials in range(NT):
+                for Ex in range(len(Starts[Trials])):
+                    if Starts[Trials][Ex] - Offset - Tr_Length >= 0:
+                        Chan_Holder[:, Counter] = Freq[
+                                                  Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset,
+                                                  Trials]  # Select Motif
+                        Counter = Counter + 1
+            Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
+        Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
+
+    return Dynamic_Freq_Trials
+
+
+# Clip_Test, Temp_Test = Label_Extract_Pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
+# Power_List = Power_Extraction(Clip_Test)
+# ML_Trial_Test, ML_Labels_Test, Ordered_Index_TEST = ML_Order_Pipeline(Power_List)
+
+
+def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
+                                 Feature_Type=str, Temps=None, Slide=None, Step=False):
+    Clips, Temps_internal = Label_Extract_Pipeline(Full_Trials,
+                                                   All_Labels,
+                                                   Time_Stamps,
+                                                   Label_Instructions,
+                                                   Offset=Offset,
+                                                   Tr_Length=Tr_Length,
+                                                   Slide=Slide,
+                                                   Step=Step)
+
+    if Feature_Type == 'Power':
+        Power = Power_Extraction(Clips)
+        ML_Trials, ML_Labels, Ordered_Index = ML_Order_Pipeline(Power)
+
+    if Feature_Type == 'Pearson':
+        print
+        'Probably need to Validate Pearson Functions Correctly'
+        # Function for Finding Pearson
+        ## [Probably should add *kwargs]
+        # Fucntion for Ordering Pearson
+        if Temps == None:
+            Pearson = Pearson_Extraction(Clips, Temps_internal)
+        if Temps != None:
+            Pearson = Pearson_Extraction(Clips, Temps)
+
+        ML_Trials, ML_Labels, Ordered_Index = Pearson_ML_Order_Pipeline(Pearson)
+
+        if Temps == None:
+            return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
+
+    return ML_Trials, ML_Labels, Ordered_Index
+
+
+def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Feature_Type=str, Temps=None):
+    Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
+
+    if Feature_Type == 'Power':
+        Series_Power = Find_Power(Series_Trial)
+        Series_Ordered, _ = ML_Order(Series_Power)
+
+    if Feature_Type == 'Pearson':
+        print
+        'Under Development'
+        # Function for Finding Pearson
+        ## [Probably should add *kwargs]
+        # Fucntion for Ordering Pearson
+        Series_Pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
+        Series_Ordered, _ = Pearson_ML_Order(Series_Pearson)
+
+    Full_Trial_Features = []
+
+    Trial_Length = len(Features[0][0][:, 0]) - Offset - Tr_Length
+
+    for i in range(len(Features[0][0][0, :])):
+        Full_Trial_Features.append(Series_Ordered[Trial_Length * (i):Trial_Length * (i + 1), :])
+
+    return Full_Trial_Features
+
+
+
+
+
+def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
+    Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
+
+    series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
+                                                       Feature_Type=Feature_Type)
+    return series_ready
+
+
+## Function Only Works with SciKitLearn 19.1 and later [Due to Change in how skf syntax]
+# Need a KFold Classification method that folds Full Clippings so that I can test on a fresh Psuedal Training Set
+
+# Steps:
+# [Initialization]:
+# [1] Specify Classifier Model and Parameters
+# [Probably just pass Function with desired Parameters and return object]
+# [2] Number of Folds, [3] Clippings with there
+# Steps:
+# [1] Break Clippings into K-Folds
+# [2] For Each K-Fold
+# [2.1] Extract and Order the Designated Features using Perscribed Methods
+# [2.2] Train Model
+# [2.3] Test Model
+# [2.4] Get Confusion Matrix
+# [2.5] Get Accuracy and Std
+# [2.7] Store Trained Model
+# [2.6] Return: Confusion Matrix, Accuracy, Std, Trained Model
+# [3] Store Results into dictionary(s) also store index of the Test Set Left Out
+
+
+def Clip_Classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Labels, verbose=False):
+    ''' This Function is a Flexible Machine Learning Function that Trains One Classifier and determines metrics for it
+    The metrics it determines are:
+                [1] Accuracy & StdERR
+                [2] Confusion Matrix
+                [3] Reciever Operating Curve
+    It stores all of the trained Classifiers into a Dictionary and pairs it with a
+    Dictionary of the Corresponding Test Index. The Pair are returned as a tuple'''
+
+    Classifier = Class_Obj
+    Classifier.fit(Train_Set, Train_Labels)
+
+    Test_pred = Classifier.predict(Test_Set)
+
+    C = confusion_matrix(Test_Labels, Test_pred).astype(float)
+    numTestTrials = len(Test_Labels)
+
+    acc = sum(np.diag(C)) / numTestTrials
+    return acc, Classifier, C
+
+
+def Trial_Selector(Features, Sel_index):
+    '''This Function allows you to easily parse our specific Trials for K-Fold validation
+    and Test Set Seperation'''
+    num_chans, num_freqs, Clip_len, _ = np.shape(Features)
+    Num_trials = len(Sel_index)
+
+    Sel_Trials = []
+
+    for i in range(num_chans):
+        freq_holder = []
+        for j in range(num_freqs):
+            trial_holder = np.zeros([Clip_len, Num_trials])
+            for k in range(len(Sel_index)):
+                trial_holder[:, k] = Features[i][j][:, Sel_index[k]]
+            freq_holder.append(trial_holder)
+        Sel_Trials.append(freq_holder)
+    return Sel_Trials
+
+
+def Label_Selector(Labels, Sel_index):
+    '''This Function allows you to easily parse our specific Trial's Labels for K-Fold validation
+    and Test Set Seperation'''
+    Sel_Labels = []
+    for i in xrange(len(Sel_index)):
+        Sel_Labels.append(Labels[Sel_index[i]])
+    return Sel_Labels
+
+
+def Convienient_Selector(Features, Labels, Starts, Sel_index):
+    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
+    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
+    sel_starts = Label_Selector(Starts, Sel_index=Sel_index)
+    return sel_set, sel_labels, sel_starts
+
+
+#### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
+
+def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
+               Feature_Type=str, K=4, Slide=None, Step=False, verbose=False):
+    #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
+
+    skf = StratifiedKFold(n_splits=K)
+
+    acc = np.zeros(K)
+    c = []  # Just Added
+    ROC = []  # Just Added too 8/10
+    foldNum = 0
+
+    Trained_Classifiers = dict()
+    Trained_Index = dict()
+
+    Num_Clippings = np.ones(len(Data_Labels))
+
+    for train, test in skf.split(Num_Clippings, Num_Clippings):
+        if verbose:
+            print("Fold %s..." % foldNum)
+            # print "%s %s" % (train, test)
+
+        print(train)
+        train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, train)
+
+        print(test)
+        test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+
+        if Feature_Type != 'Pearson':
+            ML_Train_Trials, ML_Train_Labels, Train_Ordered_Index = Classification_Prep_Pipeline(train_set,
+                                                                                                 train_labels,
+                                                                                                 train_starts,
+                                                                                                 Label_Instructions,
+                                                                                                 Offset=Offset,
+                                                                                                 Tr_Length=Tr_Length,
+                                                                                                 Feature_Type=Feature_Type,
+                                                                                                 Temps=None,
+                                                                                                 Slide=Slide,
+                                                                                                 Step=Step)
+
+            ML_Test_Trials, ML_Test_Labels, Test_Ordered_Index = Classification_Prep_Pipeline(test_set,
+                                                                                              test_labels,
+                                                                                              test_starts,
+                                                                                              Label_Instructions,
+                                                                                              Offset=Offset,
+                                                                                              Tr_Length=Tr_Length,
+                                                                                              Feature_Type=Feature_Type,
+                                                                                              Temps=None,
+                                                                                              Slide=Slide,
+                                                                                              Step=Step)
+
+        if Feature_Type == 'Pearson':
+            ML_Train_Trials, ML_Train_Labels, Train_Ordered_Index, Temps_int = Classification_Prep_Pipeline(train_set,
+                                                                                                            train_labels,
+                                                                                                            train_starts,
+                                                                                                            Label_Instructions,
+                                                                                                            Offset=Offset,
+                                                                                                            Tr_Length=Tr_Length,
+                                                                                                            Feature_Type=Feature_Type,
+                                                                                                            Temps=None,
+                                                                                                            Slide=Slide,
+                                                                                                            Step=Step)
+
+            ML_Test_Trials, ML_Test_Labels, Test_Ordered_Index = Classification_Prep_Pipeline(test_set,
+                                                                                              test_labels,
+                                                                                              test_starts,
+                                                                                              Label_Instructions,
+                                                                                              Offset=Offset,
+                                                                                              Tr_Length=Tr_Length,
+                                                                                              Feature_Type=Feature_Type,
+                                                                                              Temps=Temps_int,
+                                                                                              Slide=Slide,
+                                                                                              Step=Step)
+
+        acc[foldNum], Trained_Classifiers[foldNum], C = Clip_Classification(Class_Obj, ML_Train_Trials, ML_Train_Labels,
+                                                                            ML_Test_Trials, ML_Test_Labels,
+                                                                            verbose=False)
+        Trained_Index[foldNum] = test
+        foldNum += 1
+
+        if verbose:
+            print(C)
+        c.append(C)
+
+    meanAcc_nb = np.mean(acc)
+    stdErr_nb = np.std(acc) / np.sqrt(K)
+    Classifier_Components = (Trained_Classifiers, Trained_Index)
+
+    if verbose:
+        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+    return meanAcc_nb, stdErr_nb, Classifier_Components, c,
+
