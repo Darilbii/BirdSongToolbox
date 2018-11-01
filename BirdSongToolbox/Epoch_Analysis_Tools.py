@@ -1343,8 +1343,11 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
     time_series_labels = np.zeros((4500, 1))
 
     #     TIMESERIES_LABELS = np.zeros([4500, 1])
+
     for labels, starts, ends, in zip(labels[sel_epoch], clippings[0][sel_epoch], clippings[1][sel_epoch]):
         sel_label = labels
+        print(starts)
+        print(ends)
         start_int = int(starts / 30)
         end_int = int(ends / 30)
         time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
