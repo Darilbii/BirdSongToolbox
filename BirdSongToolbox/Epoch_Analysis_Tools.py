@@ -886,7 +886,7 @@ def Select_Classifier(Model=str, Strategy=str):
 ## Made Corrections on 10/27/2017 additional ones on 10/30/2017
 
 def ML_Order(Features):
-    '''Reorganizes the Extracted Features into a Useful Machine Learning Format
+    """Reorganizes the Extracted Features into a Useful Machine Learning Format
 
     Parameters:
     -----------
@@ -898,7 +898,7 @@ def ML_Order(Features):
     Column_Index:
         ?????(Ch, freq_trials)???? Not Sure!
         Output Shape [Number of Examples vs. Number of Features]
-    '''
+    """
     # Create Variable for Indexing
     #     D = len(Features[:]) # Number of Channels
     B = len(Features[0][0][:, 0])  # Length of Dynam. Clipped Training Set
@@ -1117,36 +1117,28 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     Offset = How much prior or after onset
     """
 
-    ### Consider removing the Create_Bands Step and consider using len()
-    ### ESPECIALLY IF YOU CHANGE THE BANDING CODE
+    starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length)
 
-    Starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length)
+    nt = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    n_el = Numel(starts) - Numbad(starts, Offset=Offset, Tr_Length=Tr_Length)  # Number of Examples
 
-    D = len(Features[:])  # Number of Channels
-    F = len(Features[0][:])  # Num of Frequency Bands
-    NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-    NEl = Numel(Starts) - Numbad(Starts, Offset=Offset, Tr_Length=Tr_Length)  # Number of Examples
+    dynamic_freq_trials = []
+    for channel in Features:  # Over all Channels
+        freq_trials = []
+        for frequency in channel:  # For Range of All Frequency Bins
+            chan_holder = np.zeros((Tr_Length, n_el))  # Initiate Holder for Trials (Motifs)
+            counter = 0  # For stackin all examples of label in full trial
+            for trials in range(nt):
+                for ex in range(len(starts[trials])):
+                    if starts[trials][ex] - Offset - Tr_Length >= 0:
+                        chan_holder[:, counter] = frequency[
+                                                  starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
+                                                  trials]  # Select Motif
+                        counter = counter + 1
+            freq_trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
+        dynamic_freq_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
 
-    Dynamic_Freq_Trials = []
-    for Channel in range(0, D):  # Over all Channels
-        Matches = []
-        Freq_Trials = []
-        for l in range(0, F):  # For Range of All Frequency Bins
-            Chan_Holder = np.zeros((Tr_Length, NEl))  # Initiate Holder for Trials (Motifs)
-            Chan = Features[Channel - 1]  # Select Channel ##### Need to Change Channel to Channel Index (For For Loop)
-            Freq = Chan[l]
-            Counter = 0  # For stackin all examples of label in full trial
-            for Trials in range(NT):
-                for Ex in range(len(Starts[Trials])):
-                    if Starts[Trials][Ex] - Offset - Tr_Length >= 0:
-                        Chan_Holder[:, Counter] = Freq[
-                                                  Starts[Trials][Ex] - Offset - Tr_Length:Starts[Trials][Ex] - Offset,
-                                                  Trials]  # Select Motif
-                        Counter = Counter + 1
-            Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
-        Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
-
-    return Dynamic_Freq_Trials
+    return dynamic_freq_trials
 
 
 # Clip_Test, Temp_Test = Label_Extract_Pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
@@ -1189,6 +1181,20 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
 
 def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Feature_Type=str, Temps=None):
+    """
+
+    Parameters:
+    -----------
+    :param Features:
+    :param Offset:
+    :param Tr_Length:
+    :param Feature_Type:
+    :param Temps:
+
+    Returns:
+    --------
+
+    """
     Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
 
     if Feature_Type == 'Power':
@@ -1196,8 +1202,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
         Series_Ordered, _ = ML_Order(Series_Power)
 
     if Feature_Type == 'Pearson':
-        print
-        'Under Development'
+        print('Under Development')
         # Function for Finding Pearson
         ## [Probably should add *kwargs]
         # Fucntion for Ordering Pearson
