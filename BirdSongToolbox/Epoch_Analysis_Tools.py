@@ -1288,16 +1288,18 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
             Machine Learning encoding of labels based on label_instructions
         """
         count = 0
-        for instruction in instructions:
-            if label == instruction:
-                conversion = count
-            elif label in instruction:
-                conversion = count
-            elif isinstance(spec_instr, int):
-                conversion = spec_instr
-            else:
-                print(" You did not include one of the labels in your instructions (Likely 'C')")
-            count += 1
+        # for instruction in instructions:
+        if label in instructions:
+            conversion = instructions.index(label)
+        else:
+            for instruction in instructions:
+                if label in instruction:
+                    conversion = count
+                elif isinstance(spec_instr, int):
+                    conversion = spec_instr
+                else:
+                    print(" You did not include one of the labels in your instructions (Likely 'C')")
+                count += 1
         return conversion
 
     time_series_labels = []
