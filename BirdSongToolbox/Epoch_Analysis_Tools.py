@@ -868,7 +868,7 @@ def Pearson_ML_Order(Features):
                 # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
                 # ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
                 universal_index = (
-                channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
+                    channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
             frequency_count += 1
         channel_count += 1
@@ -1141,14 +1141,14 @@ def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
     skf = StratifiedKFold(Data_Labels, n_folds=num_k_folds)
 
     acc = np.zeros(num_k_folds)
-    c = []  # Just Added
-    foldNum = 0
+    all_conf_mats = []  # Just Added
+    fold_num = 0
 
-    Trained_Classifiers = dict()
-    Trained_Index = dict()
+    trained_classifiers = dict()
+    trained_index = dict()
     for train, test in skf:
         if verbose:
-            print("Fold %s..." % foldNum)
+            print("Fold %s..." % fold_num)
         # print "%s %s" % (train, test)
         data_train, data_train = Data_Set[train, :], Data_Labels[train]
         data_test, data_test = Data_Set[test, :], Data_Labels[test]
@@ -1160,27 +1160,27 @@ def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
 
         confusion = confusion_matrix(data_test, y_pred).astype(float)
         num_test_trials = len(data_test)
-        acc[foldNum] = sum(np.diag(confusion)) / num_test_trials
+        acc[fold_num] = sum(np.diag(confusion)) / num_test_trials
 
-        Trained_Classifiers[foldNum] = classifier
-        Trained_Index[foldNum] = test
-        foldNum += 1
+        trained_classifiers[fold_num] = classifier
+        trained_index[fold_num] = test
+        fold_num += 1
 
         if verbose:
             print(confusion)
-        c.append(confusion)
+        all_conf_mats.append(confusion)
 
     mean_acc_nb = np.mean(acc)
     std_err_nb = np.std(acc) / np.sqrt(num_k_folds)
-    classifier_components = (Trained_Classifiers, Trained_Index)
+    classifier_components = (trained_classifiers, trained_index)
 
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
 
-    return mean_acc_nb, std_err_nb, classifier_components, c
+    return mean_acc_nb, std_err_nb, classifier_components, all_conf_mats
 
 
-def Make_Full_Trial_Index(Features, Offset=int, Tr_Length=int):
+def Make_Full_Trial_Index(Features, Offset: int, Tr_Length: int, Epoch_Len: int):
     """
 
     Parameters:
@@ -1192,6 +1192,8 @@ def Make_Full_Trial_Index(Features, Offset=int, Tr_Length=int):
         How much prior or after onset
     Tr_Length: int
         How many samples to use for window
+    Epoch_Len: int
+        The length in Samples of each Epoch
     Returns:
     --------
 
@@ -1200,8 +1202,8 @@ def Make_Full_Trial_Index(Features, Offset=int, Tr_Length=int):
 
     FT_Index = []
     for i in range(len(Features[0][0][0, :])):
-        Time_List = np.arange(Offset + Tr_Length, 4500)
-        FT_Index.append(list(Time_List))
+        time_list = np.arange(Offset + Tr_Length, Epoch_Len)
+        FT_Index.append(list(time_list))
     return FT_Index
 
 
@@ -1230,7 +1232,7 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
 
     """
 
-    starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length)
+    starts = Make_Full_Trial_Index(Features, Offset=Offset, Tr_Length=Tr_Length, Epoch_Len=len(Features[0][0][:, 0]))
 
     nt = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
     n_el = Numel(starts) - Numbad(starts, Offset=Offset, Tr_Length=Tr_Length)  # Number of Examples
@@ -1252,6 +1254,32 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
         dynamic_freq_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
 
     return dynamic_freq_trials
+
+
+def series_lfp_label_clipper(labels, clippings, label_instructions, Offset: int, Tr_Length: int, undetermined=False):
+    """Creates a list of each epoch's series labels to be paired with the lfp data for Machine Learning
+
+    :param labels:
+    :param clippings:
+    :param label_instructions:
+    :param Offset:
+    :param Tr_Length:
+    :param undetermined:
+    Returns:
+    --------
+    series_labels: list
+        [epoch]->(Epoch length in Samples - Offset - Tr_Length x 1)
+    """
+
+    series_labels = []
+    for epoch in range(len(labels)):
+        epoch_labels = Create_Label_Timeline(labels=labels,
+                                             clippings=clippings,
+                                             sel_epoch=epoch,
+                                             label_instructions=label_instructions,
+                                             undetermined=undetermined)
+        series_labels.append(epoch_labels[Offset + Tr_Length:, 0])
+    return series_labels
 
 
 def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, undetermined=False):
@@ -1314,8 +1342,8 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         start_int = int(starts / 30)
         end_int = int(ends / 30)
         time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
-                                                                         label_instructions,
-                                                                         spec_instr=undetermined)
+                                                                     label_instructions,
+                                                                     spec_instr=undetermined)
         # for internal_ind in range(end_int - start_int):
         #     if (start_int + internal_ind) < 4500:
         #         time_series_labels[start_int + internal_ind, 0] = label_conversion(sel_label, label_instructions)
