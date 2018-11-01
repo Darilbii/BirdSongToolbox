@@ -1288,7 +1288,7 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         count = 0
         # for instruction in instructions:
         if label in instructions:
-            conversion = int(instructions.index(label))
+            conversion = instructions.index(label)
         else:
             for instruction in instructions:
                 if isinstance(label, list):
@@ -1313,14 +1313,14 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         sel_label = labels
         start_int = int(starts / 30)
         end_int = int(ends / 30)
-        time_series_labels[start_int: end_int, 0] = int(label_conversion(sel_label,
+        time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
                                                                          label_instructions,
-                                                                         spec_instr=undetermined))
+                                                                         spec_instr=undetermined)
         # for internal_ind in range(end_int - start_int):
         #     if (start_int + internal_ind) < 4500:
         #         time_series_labels[start_int + internal_ind, 0] = label_conversion(sel_label, label_instructions)
 
-    return time_series_labels
+    return time_series_labels.astype(int)
 
 
 # Clip_Test, Temp_Test = Label_Extract_Pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
