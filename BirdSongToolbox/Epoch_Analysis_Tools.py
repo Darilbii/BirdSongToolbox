@@ -11,11 +11,11 @@ import pandas as pd
 import os
 import random
 
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
+from sklearn.multiclass import OneVsRestClassifier
 
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
