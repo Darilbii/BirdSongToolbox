@@ -452,6 +452,8 @@ def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_M
 import copy
 
 
+#TODO: Make a (Runmode=Lean) setting that will only bandpass the epoch of interest for Quick runs for ML Pipeline
+
 class Pipeline():
     """Class for Pre-Processing Neural Data
 
