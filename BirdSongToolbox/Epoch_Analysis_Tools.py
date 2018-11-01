@@ -1202,9 +1202,9 @@ def Make_Full_Trial_Index(Features, Offset: int, Tr_Length: int, Epoch_Len: int)
 
     FT_Index = []
     for i in range(len(Features[0][0][0, :])):
-        if Offset + Tr_Length >= 0
+        if Offset + Tr_Length >= 0:
             time_list = np.arange(Offset + Tr_Length, Epoch_Len)
-        else: # Prevents unintended indexing if neural activity is include non-causal information
+        else:  # Prevents unintended indexing if neural activity is include non-causal information
             time_list = np.arange(0, Epoch_Len + Offset + Tr_Length)
         FT_Index.append(list(time_list))
     return FT_Index
@@ -1283,7 +1283,7 @@ def series_lfp_label_clipper(labels, clippings, label_instructions, Offset: int,
                                              undetermined=undetermined)
         if Offset + Tr_Length >= 0:
             series_labels.append(epoch_labels[Offset + Tr_Length:, 0])
-        else: # Prevents unintended indexing if neural activity is include non-causal information
+        else:  # Prevents unintended indexing if neural activity is include non-causal information
             series_labels.append(epoch_labels[:Offset + Tr_Length, 0])
     return series_labels
 
@@ -1526,10 +1526,10 @@ def Trial_Selector(Features, Sel_index):
 
 
 def Label_Selector(Labels, Sel_index):
-    '''This Function allows you to easily parse our specific Trial's Labels for K-Fold validation
-    and Test Set Seperation'''
+    """This Function allows you to easily parse our specific Trial's Labels for K-Fold validation
+    and Test Set Seperation"""
     Sel_Labels = []
-    for i in xrange(len(Sel_index)):
+    for i in range(len(Sel_index)):
         Sel_Labels.append(Labels[Sel_index[i]])
     return Sel_Labels
 
