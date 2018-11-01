@@ -705,6 +705,62 @@ def Find_Power(Features, Pow_Method='Basic'):
     return power_trials
 
 
+def efficient_pearson_1d_v_2d(one_dim, two_dim):
+    """Finds the Pearson correlation of all rows of the two dimensional array with the one dimensional array
+
+    Source:
+    -------
+        https://www.quora.com/How-do-I-calculate-the-correlation-of-every-row-in-a-2D-array-to-a-1D-array-of-the-same-length
+
+    Info:
+    -----
+        The Pearson correlation coefficient measures the linear relationship
+     between two datasets. Strictly speaking, Pearson's correlation requires
+     that each dataset be normally distributed. Like other correlation
+     coefficients, this one varies between -1 and +1 with 0 implying no
+     correlation. Correlations of -1 or +1 imply an exact linear
+     relationship. Positive correlations imply that as x increases, so does
+     y. Negative correlations imply that as x increases, y decreases.
+
+
+    Parameters:
+    ----------
+    one_dim = ndarray
+        1-Dimensional Array
+    two_dim= ndarray
+        2-Dimensional array it's row length must be equal to the length of one_dim
+
+    Returns:
+    --------
+    pearsons: ndarray
+
+
+
+    Example:
+    --------
+    x = np.random.randn(10)
+    y = np.random.randn(100, 10)
+
+    The numerators is shape (100,) and denominators is shape (100,)
+    Pearson = efficient_pearson_1d_v_2d(one_dim = x, two_dim = y)
+    """
+    x_bar = np.mean(one_dim)
+    x_intermediate = one_dim - x_bar
+    y_bar = np.mean(two_dim, axis=1)  # this flattens y to be (100,) which is a 1D array.
+    # The problem is that y is 100, 10 so numpy's broadcasting doesn't know which axis to treat as the one to broadcast over.
+    y_bar = y_bar[:, np.newaxis]
+    # By adding this extra dimension, we're forcing numpy to treat the 0th axis as the one to broadcast over
+    # which makes the next step possible. y_bar is now 100, 1
+    y_intermediate = two_dim - y_bar
+    numerators = y_intermediate.dot(x_intermediate)  # or x_intermediate.dot(y_intermediate.T)
+    x_sq = np.sum(np.square(x_intermediate))
+    y_sqs = np.sum(np.square(y_intermediate), axis=1)
+    denominators = np.sqrt(x_sq * y_sqs)  # scalar times vector
+    pearsons = (numerators / denominators)  # numerators is shape (100,) and denominators is shape (100,)
+
+    return pearsons
+
+
 def Pearson_Coeff_Finder(Features, Templates, Slow = False):
     """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
     It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
@@ -791,60 +847,7 @@ def Pearson_Extraction(Clipped_Trials, Templates):
     return Extracted_Pearson
 
 
-def efficient_pearson_1d_v_2d(one_dim, two_dim):
-    """Finds the Pearson correlation of all rows of the two dimensional array with the one dimensional array
 
-    Source:
-    -------
-        https://www.quora.com/How-do-I-calculate-the-correlation-of-every-row-in-a-2D-array-to-a-1D-array-of-the-same-length
-
-    Info:
-    -----
-        The Pearson correlation coefficient measures the linear relationship
-     between two datasets. Strictly speaking, Pearson's correlation requires
-     that each dataset be normally distributed. Like other correlation
-     coefficients, this one varies between -1 and +1 with 0 implying no
-     correlation. Correlations of -1 or +1 imply an exact linear
-     relationship. Positive correlations imply that as x increases, so does
-     y. Negative correlations imply that as x increases, y decreases.
-
-
-    Parameters:
-    ----------
-    one_dim = ndarray
-        1-Dimensional Array
-    two_dim= ndarray
-        2-Dimensional array it's row length must be equal to the length of one_dim
-
-    Returns:
-    --------
-    pearsons: ndarray
-
-
-
-    Example:
-    --------
-    x = np.random.randn(10)
-    y = np.random.randn(100, 10)
-
-    The numerators is shape (100,) and denominators is shape (100,)
-    Pearson = efficient_pearson_1d_v_2d(one_dim = x, two_dim = y)
-    """
-    x_bar = np.mean(one_dim)
-    x_intermediate = one_dim - x_bar
-    y_bar = np.mean(two_dim, axis=1)  # this flattens y to be (100,) which is a 1D array.
-    # The problem is that y is 100, 10 so numpy's broadcasting doesn't know which axis to treat as the one to broadcast over.
-    y_bar = y_bar[:, np.newaxis]
-    # By adding this extra dimension, we're forcing numpy to treat the 0th axis as the one to broadcast over
-    # which makes the next step possible. y_bar is now 100, 1
-    y_intermediate = two_dim - y_bar
-    numerators = y_intermediate.dot(x_intermediate)  # or x_intermediate.dot(y_intermediate.T)
-    x_sq = np.sum(np.square(x_intermediate))
-    y_sqs = np.sum(np.square(y_intermediate), axis=1)
-    denominators = np.sqrt(x_sq * y_sqs)  # scalar times vector
-    pearsons = (numerators / denominators)  # numerators is shape (100,) and denominators is shape (100,)
-
-    return pearsons
 
 # Function for getting the Pearson Coefficient for Classification
 def Pearson_ML_Order(Features):
@@ -876,7 +879,7 @@ def Pearson_ML_Order(Features):
     for channel in Features:  # Over all Channels
         frequency_count = 0
         for frequency in channel:  # For Range of All Frequency Bins
-            ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
+            ordered_trials = np.concatenate(ordered_trials, frequency, axis=1)
             for temps in range(len(frequency[0, :])):
                 #TODO: Refactor Pearson_ML_Order to run faster
                 # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
