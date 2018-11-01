@@ -137,6 +137,26 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len, Buffer):
 
     return
 
+################################################################################################################################################################################################
+def Get_Validation_Test_Sets(Epoch_Index):
+    """Breaks Epochs of a certain day into a Validation and Test Set
+
+    Parameters:
+    -----------
+    Epoch_Index: list
+        List of all Epochs to be used (Typically the All_First_Motifs Epochs)
+
+    Returns:
+    --------
+    validation_set: list
+        Index of Epochs reserved for the Validation Set
+    test_set: list
+        Index of the Epochs to be used for K-Fold Cross Validation Testing
+    """
+
+    test_set, validation_set = train_test_split(Epoch_Index, random_state=0)
+
+    return validation_set, test_set
 
 ################################################################################################################################################################################################
 ## First Function for Offline Epoch Predictions
@@ -328,25 +348,89 @@ def Prep_Handlabels_for_ML(Hand_labels, Index):
     return labels_list, onsets_list
 
 
-def Get_Validation_Test_Sets(Epoch_Index):
-    """Breaks Epochs of a certain day into a Validation and Test Set
+########################################################################################################################
+##Label Handling Functions
+
+
+def Label_Focus(Focus, Labels, Starts):
+    """ Create a list of every instance of the User defined User Label (Focus on One Label)
 
     Parameters:
     -----------
-    Epoch_Index: list
-        List of all Epochs to be used (Typically the All_First_Motifs Epochs)
+    Focus: str or int
+        User defined Label to focus on
+    Labels:
+
+    Starts:
+
 
     Returns:
     --------
-    validation_set: list
-        Index of Epochs reserved for the Validation Set
-    test_set: list
-        Index of the Epochs to be used for K-Fold Cross Validation Testing
+    Label_Index: list
+        List of all start frames of every instances of the label of focus
+        [Num_Trials]->[Num_Exs]
+    """
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
+        Label_Index.append(Trial_Labels)
+    return Label_Index
+
+
+# Function for Grouping Multiple Labels into 1 Label (e.g. Combine Calls and Introductory Notes)
+
+def Label_Grouper(Focuses, Labels, Starts):
+    """Group Selected Labels together into One Label e.g. Combine Calls and Intro. Notes (Group these labels together)
+
+    """
+    Label_Index = []
+
+    for i in range(len(Labels)):
+        Group_Labels = []
+        for j in range(len(Focuses)):
+            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
+            Group_Labels.extend(Trial_Labels)
+        Label_Index.append(Group_Labels)
+    return Label_Index
+
+
+# Function for grabing more examples from a onset
+
+
+def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
+                           Slide=None, Step=False):
+    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
+
+    Label_Instructions = tells the Function what labels to extract and whether to group them together
+
+    Parameters:
+    -----------
+
+    Returns:
+    -------
+    clippings:
+
+    templates:
     """
 
-    test_set, validation_set = train_test_split(Epoch_Index, random_state=0)
+    clippings = []
+    templates = []
 
-    return validation_set, test_set
+    for instruction in range(len(Label_Instructions)):
+        if type(Label_Instructions[instruction]) == int or type(Label_Instructions[instruction]) == str:
+            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Time_Stamps)
+        else:
+            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Time_Stamps)
+
+        if type(Slide) == int:
+            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
+
+        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
+        clippings.append(clips)
+        templates.append(temps)
+    return clippings, templates
+
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
 # *** Check to Make sure the -1 in Select Motif stage is still accurate with current indexing ***
@@ -548,51 +632,6 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 
 
 ########################################################################################################################
-## Label Handling Functions
-# Function to Focus on only one type of Label
-
-### Added int() to pipeline on 8/19
-
-def Label_Focus(Focus, Labels, Starts):
-    """ Create a list of every instance of the User defined User Label
-
-    Parameters:
-    -----------
-    Focus: str or int
-        User defined Label to focus on
-    Labels:
-
-    Starts:
-
-
-    Returns:
-    --------
-    Label_Index: list
-        List of all start frames of every instances of the label of focus
-        [Num_Trials]->[Num_Exs]
-    """
-    Label_Index = []
-
-    for i in range(len(Labels)):
-        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
-        Label_Index.append(Trial_Labels)
-    return Label_Index
-
-
-# Function for Grouping Multiple Labels into 1 Label (e.g. Combine Calls and Introductory Notes)
-
-def Label_Grouper(Focuses, Labels, Starts):
-    """Group Selected Labels together into One Label
-            e.g. Combine Calls and Introductory Notes"""
-    Label_Index = []
-
-    for i in range(len(Labels)):
-        Group_Labels = []
-        for j in range(len(Focuses)):
-            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
-            Group_Labels.extend(Trial_Labels)
-        Label_Index.append(Group_Labels)
-    return Label_Index
 
 
 def Find_Power(Features, Pow_Method='Basic'):
@@ -704,42 +743,6 @@ def Pearson_ML_Order_Pipeline(Extracted_Features):
     ML_Labels = np.delete(ML_Labels, 0, 0)
     return ML_Ready, ML_Labels, Ordered_Index
 
-
-# Function for grabing more examples from a onset
-
-
-def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
-                           Slide=None, Step=False):
-    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
-
-    Label_Instructions = tells the Function what labels to extract and whether to group them together
-
-    Parameters:
-    -----------
-
-    Returns:
-    -------
-    clippings:
-
-    templates:
-    """
-
-    clippings = []
-    templates = []
-
-    for instruction in range(len(Label_Instructions)):
-        if type(Label_Instructions[instruction]) == int or type(Label_Instructions[instruction]) == str:
-            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Time_Stamps)
-        else:
-            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Time_Stamps)
-
-        if type(Slide) == int:
-            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
-
-        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
-        clippings.append(clips)
-        templates.append(temps)
-    return clippings, templates
 
 
 def Power_Extraction(Clipped_Trials):
