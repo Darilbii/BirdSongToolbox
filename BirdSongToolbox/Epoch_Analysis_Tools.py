@@ -1290,12 +1290,12 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         count = 0
         # for instruction in instructions:
         if label in instructions:
-            conversion = instructions.index(label)
+            conversion = int(instructions.index(label))
         else:
             for instruction in instructions:
                 if isinstance(label, list):
                     if label in instruction:
-                        conversion = count
+                        conversion = int(count)
                 elif isinstance(spec_instr, int):
                     conversion = spec_instr
                 else:
