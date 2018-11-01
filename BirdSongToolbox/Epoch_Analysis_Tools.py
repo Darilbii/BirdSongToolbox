@@ -348,8 +348,8 @@ def Prep_Handlabels_for_ML(Hand_labels, Index):
         starts_temp, ends_temp = Hand_labels[epoch][1]
         starts.append(starts_temp)
         ends.append(ends_temp)
-    onsets_list.append(starts, ends)
-
+    onsets_list.append(starts)
+    onsets_list.append(ends)
     return labels_list, onsets_list
 
 
