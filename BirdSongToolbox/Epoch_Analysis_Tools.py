@@ -1579,7 +1579,7 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
     sel_starts = Label_Selector(starts, Sel_index=Sel_index)
     sel_ends = Label_Selector(ends, Sel_index=Sel_index)
-    return sel_set, (sel_labels, sel_starts)
+    return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
