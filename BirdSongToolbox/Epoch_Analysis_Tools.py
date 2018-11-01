@@ -259,7 +259,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
 
 
 def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, local=False):
-    ''' Function Imports the Hand Labels of the Specified Recording
+    """Function Imports the Hand Labels of the Specified Recording
 
     Inputs:
     -------
@@ -276,8 +276,8 @@ def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, 
         Dictionary of the Handlabels; {Epoch_Numb : (Labels, Onsets)}
                                         |-> Labels: [Event_Labels]
                                         |-> Onsets: [[Starts], [Ends]]
-    '''
-#TODO: Make this function more reasonable
+    """
+# TODO: Make this function more reasonable
     if local == False:
         folder_path = '/home/debrown/Handlabels'
     elif local:
