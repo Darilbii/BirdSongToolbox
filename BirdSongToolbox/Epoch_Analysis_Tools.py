@@ -1439,7 +1439,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
 
     elif Feature_Type == 'Pearson':
         series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered,  ordered_index= Pearson_ML_Order(series_pearson)
+        series_ordered, ordered_index = Pearson_ML_Order(series_pearson)
 
     elif Feature_Type == 'Both':
         series_power = Find_Power(Series_Trial)
@@ -1463,7 +1463,6 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
         full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
 
     return full_trial_features, ordered_index
-
 
 
 ## Function Only Works with SciKitLearn 19.1 and later [Due to Change in how skf syntax]
@@ -1562,6 +1561,25 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
     sel_starts = Label_Selector(Starts, Sel_index=Sel_index)
     return sel_set, sel_labels, sel_starts
+
+
+def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
+    """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
+
+    :param Onsets:
+    :param Features:
+    :param Labels:
+    :param Sel_index:
+    :return:
+    """
+
+    starts = Onsets[0]
+    ends = Onsets[1]
+    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
+    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
+    sel_starts = Label_Selector(starts, Sel_index=Sel_index)
+    sel_ends = Label_Selector(ends, Sel_index=Sel_index)
+    return sel_set, (sel_labels, sel_starts)
 
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
@@ -1676,7 +1694,6 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     return meanAcc_nb, stdErr_nb, Classifier_Components, c,
 
 
-
 def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
     """ Handles the Preparation for series_clip_kfold
 
@@ -1690,13 +1707,12 @@ def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_T
     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
 
     series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
-                                                       Feature_Type=Feature_Type,  Temps= temps)
+                                                       Feature_Type=Feature_Type, Temps=temps)
 
-    series_labels = pass
-    return series_ready, series_labels, series_index
+    return series_ready,
 
 
-def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
+def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
                       Feature_Type=str, k_folds=4, verbose=False):
     """
 
@@ -1735,17 +1751,17 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instr
             # print "%s %s" % (train, test)
 
         print(train)
-        train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, train)
+        train_set, train_labels, train_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets[0],
+                                                                            train)
 
         print(test)
-        test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+        test_set, test_labels, test_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets[0], test)
 
         # Features, Offset = int, Tr_Length = int, Feature_Type = str, Temps = None
 
-
         if Feature_Type == 'Pearson' or Feature_Type == 'Both':
             _, templates = Label_Extract_Pipeline(Full_Trials=train_set, All_Labels=train_labels,
-                                                  Starts=train_starts,
+                                                  Starts=train_onsets[0],
                                                   Label_Instructions=Label_Instructions,
                                                   Offset=Offset,
                                                   Tr_Length=Tr_Length,
@@ -1754,24 +1770,32 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instr
         else:
             templates = None
 
-        ml_train_trials, ml_train_labels, train_ordered_index = Series_Classification_Prep_Pipeline(Features= train_set,
-                                                                                                 Offset=Offset,
-                                                                                                 Tr_Length=Tr_Length,
-                                                                                                 Feature_Type=Feature_Type,
-                                                                                                 Temps=templates)
+        ml_train_trials, train_ordered_index = Series_Classification_Prep_Pipeline(Features=train_set,
+                                                                                   Offset=Offset,
+                                                                                   Tr_Length=Tr_Length,
+                                                                                   Feature_Type=Feature_Type,
+                                                                                   Temps=templates)
+        ml_train_labels = series_lfp_label_clipper(labels=train_labels,
+                                                   clippings=train_onsets,
+                                                   label_instructions=Label_Instructions,
+                                                   Offset=Offset,
+                                                   Tr_Length=Tr_Length)
 
-        ml_test_trials, ml_test_labels, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
-                                                                                              Offset=Offset,
-                                                                                              Tr_Length=Tr_Length,
-                                                                                              Feature_Type=Feature_Type,
-                                                                                              Temps=templates)
+        ml_test_trials, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
+                                                                                 Offset=Offset,
+                                                                                 Tr_Length=Tr_Length,
+                                                                                 Feature_Type=Feature_Type,
+                                                                                 Temps=templates)
+        ml_test_labels = series_lfp_label_clipper(labels=test_labels,
+                                                  clippings=test_onsets,
+                                                  label_instructions=Label_Instructions,
+                                                  Offset=Offset,
+                                                  Tr_Length=Tr_Length)
 
-
-
-
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
-                                                                            ml_test_trials, ml_test_labels,
-                                                                            verbose=False)
+        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
+                                                                               ml_train_labels,
+                                                                               ml_test_trials, ml_test_labels,
+                                                                               verbose=False)
         Trained_Index[foldNum] = test
         foldNum += 1
 
