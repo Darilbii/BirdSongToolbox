@@ -137,6 +137,7 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len, Buffer):
 
     return
 
+
 ################################################################################################################################################################################################
 def Get_Validation_Test_Sets(Epoch_Index):
     """Breaks Epochs of a certain day into a Validation and Test Set
@@ -157,6 +158,7 @@ def Get_Validation_Test_Sets(Epoch_Index):
     test_set, validation_set = train_test_split(Epoch_Index, random_state=0)
 
     return validation_set, test_set
+
 
 ################################################################################################################################################################################################
 ## First Function for Offline Epoch Predictions
@@ -274,6 +276,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
 
     return Channel_Full_Freq_Trials
 
+
 ########################################################################################################################
 # Functions for Handling the new Dictionary Format of the Hand labels
 
@@ -297,7 +300,7 @@ def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, 
                                         |-> Labels: [Event_Labels]
                                         |-> Onsets: [[Starts], [Ends]]
     """
-# TODO: Make this function more reasonable
+    # TODO: Make this function more reasonable
     if local == False:
         folder_path = '/home/debrown/Handlabels'
     elif local:
@@ -314,7 +317,6 @@ def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, 
     Epoch_Dict = pickle.load(file)
     file.close()
     return Epoch_Dict
-
 
 
 def Prep_Handlabels_for_ML(Hand_labels, Index):
@@ -334,7 +336,7 @@ def Prep_Handlabels_for_ML(Hand_labels, Index):
     labels_list: list
         [Epoch] -> [Labels]
     onsets_list: list
-        [Epoch] -> ([Start Times], [End Times])
+        [[Epochs]->[Labels] , [Epochs]->[Start Time]]
 
     """
 
@@ -403,7 +405,7 @@ def Label_Grouper(Focuses, Labels, Starts):
 # Function for grabing more examples from a onset
 
 
-def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
+def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, Offset=int, Tr_Length=int,
                            Slide=None, Step=False):
     """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
 
@@ -411,12 +413,34 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructi
 
     Parameters:
     -----------
+    Full_Trials: list
+        [Ch]->[Freq]->(Time Samples x Trials)
+    All_Labels: list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    Starts: list
+        List of all Start Times corresponding to each Epoch in Full_Trials
+        [Epochs]->[Start Time]
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
+    Slide: bool
+        defaults to None
+
+    Step:
+        defaults to False
 
     Returns:
     -------
-    clippings:
-
+    clippings: list
+        List containing the Segments Designamted by the Label_Instructions, Offset, and Tr_Length parameters
+        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
     templates:
+
     """
 
     clippings = []
@@ -424,9 +448,9 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructi
 
     for instruction in range(len(Label_Instructions)):
         if type(Label_Instructions[instruction]) == int or type(Label_Instructions[instruction]) == str:
-            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Time_Stamps)
+            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Starts)
         else:
-            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Time_Stamps)
+            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Starts)
 
         if type(Slide) == int:
             label_starts = Slider(label_starts, Slide=Slide, Step=Step)
@@ -435,6 +459,7 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructi
         clippings.append(clips)
         templates.append(temps)
     return clippings, templates
+
 
 ########################################################################################################################
 # Function for Variably clipping Syllables for Machine Learning
@@ -571,6 +596,9 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 
         Its output can later be broken into an Initial Training and Final Test Set. [May Not Be True]
 
+        Note: The Number of Examples of Labels does not always equal the total number of examples total as some push
+        past the timeframe of the Epoch and are excluded
+
     Parameters:
     -----------
     Features: list
@@ -587,17 +615,12 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     Dynamic_Freq_Trials: list
         List of Stacked Neural Data that corresponds to the Label designated
         [Ch]->[Freq]->(Time (Samples) x Examples of Labels)
-        Note: The Number of Examples of Label does not always equal the total number of examples total as some push pass
-            the timeframe of the Epoch and are excluded
+
     Dynamic_Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
-        [Ch]->[Freq]->(Time (Samples) x Examples of Labels)
-        Note: The Number of Examples of Label does not always equal the total number of examples total as some push past
-            the time frame of the Epoch and are excluded
-    """
+        [Labels]-> [Ch]->[Freq]->(Time (Samples) x 1)
 
-    ### Consider removing the Create_Bands Step and consider using len()
-    ### ESPECIALLY IF YOU CHANGE THE BANDING CODE
+    """
 
     num_chan = len(Features[:])  # Number of Channels
     freq_bands = len(Features[0][:])  # Num of Frequency Bands
@@ -628,8 +651,8 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
                         Counter = Counter + 1
             Freq_Trials.append(Chan_Holder)  # Save all of the Trials for that Frequency on that Channel
             Chan_Means = np.mean(Chan_Holder, axis=1)  # Find Means (Match Filter)
-            Matches.append(
-                Chan_Means.reshape(Tr_Length, 1))  # Store all Match Filters for Every Frequency for that Channel
+            # Store all Match Filters for Every Frequency for that Channel
+            Matches.append(Chan_Means.reshape(Tr_Length, 1))
         Dynamic_Templates.append(Matches)
         Dynamic_Freq_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
 
@@ -642,64 +665,95 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 def Find_Power(Features, Pow_Method='Basic'):
     """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
 
+    Parameters:
+    -----------
     Features: list
-        Structure:
+        List containing all the Segments Clipped  for one labels.
+        (As defined by Label_Instructions in Label_Extract_Pipeline)
+        [ch] -> [freq] -> ( Samples x Label Instances)
     Pow_Method: str
         Method by which power is taken (Options: 'Basic': Mean , 'MS': Mean Squared, 'RMS': Root Mean Square)
-    :return:
+
+    Returns:
+    --------
+    Power_Trials: list
+        [ch] -> [freq] -> ( Mean of Samples x Label Instances)
+                            **(1 x Num Label Instances)
     """
     # Create Variable for IndexingF
-    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    num_trials = len(Features[0][0][0, :])  # Number of Instances of Dynam. Clipped Training Set (Labels)
 
     # Create Lists
-    Power_Trials = []
+    power_trials = []
 
-    for Channel in range(len(Features[:])):  # Over all Channels
-        Freq_Trials = []
-        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
+    for channel in Features[:]:  # Over all Channels
+        freq_trials = []
+        for frequency in channel[:]:  # For Range of All Frequency Bins
             #             print abs(Features[Channel - 1][l])
             if Pow_Method == 'Basic':
-                chan_holder = np.average(abs(Features[Channel][l]), axis=0)
+                chan_holder = np.average(abs(frequency), axis=0)
             if Pow_Method == 'MS':
-                chan_holder = np.mean(np.power(Features[Channel][l], 2), axis=0)
+                chan_holder = np.mean(np.power(frequency, 2), axis=0)
             if Pow_Method == 'RMS':
-                chan_holder = np.power(np.mean(np.power(Features[Channel][l], 2), axis=0), .5)
+                chan_holder = np.power(np.mean(np.power(frequency, 2), axis=0), .5)
 
             chan_holder = np.reshape(chan_holder, (num_trials, 1))
-            Freq_Trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
-        Power_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
-    return Power_Trials
+            freq_trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
+        power_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+    return power_trials
 
 
 def Pearson_Coeff_Finder(Features, Templates):
-    ''' This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
+    """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
     It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
-    '''
+
+    Parameters:
+    -----------
+    Features: list
+        List containing all the Segments Clipped  for one labels.
+        (As defined by Label_Instructions in Label_Extract_Pipeline)
+        [ch] -> [freq] -> ( Samples x Label Instances)
+    Templates: list
+        List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
+        [Labels]->[Ch]->[Freq]->(Time (Samples) x 1)
+        Note: The Number of Examples of Label does not always equal the total number of examples total as some push past
+            the time frame of the Epoch and are excluded
+    Returns:
+    --------
+    corr_trials: list
+        list of Pearson Correlation Values between each instance and the LFP Template of each Label
+        [ch] -> [freq] -> ( Number of Instances x Number of Labels/Templates)
+
+    """
 
     # Create Variable for IndexingF
-    NT = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
-    Num_Temps = len(Templates)
+    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    num_temps = len(Templates)
 
     # Create Lists
-    Corr_Trials = []
+    corr_trials = []
 
-    for Channel in range(0, len(Features[:])):  # Over all Channels
-        Freq_Trials = []
-        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            Corr_Holder = np.zeros([NT, Num_Temps])
+    for channel in range(0, len(Features[:])):  # Over all Channels
+        freq_trials = []
+        for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            corr_holder = np.zeros([num_trials, num_temps])
 
-            for i in range(NT):
-                for j in range(Num_Temps):
-                    Corr_Holder[i, j], _ = scipy.stats.pearsonr(Features[Channel][l][:, i],
-                                                                Templates[j][Channel][l][:, 0])
-            #             Chan_Holder = np.average(abs(Features[Channel - 1][l]), axis = 0)
-            #             Chan_Holder = np.reshape(Chan_Holder, (NT,1))
-            Freq_Trials.append(Corr_Holder)  # Save all of the Trials for that Frequency on that Channel
-        Corr_Trials.append(Freq_Trials)  # Save all of the Trials for all Frequencies on each Channel
-    return Corr_Trials
+            for instance in range(num_trials):
+                for temp in range(num_temps):
+                    corr_holder[instance, temp], _ = scipy.stats.pearsonr(Features[channel][frequency][:, instance],
+                                                                          Templates[temp][channel][frequency][:, 0])
+            freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
+        corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+    return corr_trials
 
 
 def Pearson_Extraction(Clipped_Trials, Templates):
+    """
+
+    :param Clipped_Trials:
+    :param Templates:
+    :return:
+    """
     Extracted_Pearson = []
     for i in range(len(Clipped_Trials)):
         Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates=Templates))
@@ -708,9 +762,9 @@ def Pearson_Extraction(Clipped_Trials, Templates):
 
 # Function for getting the Pearson Coefficient for Classification
 def Pearson_ML_Order(Features):
-    '''Reorganizes the Extracted Features into a Useful Machine Learning Format
+    """Reorganizes the Extracted Features into a Useful Machine Learning Format
 
-    Output Shape [Number of Examples vs. Number of Features]'''
+    Output Shape [Number of Examples vs. Number of Features]"""
     # Create Variable for Indexing
     #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
     NT = len(Features[0][0][:, 0])  # Number of Trials
@@ -749,17 +803,25 @@ def Pearson_ML_Order_Pipeline(Extracted_Features):
     return ML_Ready, ML_Labels, Ordered_Index
 
 
-
 def Power_Extraction(Clipped_Trials):
     """
 
-    :param Clipped_Trials:
-    :return:
+    Parameters:
+    -----------
+    Clipped_Trials: list
+        List containing the Segments Clipped by Label_Extract_Pipeline
+        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+
+    Return:
+    -------
+    extracted_power: list
+        [labels] -> [ch] -> [freq] -> ( Mean of Samples x Label Instances)
+                                        (1 x Num Label Instances)
     """
-    Extracted_Power = []
-    for i in range(len(Clipped_Trials)):
-        Extracted_Power.append(Find_Power(Clipped_Trials[i]))
-    return Extracted_Power
+    extracted_power = []
+    for label in Clipped_Trials:
+        extracted_power.append(Find_Power(label))
+    return extracted_power
 
 
 def ML_Order_Pipeline(Extracted_Features):
@@ -1009,12 +1071,13 @@ def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
     return meanAcc_nb, stdErr_nb, Classifier_Components, c
 
 
-def Make_Full_Trial_Index(Features, Offset = int, Tr_Length= int):
+def Make_Full_Trial_Index(Features, Offset=int, Tr_Length=int):
     FT_Index = []
-    for i in range(len(Features[0][0][0,:])):
+    for i in range(len(Features[0][0][0, :])):
         Time_List = np.arange(Offset + Tr_Length, 4500)
         FT_Index.append(list(Time_List))
     return FT_Index
+
 
 # Function needs to be able to Selectively choose which Trials to run full Trial
 def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
@@ -1126,9 +1189,6 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
         Full_Trial_Features.append(Series_Ordered[Trial_Length * (i):Trial_Length * (i + 1), :])
 
     return Full_Trial_Features
-
-
-
 
 
 def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
@@ -1308,4 +1368,3 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
     return meanAcc_nb, stdErr_nb, Classifier_Components, c,
-
