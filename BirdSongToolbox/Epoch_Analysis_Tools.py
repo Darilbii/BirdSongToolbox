@@ -747,7 +747,7 @@ def efficient_pearson_1d_v_2d(one_dim, two_dim):
     return pearsons
 
 
-def Pearson_Coeff_Finder(Features, Templates, Slow = False):
+def Pearson_Coeff_Finder(Features, Templates, Slow=False):
     """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
     It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
 
@@ -805,7 +805,6 @@ def Pearson_Coeff_Finder(Features, Templates, Slow = False):
                 freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
             corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
 
-
     return corr_trials
 
 
@@ -831,8 +830,6 @@ def Pearson_Extraction(Clipped_Trials, Templates):
     for i in range(len(Clipped_Trials)):
         Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates=Templates))
     return Extracted_Pearson
-
-
 
 
 # Function for getting the Pearson Coefficient for Classification
@@ -867,10 +864,11 @@ def Pearson_ML_Order(Features):
         for frequency in channel:  # For Range of All Frequency Bins
             ordered_trials = np.concatenate((ordered_trials, frequency), axis=1)
             for temps in range(len(frequency[0, :])):
-                #TODO: Refactor Pearson_ML_Order to run faster
+                # TODO: Refactor Pearson_ML_Order to run faster
                 # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
                 # ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
-                universal_index = (channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
+                universal_index = (
+                channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
             frequency_count += 1
         channel_count += 1
@@ -1110,7 +1108,7 @@ from sklearn import metrics
 
 
 def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
-                         verbose=False, n_folds = 4):  # , SKF, verbose=False):
+                         verbose=False, n_folds=4):  # , SKF, verbose=False):
     """ This Function is a Flexible Machine Learning Function that Trains FOUR Classifiers and determines metrics of each
     The metrics it determines are:
                 [1] Accuracy & StdERR
@@ -1167,7 +1165,6 @@ def KFold_Classification(Data_Set, Data_Labels, Method='GNB', Strategy='1vALL',
         Trained_Classifiers[foldNum] = classifier
         Trained_Index[foldNum] = test
         foldNum += 1
-
 
         if verbose:
             print(confusion)
@@ -1273,6 +1270,7 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         Machine Learning encoding of labels based on label_instructions
 
     """
+
     def label_conversion(label, instructions, spec_instr):
         """Function converts the labels to a integer that is of the structure of the label_instructions parameter
 
@@ -1300,6 +1298,7 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
                     conversion = spec_instr
                 else:
                     print(" You did not include one of the labels in your instructions (Likely 'C')")
+                    return
                 count += 1
         return conversion
 
@@ -1314,9 +1313,9 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
         sel_label = labels
         start_int = int(starts / 30)
         end_int = int(ends / 30)
-        time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
-                                                                     label_instructions,
-                                                                     spec_instr=undetermined)
+        time_series_labels[start_int: end_int, 0] = int(label_conversion(sel_label,
+                                                                         label_instructions,
+                                                                         spec_instr=undetermined))
         # for internal_ind in range(end_int - start_int):
         #     if (start_int + internal_ind) < 4500:
         #         time_series_labels[start_int + internal_ind, 0] = label_conversion(sel_label, label_instructions)
@@ -1512,7 +1511,6 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
 
 def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
                Feature_Type=str, K=4, Slide=None, Step=False, verbose=False):
-
     """
 
     :param Class_Obj:
