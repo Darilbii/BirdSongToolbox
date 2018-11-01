@@ -705,7 +705,7 @@ def Find_Power(Features, Pow_Method='Basic'):
     return power_trials
 
 
-def Pearson_Coeff_Finder(Features, Templates):
+def Pearson_Coeff_Finder(Features, Templates, Slow = False):
     """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
     It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
 
@@ -739,27 +739,29 @@ def Pearson_Coeff_Finder(Features, Templates):
     # Create Lists
     corr_trials = []
 
-    # for channel in range(0, len(Features[:])):  # Over all Channels
-    #     freq_trials = []
-    #     for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
-    #         corr_holder = np.zeros([num_trials, num_temps])
-    #
-    #         for instance in range(num_trials):
-    #             for temp in range(num_temps):
-    #                 corr_holder[instance, temp], _ = scipy.stats.pearsonr(Features[channel][frequency][:, instance],
-    #                                                                       Templates[temp][channel][frequency][:, 0])
-    #         freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
-    #     corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+    if Slow == True:
+        for channel in range(0, len(Features[:])):  # Over all Channels
+            freq_trials = []
+            for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+                corr_holder = np.zeros([num_trials, num_temps])
 
-    for channel in range(0, len(Features[:])):  # Over all Channels
-        freq_trials = []
-        for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            corr_holder = np.zeros([num_trials, num_temps])
-            for temp in range(num_temps):
-                corr_holder[:, temp] = efficient_pearson_1d_v_2d(Templates[temp][channel][frequency][:, 0],
-                                                                 np.transpose(Features[channel][frequency]))
-            freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
-        corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+                for instance in range(num_trials):
+                    for temp in range(num_temps):
+                        corr_holder[instance, temp], _ = scipy.stats.pearsonr(Features[channel][frequency][:, instance],
+                                                                              Templates[temp][channel][frequency][:, 0])
+                freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
+            corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
+
+    else:
+        for channel in range(len(Features[:])):  # Over all Channels
+            freq_trials = []
+            for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+                corr_holder = np.zeros([num_trials, num_temps])
+                for temp in range(num_temps):
+                    corr_holder[:, temp] = efficient_pearson_1d_v_2d(Templates[temp][channel][frequency][:, 0],
+                                                                     np.transpose(Features[channel][frequency]))
+                freq_trials.append(corr_holder)  # Save all of the Trials for that Frequency on that Channel
+            corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
 
 
     return corr_trials
