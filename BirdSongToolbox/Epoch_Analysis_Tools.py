@@ -439,7 +439,9 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
     clippings: list
         List containing the Segments Designamted by the Label_Instructions, Offset, and Tr_Length parameters
         [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
-    templates:
+    templates: list
+        List containing the mean across instances of each label for each Channel's Frequency Band
+        [Labels]->[Ch]->[Freq]-> (Mean of Samples Accross Insances x 1)
 
     """
 
@@ -707,6 +709,11 @@ def Pearson_Coeff_Finder(Features, Templates):
     """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
     It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
 
+    Information:
+    ------------
+            Note: The Number of Examples of Label does not always equal the total number of examples total as some push past
+            the time frame of the Epoch and are excluded
+
     Parameters:
     -----------
     Features: list
@@ -716,8 +723,7 @@ def Pearson_Coeff_Finder(Features, Templates):
     Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
         [Labels]->[Ch]->[Freq]->(Time (Samples) x 1)
-        Note: The Number of Examples of Label does not always equal the total number of examples total as some push past
-            the time frame of the Epoch and are excluded
+
     Returns:
     --------
     corr_trials: list
@@ -750,9 +756,20 @@ def Pearson_Coeff_Finder(Features, Templates):
 def Pearson_Extraction(Clipped_Trials, Templates):
     """
 
-    :param Clipped_Trials:
-    :param Templates:
-    :return:
+    Parameters:
+    -----------
+    Clipped_Trials: list
+        List containing the Segments Clipped by Label_Extract_Pipeline
+        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+    Templates: list
+        List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
+        [Labels]->[Ch]->[Freq]->(Time (Samples) x 1)
+
+    Returns:
+    --------
+    Extracted_Pearson: list
+        list of Pearson Correlation Values between each instance and the LFP Template of each Label
+        [Labels]->[ch] -> [freq] -> ( Number of Instances x Number of Labels/Templates)
     """
     Extracted_Pearson = []
     for i in range(len(Clipped_Trials)):
@@ -764,28 +781,34 @@ def Pearson_Extraction(Clipped_Trials, Templates):
 def Pearson_ML_Order(Features):
     """Reorganizes the Extracted Features into a Useful Machine Learning Format
 
-    Output Shape [Number of Examples vs. Number of Features]"""
+    Output Shape [Number of Examples vs. Number of Features]
+
+    """
     # Create Variable for Indexing
     #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
     NT = len(Features[0][0][:, 0])  # Number of Trials
     # Create Initial Array
-    Column_Index = []
-    Ordered_Trials = np.zeros((NT, 1))  # Initialize Dummy Array
+    column_index = []
+    ordered_trials = np.zeros((NT, 1))  # Initialize Dummy Array
 
     # Channel Based Ordering
-    for Channel in range(len(Features)):  # Over all Channels
-        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            for Temps in range(len(Features[0][0][0, :])):
-                Ordered_Trials = np.concatenate((Ordered_Trials,
-                                                 np.reshape(Features[Channel][l][:, Temps], (NT, 1))), axis=1)
-                Tuple = (Channel, l, Temps)  # Tuple that contains (Channel #, Freq Band #)
-                Column_Index.append(Tuple)  # Append Index Tuple in Column Order
-    Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
-    return Ordered_Trials, Column_Index
+    for channel in Features:  # Over all Channels
+        for frequency in channel:  # For Range of All Frequency Bins
+            for temps in range(len(frequency[0, :])):
+                ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
+                universal_index = (channel, frequency, temps)  # Tuple that contains (Channel #, Freq Band #)
+                column_index.append(universal_index)  # Append Index Tuple in Column Order
+    ordered_trials = np.delete(ordered_trials, 0, 1)  # Delete the First Row (Initialized Row)
+    return ordered_trials, column_index
 
 
 def Pearson_ML_Order_Pipeline(Extracted_Features):
-    ''' '''
+    """
+
+    :param Extracted_Features:
+    :return:
+
+    """
     ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
     ML_Labels = np.zeros((1, 1))
     for i in range(len(Extracted_Features)):
