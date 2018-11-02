@@ -1290,9 +1290,15 @@ def Series_LFP_Clipper(Features, Offset: int, Tr_Length: int):
             for trials in range(nt):
                 for ex in range(len(starts[trials])):
                     if starts[trials][ex] - Offset - Tr_Length >= 0 and starts[trials][ex] - Offset <= len(Features[0][0][:, 0]) :
-                        chan_holder[:, counter] = frequency[
-                                                  starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
-                                                  trials]  # Select Motif
+                        if Offset<0:
+                            chan_holder[:, counter] = frequency[
+                                                      starts[trials][ex] - Offset - Tr_Length:starts[trials][
+                                                                                                  ex] - Offset + 1, trials]  # Select Motif
+
+                            else:
+                            chan_holder[:, counter] = frequency[
+                                                      starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
+                                                      trials]  # Select Motif
                         counter = counter + 1
             freq_trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
         dynamic_freq_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
