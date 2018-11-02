@@ -1769,7 +1769,7 @@ def series_ml_order_label(labels: list):
         restructure labels to work nicely with 
     """
 
-    ml_labels = np.zeros((1, 1))
+    ml_labels = np.zeros((1,))
     for epoch in labels:
         ml_labels = np.concatenate((ml_labels, epoch), axis=0)
     ml_labels = np.delete(ml_labels, 0, 0)
