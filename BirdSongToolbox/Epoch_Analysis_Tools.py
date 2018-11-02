@@ -1332,8 +1332,9 @@ def series_label_extractor(labels, clippings, label_instructions, Offset: int, T
             series_labels.append(epoch_labels[:Offset + Tr_Length, 0])
     return series_labels
 
+
 def label_conversion(label, instructions, spec_instr):
-        """Function converts the labels to a integer that is of the structure of the label_instructions parameter
+    """Function converts the labels to a integer that is of the structure of the label_instructions parameter
 
         Parameters:
         -----------
@@ -1348,22 +1349,22 @@ def label_conversion(label, instructions, spec_instr):
         conversion: int
             Machine Learning encoding of labels based on label_instructions
         """
-        count = 0
-        # for instruction in instructions:
-        if label in instructions:
-            conversion = instructions.index(label)
-        else:
-            for instruction in instructions:
-                if isinstance(instruction, list):
-                    if label in instruction:
-                        conversion = int(count)
-                elif isinstance(spec_instr, int):
-                    conversion = spec_instr
-                else:
-                    print(" You did not include one of the labels in your instructions (Likely 'C')")
-                    return
-                count += 1
-        return conversion
+    count = 0
+    # for instruction in instructions:
+    if label in instructions:
+        conversion = instructions.index(label)
+    else:
+        for instruction in instructions:
+            if isinstance(instruction, list):
+                if label in instruction:
+                    conversion = int(count)
+            elif isinstance(spec_instr, int):
+                conversion = spec_instr
+            else:
+                print(" You did not include one of the labels in your instructions (Likely 'C')")
+                return
+            count += 1
+    return conversion
 
 
 def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, undetermined=False):
@@ -1472,7 +1473,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
 
 def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, Feature_Type: str, labels: list,
-                                        Temps=None, re_break = False):
+                                        onsets: list, label_instructions: list, Temps=None, re_break=False):
     """
 
     Parameters:
@@ -1497,12 +1498,11 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     """
 
-
     Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
 
     if Feature_Type == 'Power':
         series_power = find_power(Series_Trial)
-        series_ordered,  ordered_index = power_ml_order_module(series_power)
+        series_ordered, ordered_index = power_ml_order_module(series_power)
 
     elif Feature_Type == 'Pearson':
         series_pearson = find_pearson_coeff(Series_Trial, Temps)
@@ -1524,17 +1524,18 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
         print(" You didn't input a Valid Feature Type")
         return
 
-    ml_labels = series_ml_order_label(labels)  # Convert Labels to Scikit-Learn format
+    # Convert Labels to Scikit-Learn format
+    ml_labels = series_ml_order_label(series_label_extractor(labels, onsets, label_instructions,
+                                                             Offset=Offset, Tr_Length=Tr_Length))
 
-    full_trial_features = []
-    trial_length = len(Features[0][0][:, 0]) - Offset - Tr_Length
-
-    if re_break == True: # Option for Re-Breaking the epoch to get visualize their individual performances in Testing
+    if re_break == True:  # Option for Re-Breaking the epoch to get visualize their individual performances in Testing
         # Break the long time series back into the Constituent Epochs
+        full_trial_features = []
+        trial_length = len(Features[0][0][:, 0]) - Offset - Tr_Length
         for i in range(len(Features[0][0][0, :])):
             full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
-
         return full_trial_features, labels, ordered_index
+
     return series_ordered, ml_labels, ordered_index
 
 
@@ -1634,9 +1635,6 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
     sel_starts = Label_Selector(Starts, Sel_index=Sel_index)
     return sel_set, sel_labels, sel_starts
-
-
-
 
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
@@ -1754,9 +1752,9 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
     return meanAcc_nb, stdErr_nb, Classifier_Components, c,
 
+
 ###
 # Series Analysis Code
-
 
 
 def series_ml_order_label(labels: list):
@@ -1824,8 +1822,6 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
-
-
 def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
                       Feature_Type=str, k_folds=4, verbose=False):
     """
@@ -1865,11 +1861,11 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
             # print "%s %s" % (train, test)
 
         print(train)
-        train_set, train_labels, train_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets[0],
+        train_set, train_labels, train_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets,
                                                                             train)
 
         print(test)
-        test_set, test_labels, test_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets[0], test)
+        test_set, test_labels, test_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets, test)
 
         # Features, Offset = int, Tr_Length = int, Feature_Type = str, Temps = None
 
@@ -1885,17 +1881,22 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
             templates = None
 
         ml_train_trials, ml_train_labels, train_ordered_index = Series_Classification_Prep_Pipeline(Features=train_set,
-                                                                                   Offset=Offset,
-                                                                                   Tr_Length=Tr_Length,
-                                                                                   Feature_Type=Feature_Type,
-                                                                                   Temps=templates, labels=train_labels)
+                                                                                                    Offset=Offset,
+                                                                                                    Tr_Length=Tr_Length,
+                                                                                                    Feature_Type=Feature_Type,
+                                                                                                    Temps=templates,
+                                                                                                    labels=train_labels,
+                                                                                                    onsets=train_onsets,
+                                                                                                    label_instructions=Label_Instructions)
 
         ml_test_trials, ml_test_labels, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
-                                                                                 Offset=Offset,
-                                                                                 Tr_Length=Tr_Length,
-                                                                                 Feature_Type=Feature_Type,
-                                                                                 Temps=templates, labels=test_labels)
-
+                                                                                                 Offset=Offset,
+                                                                                                 Tr_Length=Tr_Length,
+                                                                                                 Feature_Type=Feature_Type,
+                                                                                                 Temps=templates,
+                                                                                                 labels=test_labels,
+                                                                                                 onsets=test_onsets,
+                                                                                                 label_instructions=Label_Instructions)
 
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
                                                                                ml_train_labels,
