@@ -1413,7 +1413,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
     return ML_Trials, ML_Labels, Ordered_Index
 
 
-def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Feature_Type=str, labels: list, Temps=None):
+def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, Feature_Type: str, labels: list, Temps=None):
     """
 
     Parameters:
@@ -1851,13 +1851,13 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
                                                                                    Offset=Offset,
                                                                                    Tr_Length=Tr_Length,
                                                                                    Feature_Type=Feature_Type,
-                                                                                   Temps=templates)
+                                                                                   Temps=templates, labels=train_labels)
 
         ml_test_trials, ml_test_labels, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
                                                                                  Offset=Offset,
                                                                                  Tr_Length=Tr_Length,
                                                                                  Feature_Type=Feature_Type,
-                                                                                 Temps=templates)
+                                                                                 Temps=templates, labels=test_labels)
 
 
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
