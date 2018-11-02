@@ -322,7 +322,7 @@ def Prep_Handlabels_for_ML(Hand_labels, Index):
     labels_list: list
         [Epoch] -> [Labels]
     onsets_list: list
-        [[Epochs]->[Labels] , [Epochs]->[Start Time]]
+        [[Epochs]->[Start TIme] , [Epochs]->[End Time]]
 
     """
 
@@ -400,7 +400,8 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
     Parameters:
     -----------
     Full_Trials: list
-        [Ch]->[Freq]->(Time Samples x Trials)
+        List of Full Epochs, this is typically output from Full_Trial_LFP_Clipper
+        [Ch] -> [Freq] -> (Time Samples x Epochs)
     All_Labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
         [Epochs]->[Labels]
@@ -416,18 +417,19 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
         Number of Samples to use for Features
     Slide: bool
         defaults to None
-
+        #TODO: Explain and Validate the Slide Parameter
     Step:
         defaults to False
+        #TODO: Explain and Validate the Step Parameter
 
     Returns:
     -------
     clippings: list
-        List containing the Segments Designamted by the Label_Instructions, Offset, and Tr_Length parameters
+        List containing the Segments Designated by the Label_Instructions, Offset, and Tr_Length parameters
         [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
     templates: list
         List containing the mean across instances of each label for each Channel's Frequency Band
-        [Labels]->[Ch]->[Freq]-> (Mean of Samples Accross Insances x 1)
+        [Labels]->[Ch]->[Freq]-> (Mean of Samples across Instances  x  1)
 
     """
 
@@ -528,6 +530,8 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
 
     Offset = How much prior or after onset
 
+
+
     Returns:
     --------
 
@@ -591,12 +595,11 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     -----------
     Features: list
         [Ch]->[Freq]->(Time Samples x Trials)
-
     Starts: list
         A list of Lists containing the Start Times of only One type of Label in each Clipping.
-    Also Note that the Starts Argument must be converted to the 1 KHz Sampling Frequency
-
-    Offset = How much prior or after onset
+        (Note: that the Starts Argument must be converted to the 1 KHz Sampling Frequency)
+    Offset: int
+        How much prior or after onset
 
     Returns:
     --------
@@ -651,7 +654,7 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 
 
 def Find_Power(Features, Pow_Method='Basic'):
-    """ Function to Find the Power for all Trials (Intermediate Preprocessing Step)
+    """Finds the Power for all Instances of  One Label for every Channel's Frequency Bands (Modular Preprocessing Step)
 
     Parameters:
     -----------
@@ -665,8 +668,8 @@ def Find_Power(Features, Pow_Method='Basic'):
     Returns:
     --------
     Power_Trials: list
-        [ch] -> [freq] -> ( Mean of Samples x Label Instances)
-                            **(1 x Num Label Instances)
+        [ch] -> [freq] -> (Mean of Samples for each Label Instance  x  1 )
+                            **(Num Label Instances x 1)**
     """
     # Create Variable for IndexingF
     num_trials = len(Features[0][0][0, :])  # Number of Instances of Dynam. Clipped Training Set (Labels)
@@ -719,7 +722,7 @@ def efficient_pearson_1d_v_2d(one_dim, two_dim):
     Returns:
     --------
     pearsons: ndarray
-
+    #TODO: Figure out the dimensions of this return
 
 
     Example:
@@ -765,6 +768,8 @@ def Pearson_Coeff_Finder(Features, Templates, Slow=False):
     Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
         [Labels]->[Ch]->[Freq]->(Time (Samples) x 1)
+    Slow: bool (Optional)
+        if True the code will use the native scipy.stats.pearsonr() function which is slow (defaults to False)
 
     Returns:
     --------
@@ -809,7 +814,7 @@ def Pearson_Coeff_Finder(Features, Templates, Slow=False):
 
 
 def Pearson_Extraction(Clipped_Trials, Templates):
-    """
+    """  Pearson Correlation Coefficients for all Labels
 
     Parameters:
     -----------
@@ -818,7 +823,7 @@ def Pearson_Extraction(Clipped_Trials, Templates):
         [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
     Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
-        [Labels]->[Ch]->[Freq]->(Time (Samples) x 1)
+        [Labels] -> [Ch] -> [Freq] -> (Time (Samples) x 1)
 
     Returns:
     --------
@@ -850,6 +855,7 @@ def Pearson_ML_Order(Features):
         [
 
     column_index:
+
     """
     # Create Variable for Indexing
     #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
@@ -867,8 +873,7 @@ def Pearson_ML_Order(Features):
                 # TODO: Refactor Pearson_ML_Order to run faster
                 # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
                 # ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
-                universal_index = (
-                    channel_count, frequency_count, temps)  # Tuple that contains (Channel #, Freq Band #)
+                universal_index = (channel_count, frequency_count, temps)  # Tuple contains (Channel #, Freq Band #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
             frequency_count += 1
         channel_count += 1
@@ -901,7 +906,7 @@ def Pearson_ML_Order_Pipeline(Extracted_Features):
 
 
 def Power_Extraction(Clipped_Trials):
-    """
+    """Finds the Power for all Labels for each Channels Frequency Band
 
     Parameters:
     -----------
@@ -912,8 +917,9 @@ def Power_Extraction(Clipped_Trials):
     Return:
     -------
     extracted_power: list
-        [labels] -> [ch] -> [freq] -> ( Mean of Samples x Label Instances)
-                                        (1 x Num Label Instances)
+        List of power for each Channel for every Frequency Band for every instances for Each Label
+        [labels] -> [ch] -> [freq] -> (Mean of Samples for each Label Instances   x   1)
+                                        (Num Label Instances x 1)
     """
     extracted_power = []
     for label in Clipped_Trials:
@@ -921,11 +927,22 @@ def Power_Extraction(Clipped_Trials):
     return extracted_power
 
 
-def ML_Order_Pipeline(Extracted_Features):
-    """
+def ml_order_power(Extracted_Features):
+    """Restructure Extracted Power Features to a ndarray structure usable to SciKit-Learn: (n_samples, n_features)
 
-    :param Extracted_Features:
-    :return:
+    Parameters:
+    Extracted_Features:list
+        List of power for each Channel for every Frequency Band for every instances for Each Label
+        [labels] -> [ch] -> [freq] -> (Mean of Samples for each Label Instances   x   1)
+                                        (Num Label Instances x 1)
+
+    Returns:
+    --------
+    ML_Ready: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
     """
     ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
     ML_Labels = np.zeros((1, 1))
@@ -1222,7 +1239,7 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     Parameters:
     -----------
     Features: list
-        [Ch]->[Freq]->(Time Samples x Trials)
+        [Ch]->[Freq]->(Time Samples x Epochs)
     Offset: int
         How much prior or after onset
     Tr_Length: int
@@ -1231,7 +1248,7 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     Returns:
     --------
     dynamic_freq_trials: list
-        [ch]->[freq]->(samples x trials)
+        [ch]->[freq]->(Samples x Trials/Observations)
 
     """
 
@@ -1259,14 +1276,18 @@ def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
     return dynamic_freq_trials
 
 
-def series_lfp_label_clipper(labels, clippings, label_instructions, Offset: int, Tr_Length: int, undetermined=False):
+def series_label_extractor(labels, clippings, label_instructions, Offset: int, Tr_Length: int, undetermined=False):
     """Creates a list of each epoch's series labels to be paired with the lfp data for Machine Learning
 
     :param labels:
     :param clippings:
-    :param label_instructions:
-    :param Offset:
-    :param Tr_Length:
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
     :param undetermined:
     Returns:
     --------
@@ -1294,7 +1315,10 @@ def label_conversion(label, instructions, spec_instr):
         -----------
         :param spec_instr:
         :param label:
-        :param instructions:
+        Label_Instructions: list
+            list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+            this nested list will be treated as if they are the same label
+
 
         Returns:
         --------
@@ -1325,9 +1349,16 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
     Parameters:
     -----------
     labels:
+
     clippings:
+
     sel_epoch:
-    label_instructions:
+
+
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+
 
     Returns:
     --------
@@ -1346,8 +1377,6 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
 
     for labels, starts, ends, in zip(labels[sel_epoch], clippings[0][sel_epoch], clippings[1][sel_epoch]):
         sel_label = labels
-        print(starts)
-        print(ends)
         start_int = int(starts / 30)
         end_int = int(ends / 30)
         time_series_labels[start_int: end_int, 0] = label_conversion(sel_label,
@@ -1362,7 +1391,7 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
 
 # Clip_Test, Temp_Test = Label_Extract_Pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
 # Power_List = Power_Extraction(Clip_Test)
-# ML_Trial_Test, ML_Labels_Test, Ordered_Index_TEST = ML_Order_Pipeline(Power_List)
+# ML_Trial_Test, ML_Labels_Test, Ordered_Index_TEST = ml_order_power(Power_List)
 
 
 def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
@@ -1372,9 +1401,13 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
     :param Full_Trials:
     :param All_Labels:
     :param Time_Stamps:
-    :param Label_Instructions:
-    :param Offset:
-    :param Tr_Length:
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
     :param Feature_Type:
     :param Temps:
     :param Slide:
@@ -1393,7 +1426,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
     if Feature_Type == 'Power':
         Power = Power_Extraction(Clips)
-        ML_Trials, ML_Labels, Ordered_Index = ML_Order_Pipeline(Power)
+        ML_Trials, ML_Labels, Ordered_Index = ml_order_power(Power)
 
     if Feature_Type == 'Pearson':
         print('Probably need to Validate Pearson Functions Correctly')
@@ -1438,18 +1471,19 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     if Feature_Type == 'Power':
         series_power = Find_Power(Series_Trial)
-        series_ordered, series_labels, ordered_index = series_power_ml_order_pipeline(series_power, labels = labels)
+        series_ordered, series_labels, ordered_index = series_power_ml_order_pipeline(series_power, labels=labels)
 
     elif Feature_Type == 'Pearson':
         series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered, series_labels, ordered_index = series_pearson_ml_order_pipeline(series_pearson, labels = labels )
+        series_ordered, series_labels, ordered_index = series_pearson_ml_order_pipeline(series_pearson,
+                                                                                        labels=labels)
 
     elif Feature_Type == 'Both':
         series_power = Find_Power(Series_Trial)
         series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered, series_labels, ordered_index = series_both_order_pipeline(extracted_features_power= series_power,
-                                                                   extracted_features_pearson= series_pearson ,
-                                                                   labels= labels )
+        series_ordered, series_labels, ordered_index = series_both_order_pipeline(extracted_features_power=series_power,
+                                                                                  extracted_features_pearson=series_pearson,
+                                                                                  labels=labels)
 
 
     else:
@@ -1577,9 +1611,13 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     :param Data_Set:
     :param Data_Labels:
     :param Data_Starts:
-    :param Label_Instructions:
-    :param Offset:
-    :param Tr_Length:
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
     :param Feature_Type:
     :param K:
     :param Slide:
@@ -1750,22 +1788,22 @@ def series_both_order_pipeline(extracted_features_power, extracted_features_pear
     return ml_ready, ml_labels, ordered_index
 
 
-def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
-    """ Handles the Preparation for series_clip_kfold
-
-    :param Data_Set:
-    :param Test_index:
-    :param Offset:
-    :param Tr_Length:
-    :param Feature_Type:
-    :return:
-    """
-    Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
-
-    series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
-                                                       Feature_Type=Feature_Type, Temps=temps)
-
-    return series_ready,
+# def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
+#     """ Handles the Preparation for series_clip_kfold
+#
+#     :param Data_Set:
+#     :param Test_index:
+#     :param Offset:
+#     :param Tr_Length:
+#     :param Feature_Type:
+#     :return:
+#     """
+#     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
+#
+#     series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
+#                                                        Feature_Type=Feature_Type, Temps=temps)
+#
+#     return series_ready,
 
 
 def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
