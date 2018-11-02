@@ -1292,10 +1292,10 @@ def Series_LFP_Clipper(Features, Offset: int, Tr_Length: int):
                     if starts[trials][ex] - Offset - Tr_Length >= 0 and starts[trials][ex] - Offset <= len(Features[0][0][:, 0]) :
                         if Offset<0:
                             chan_holder[:, counter] = frequency[
-                                                      starts[trials][ex] - Offset - Tr_Length:starts[trials][
-                                                                                                  ex] - Offset + 1, trials]  # Select Motif
+                                                      starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset - 1,
+                                                      trials]  # Select Motif
 
-                            else:
+                        else:
                             chan_holder[:, counter] = frequency[
                                                       starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
                                                       trials]  # Select Motif
