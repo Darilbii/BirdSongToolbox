@@ -463,7 +463,7 @@ def Numel(Index):
     return Count
 
 
-def Numbad(Index, Offset=int, Tr_Length=int):
+def Numbad(Index, Offset: int, Tr_Length: int):
     """ Returns the number of Label instances that finish after the end of the Epoch (Prevents Index errors propagating)
 
     Parameters:
@@ -487,7 +487,7 @@ def Numbad(Index, Offset=int, Tr_Length=int):
     return Count
 
 
-def Numbad2(Index, ClipLen, Offset=int):
+def Numbad2(Index, ClipLen, Offset: int):
     """Returns the number of Label instances that start before the start of the Epoch (Prevents Index errors propagating)
 
     Parameters:
@@ -653,7 +653,7 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 ########################################################################################################################
 
 
-def Find_Power(Features, Pow_Method='Basic'):
+def find_power(Features, Pow_Method='Basic'):
     """Finds the Power for all Instances of  One Label for every Channel's Frequency Bands (Modular Preprocessing Step)
 
     Parameters:
@@ -750,9 +750,10 @@ def efficient_pearson_1d_v_2d(one_dim, two_dim):
     return pearsons
 
 
-def Pearson_Coeff_Finder(Features, Templates, Slow=False):
-    """ This Function Mirrors Power_Finder only for finding Pearson Correlation Coefficient
-    It iterates over each Template and finds the Pearson Coefficient for 1 template at a time
+def find_pearson_coeff(Features, Templates, Slow=False):
+    """ Iterates over each Template and finds the Pearson Coefficient for 1 template at a time
+
+        Note: This Function Mirrors find_power() only for finding Pearson Correlation Coefficient
 
     Information:
     ------------
@@ -813,7 +814,7 @@ def Pearson_Coeff_Finder(Features, Templates, Slow=False):
     return corr_trials
 
 
-def Pearson_Extraction(Clipped_Trials, Templates):
+def pearson_extraction(Clipped_Trials, Templates):
     """  Pearson Correlation Coefficients for all Labels
 
     Parameters:
@@ -829,17 +830,17 @@ def Pearson_Extraction(Clipped_Trials, Templates):
     --------
     Extracted_Pearson: list
         list of Pearson Correlation Values between each instance and the LFP Template of each Label
-        [Labels]->[ch] -> [freq] -> ( Number of Instances x Number of Labels/Templates)
+        [Labels]->[ch] -> [freq] -> ( Number of Instances  x  Number of Labels/Templates)
     """
     Extracted_Pearson = []
-    for i in range(len(Clipped_Trials)):
-        Extracted_Pearson.append(Pearson_Coeff_Finder(Clipped_Trials[i], Templates=Templates))
+    for label in Clipped_Trials:
+        Extracted_Pearson.append(find_pearson_coeff(label, Templates=Templates))
     return Extracted_Pearson
 
 
 # Function for getting the Pearson Coefficient for Classification
-def Pearson_ML_Order(Features):
-    """Reorganizes the Extracted Features into a Useful Machine Learning Format
+def pearson_ml_module(Features):
+    """Reorganizes the Extracted Pearson Features of One Lable's instance/samples into a Useful Machine Learning Format
 
     Output Shape [Number of Examples vs. Number of Features]
 
@@ -858,51 +859,62 @@ def Pearson_ML_Order(Features):
 
     """
     # Create Variable for Indexing
-    #     Num_Temps = len(Features[0][0][0,:]) # Number of Templates
-    NT = len(Features[0][0][:, 0])  # Number of Trials
+    # NT = len(Features[0][0][:, 0])  # Number of Trials
     # Create Initial Array
     column_index = []
-    ordered_trials = np.zeros((NT, 1))  # Initialize Dummy Array
-    channel_count = 0
-    # Channel Based Ordering
-    for channel in Features:  # Over all Channels
-        frequency_count = 0
-        for frequency in channel:  # For Range of All Frequency Bins
+    ordered_trials = np.zeros((len(Features[0][0][:, 0]), 1))  # Initialize Dummy Array
+
+    for chan_index, channel in enumerate(Features):  # Over all Channels
+        for freq_index, frequency in enumerate(channel):  # For Range of All Frequency Bins
             ordered_trials = np.concatenate((ordered_trials, frequency), axis=1)
             for temps in range(len(frequency[0, :])):
-                # TODO: Refactor Pearson_ML_Order to run faster
-                # ordered_trials = np.concatenate((ordered_trials, np.reshape(frequency[:, temps], (NT, 1))), axis=1)
-                # ordered_trials = np.concatenate(ordered_trials, np.transpose(frequency), axis=1)
-                universal_index = (channel_count, frequency_count, temps)  # Tuple contains (Channel #, Freq Band #)
+                # TODO: Refactor pearson_ml_module to run faster
+                universal_index = (chan_index, freq_index, temps)  # Tuple contains (Channel #, Freq Band #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
-            frequency_count += 1
-        channel_count += 1
     ordered_trials = np.delete(ordered_trials, 0, 1)  # Delete the First Row (Initialized Row)
     return ordered_trials, column_index
 
 
-def Pearson_ML_Order_Pipeline(Extracted_Features):
-    """
+def ml_order_pearson(Extracted_Features):
+    """Restructures Pearson Corr. Coeff. Features to a ndarray structure usable to SciKit-Learn: (n_samples, n_features)
 
-    :param Extracted_Features:
-    :return:
+    Parameters:
+    -----------
+    Extracted_Features:l ist
+        list of Pearson Correlation Values between each instance and the LFP Template of each Label
+        [Labels]->[ch] -> [freq] -> ( Number of Instances  x  Number of Labels/Templates)
+
+    Returns:
+    --------
+    ML_Ready: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq * Num_Temps)
+    ML_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    Ordered_Index: list
+        Index of Features for Feature Dropping
+        [Num of Features] -> (Chan Num , Freq Num, Temp Num)
+                     list -> Tuple
 
     """
-    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
-    ML_Labels = np.zeros((1, 1))
-    for i in range(len(Extracted_Features)):
-        Ordered_Trials, Ordered_Index = Pearson_ML_Order(Extracted_Features[i])
-        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
+    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
+    ml_labels = np.zeros((1, 1))
+    for label_index, label in enumerate(Extracted_Features):
+        ordered_trials, ordered_index = pearson_ml_module(label)
+        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
 
         # Handles Labels so they are flexible when grouping
-        ROW, COLL = np.shape(Ordered_Trials)
-        Dyn_Labels = np.zeros([ROW, 1])
-        Dyn_Labels[:, 0] = i
-        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
+        row, coll = np.shape(ordered_trials)
+        dyn_labels = np.zeros([row, 1])
+        dyn_labels[:, 0] = label_index
+        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
 
-    ML_Ready = np.delete(ML_Ready, 0, 0)
-    ML_Labels = np.delete(ML_Labels, 0, 0)
-    return ML_Ready, ML_Labels, Ordered_Index
+    ml_ready = np.delete(ml_ready, 0, 0)
+    ml_labels = np.delete(ml_labels, 0, 0)
+    return ml_ready, ml_labels, ordered_index
 
 
 def Power_Extraction(Clipped_Trials):
@@ -923,7 +935,7 @@ def Power_Extraction(Clipped_Trials):
     """
     extracted_power = []
     for label in Clipped_Trials:
-        extracted_power.append(Find_Power(label))
+        extracted_power.append(find_power(label))
     return extracted_power
 
 
@@ -961,7 +973,7 @@ def ml_order_power(Extracted_Features):
     ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
     ml_labels = np.zeros((1, 1))
     for label in range(len(Extracted_Features)):
-        ordered_trials, Ordered_Index = ML_Order(Extracted_Features[label])
+        ordered_trials, Ordered_Index = power_ml_order_module(Extracted_Features[label])
         ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
 
         # Handles Labels so they are flexible when grouping
@@ -975,7 +987,7 @@ def ml_order_power(Extracted_Features):
     return ml_ready, ml_labels, Ordered_Index
 
 
-def Select_Classifier(Model=str, Strategy=str):
+def Select_Classifier(Model: str, Strategy: str):
     if Model == 'GNB':
         classifier = GaussianNB()
     if Model == 'LDA':
@@ -990,8 +1002,8 @@ def Select_Classifier(Model=str, Strategy=str):
 # Need to add Function to Selectively Drop Frequencies
 ## Made Corrections on 10/27/2017 additional ones on 10/30/2017
 
-def ML_Order(Features):
-    """Reorganizes the Extracted Features into a Useful Machine Learning Format
+def power_ml_order_module(Features):
+    """Reorganizes the Extracted Power Features of One Lable's instance/samples into a Useful Machine Learning Format
 
     Parameters:
     -----------
@@ -1025,7 +1037,7 @@ def ML_Order(Features):
     return Ordered_Trials, Column_Index
 
 
-def Slider(Ext_Starts, Slide=int, Step=False):
+def Slider(Ext_Starts, Slide: int, Step=False):
     """
     Parameters:
     -----------
@@ -1225,7 +1237,7 @@ def Make_Full_Trial_Index(Features, Offset: int, Tr_Length: int, Epoch_Len: int)
         The length in Samples of each Epoch
     Returns:
     --------
-
+    FT_Index =
 
     """
 
@@ -1240,7 +1252,7 @@ def Make_Full_Trial_Index(Features, Offset: int, Tr_Length: int, Epoch_Len: int)
 
 
 # Function needs to be able to Selectively choose which Trials to run full Trial
-def Series_LFP_Clipper(Features, Offset=int, Tr_Length=int):
+def Series_LFP_Clipper(Features, Offset: int, Tr_Length: int):
     """This Function Sequentially clips Neural data attributed for a full trial and organizes
     them for future steps. It iterates over EACH full trial clipping.
     It should be run once.
@@ -1331,7 +1343,6 @@ def label_conversion(label, instructions, spec_instr):
             list of labels and how they should be treated. If you use a nested list in the instructions the labels in
             this nested list will be treated as if they are the same label
 
-
         Returns:
         --------
         conversion: int
@@ -1406,10 +1417,12 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
 # ML_Trial_Test, ML_Labels_Test, Ordered_Index_TEST = ml_order_power(Power_List)
 
 
-def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset=int, Tr_Length=int,
-                                 Feature_Type=str, Temps=None, Slide=None, Step=False):
+def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions, Offset: int, Tr_Length: int,
+                                 Feature_Type: str, Temps=None, Slide=None, Step=False):
     """
 
+    :param Offset:
+    :param Tr_Length:
     :param Full_Trials:
     :param All_Labels:
     :param Time_Stamps:
@@ -1446,11 +1459,11 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         ## [Probably should add *kwargs]
         # Fucntion for Ordering Pearson
         if Temps == None:
-            Pearson = Pearson_Extraction(Clips, Temps_internal)
+            Pearson = pearson_extraction(Clips, Temps_internal)
         if Temps != None:
-            Pearson = Pearson_Extraction(Clips, Temps)
+            Pearson = pearson_extraction(Clips, Temps)
 
-        ML_Trials, ML_Labels, Ordered_Index = Pearson_ML_Order_Pipeline(Pearson)
+        ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(Pearson)
 
         if Temps == None:
             return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
@@ -1458,7 +1471,8 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
     return ML_Trials, ML_Labels, Ordered_Index
 
 
-def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, Feature_Type: str, labels: list, Temps=None):
+def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, Feature_Type: str, labels: list,
+                                        Temps=None):
     """
 
     Parameters:
@@ -1482,20 +1496,23 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
     Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
 
     if Feature_Type == 'Power':
-        series_power = Find_Power(Series_Trial)
-        series_ordered, series_labels, ordered_index = series_power_ml_order_pipeline(series_power, labels=labels)
+        series_power = find_power(Series_Trial)
+        series_ordered,  ordered_index = power_ml_order_module(series_power, labels=labels)
 
     elif Feature_Type == 'Pearson':
-        series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered, series_labels, ordered_index = series_pearson_ml_order_pipeline(series_pearson,
-                                                                                        labels=labels)
+        series_pearson = find_pearson_coeff(Series_Trial, Temps)
+        series_ordered, ordered_index = pearson_ml_module(series_pearson, labels=labels)
 
     elif Feature_Type == 'Both':
-        series_power = Find_Power(Series_Trial)
-        series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered, series_labels, ordered_index = series_both_order_pipeline(extracted_features_power=series_power,
-                                                                                  extracted_features_pearson=series_pearson,
-                                                                                  labels=labels)
+        # Handle Power First
+        series_power = find_power(Series_Trial)
+        series_ordered_power, ordered_index_power = power_ml_order_module(series_power)
+        # Handle Pearson Coefficient Second
+        series_pearson = find_pearson_coeff(Series_Trial, Temps)
+        series_ordered_pearson, ordered_index_pearson = pearson_ml_module(series_pearson)
+        # Concatenate their lists
+        series_ordered = np.concatenate((series_ordered_power, series_ordered_pearson), axis=1)
+        ordered_index = np.concatenate((ordered_index_power, ordered_index_pearson), axis=0)
 
 
     else:
@@ -1509,7 +1526,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
     for i in range(len(Features[0][0][0, :])):
         full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
 
-    return full_trial_features, series_labels, ordered_index
+    return full_trial_features, labels, ordered_index
 
 
 ## Function Only Works with SciKitLearn 19.1 and later [Due to Change in how skf syntax]
@@ -1741,7 +1758,7 @@ def series_pearson_ml_order_pipeline(Extracted_Features, labels):
     ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
     ml_labels = np.zeros((1, 1))
     for i in range(len(Extracted_Features)):
-        ordered_trials, ordered_index = Pearson_ML_Order(Extracted_Features[i])
+        ordered_trials, ordered_index = pearson_ml_module(Extracted_Features[i])
         ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
 
         dyn_labels = labels[i]
@@ -1755,21 +1772,23 @@ def series_pearson_ml_order_pipeline(Extracted_Features, labels):
 def series_power_ml_order_pipeline(Extracted_Features, labels):
     """
 
-    :param Extracted_Features:
-    :return:
+    Parameters:
+    -----------
+    Extracted_Features:
+    labels:
+
+    Returns:
+    --------
+    ml_ready:
+
+    ml_labels:
+
+    ordered_index:
     """
 
-    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
-    ml_labels = np.zeros((1, 1))
-    for i in range(len(Extracted_Features)):
-        ordered_trials, ordered_index = ML_Order(Extracted_Features[i])
-        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
+    ordered_trials, ordered_index = power_ml_order_module(Extracted_Features)
+    ml_labels = labels
 
-        dyn_labels = labels[i]
-        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
-
-    ml_ready = np.delete(ml_ready, 0, 0)
-    ml_labels = np.delete(ml_labels, 0, 0)
     return ml_ready, ml_labels, ordered_index
 
 
@@ -1784,11 +1803,11 @@ def series_both_order_pipeline(extracted_features_power, extracted_features_pear
     ml_labels = np.zeros((1, 1))
     for i in range(len(extracted_features_power)):
         # Power Re-Ordered
-        ordered_trials_pow, ordered_index_pow = ML_Order(extracted_features_power[i])
+        ordered_trials_pow, ordered_index_pow = power_ml_order_module(extracted_features_power[i])
         ml_ready = np.concatenate((ml_ready, ordered_trials_pow), axis=0)
 
         # Pearson Re-Ordered
-        ordered_trials_pears, ordered_index_pears = Pearson_ML_Order(extracted_features_pearson[i])
+        ordered_trials_pears, ordered_index_pears = pearson_ml_module(extracted_features_pearson[i])
         ml_ready = np.concatenate((ml_ready, ordered_trials_pears), axis=1)
 
         dyn_labels = labels[i]
@@ -1825,7 +1844,17 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     :param Features:
     :param Labels:
     :param Sel_index:
-    :return:
+
+    Returns:
+    sel_set: list
+        list of the selected K-Fold's Training set
+        [ch] -> [Freq] -> (Time x Num_Epoxhs)
+    sel_labels: list
+        list of each Epoch/Samples labels
+        [Trial/EPoch] -> [labels]
+    (sel_starts, sel_ends): tuple
+        Tuple of the Label Onsets
+            ( [Stars] , [Ends] )
     """
 
     starts = Onsets[0]
