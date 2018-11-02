@@ -1759,7 +1759,7 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
 
 
-def series_ml_order_label(labels: list)
+def series_ml_order_label(labels: list):
     """ Convert labels to a format that will work with Scikit-Learn
     ParametersL
     labels: int
