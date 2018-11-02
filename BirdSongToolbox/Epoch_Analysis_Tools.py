@@ -1497,11 +1497,11 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     if Feature_Type == 'Power':
         series_power = find_power(Series_Trial)
-        series_ordered,  ordered_index = power_ml_order_module(series_power, labels=labels)
+        series_ordered,  ordered_index = power_ml_order_module(series_power)
 
     elif Feature_Type == 'Pearson':
         series_pearson = find_pearson_coeff(Series_Trial, Temps)
-        series_ordered, ordered_index = pearson_ml_module(series_pearson, labels=labels)
+        series_ordered, ordered_index = pearson_ml_module(series_pearson)
 
     elif Feature_Type == 'Both':
         # Handle Power First
