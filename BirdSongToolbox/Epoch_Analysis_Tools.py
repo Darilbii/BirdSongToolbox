@@ -930,7 +930,12 @@ def Power_Extraction(Clipped_Trials):
 def ml_order_power(Extracted_Features):
     """Restructure Extracted Power Features to a ndarray structure usable to SciKit-Learn: (n_samples, n_features)
 
+    Information:
+    ------------
+        ml is short for Machine Learning. Read: Machine Learning Order Power
+
     Parameters:
+    -----------
     Extracted_Features:list
         List of power for each Channel for every Frequency Band for every instances for Each Label
         [labels] -> [ch] -> [freq] -> (Mean of Samples for each Label Instances   x   1)
@@ -943,22 +948,31 @@ def ml_order_power(Extracted_Features):
         (n_samples, n_features)
             n_samples = Num of Instances Total
             n_features = Num_Ch * Num_Freq)
+    ML_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    Ordered_Index: list
+        Index of Features for Feature Dropping
+        [Num of Features] -> (Chan Num , Freq Num)
+        list -> Tuple
+
     """
-    ML_Ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
-    ML_Labels = np.zeros((1, 1))
-    for i in range(len(Extracted_Features)):
-        Ordered_Trials, Ordered_Index = ML_Order(Extracted_Features[i])
-        ML_Ready = np.concatenate((ML_Ready, Ordered_Trials), axis=0)
 
-        # Handels Labels so they are flexible when grouping
-        ROW, COLL = np.shape(Ordered_Trials)
-        Dyn_Labels = np.zeros([ROW, 1])
-        Dyn_Labels[:, 0] = i
-        ML_Labels = np.concatenate((ML_Labels, Dyn_Labels), axis=0)
+    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
+    ml_labels = np.zeros((1, 1))
+    for label in range(len(Extracted_Features)):
+        ordered_trials, Ordered_Index = ML_Order(Extracted_Features[label])
+        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
 
-    ML_Ready = np.delete(ML_Ready, 0, 0)
-    ML_Labels = np.delete(ML_Labels, 0, 0)
-    return ML_Ready, ML_Labels, Ordered_Index
+        # Handles Labels so they are flexible when grouping
+        row, coll = np.shape(ordered_trials)
+        dyn_labels = np.zeros([row, 1])
+        dyn_labels[:, 0] = label
+        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
+
+    ml_ready = np.delete(ml_ready, 0, 0)
+    ml_labels = np.delete(ml_labels, 0, 0)
+    return ml_ready, ml_labels, Ordered_Index
 
 
 def Select_Classifier(Model=str, Strategy=str):
@@ -981,33 +995,31 @@ def ML_Order(Features):
 
     Parameters:
     -----------
-
+    Features: list
+        List of power for each Channel for every Frequency Band for every instances for One Label
+        [ch] -> [freq] -> (Mean of Samples for each Label Instances   x   1)
+                                        (Num Label Instances x 1)
     Returns:
     --------
-    Ordered_Trials:
-
-    Column_Index:
-        ?????(Ch, freq_trials)???? Not Sure!
-        Output Shape [Number of Examples vs. Number of Features]
+    Ordered_Trials: ndarray
+        Array of All Instance/Sample's Features for the Label Passes
+        (1 x Num Features)     * Note: Num Features = Num Chans x Num Freq
+    Column_Index: list
+        Index of Features for Feature Dropping
+            [Num of Features] -> (Chan Num , Freq Num)     * Note: list -> Tuple
     """
     # Create Variable for Indexing
-    #     D = len(Features[:]) # Number of Channels
     B = len(Features[0][0][:, 0])  # Length of Dynam. Clipped Training Set
-    #     NT = len(Features[0][0][0,:]) # Number of Trials of Dynam. Clipped Training Set
 
     # Create Initial Array
     Column_Index = []
     Ordered_Trials = np.zeros((B, 1))  # Initialize Dummy Array
 
     # Channel Based Ordering
-    for Channel in range(0, len(Features)):  # Over all Channels
-        Corr_Trials = []  # Create Dummy Lists
-        for l in range(len(Features[0][:])):  # For Range of All Frequency Bins
-            Current_Feature = Features[Channel][l]
-            Ordered_Trials = np.concatenate((Ordered_Trials, Current_Feature), axis=1)
-            Tuple = (Channel, l)  # Tuple that contains (Channel #, Freq Band #)
-            Column_Index.append(Tuple)  # Append Index Tuple in Column Order
-
+    for chan_index, channel in enumerate(Features):  # Over all Channels
+        for freq_index, frequency in enumerate(channel):  # For Range of All Frequency Bins
+            Ordered_Trials = np.concatenate((Ordered_Trials, frequency), axis=1)
+            Column_Index.append((chan_index, freq_index))  # Append Index Tuple in Column Order
     Ordered_Trials = np.delete(Ordered_Trials, 0, 1)  # Delete the First Row (Initialized Row)
 
     return Ordered_Trials, Column_Index
