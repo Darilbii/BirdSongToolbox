@@ -1472,7 +1472,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
 
 def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, Feature_Type: str, labels: list,
-                                        Temps=None):
+                                        Temps=None, re_break = False):
     """
 
     Parameters:
@@ -1487,12 +1487,17 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     Temps:
 
+    re_break: bool (Optional)
+        Option for Breaking up the epoch for visualizing their individual Testing performances (Defaults: False)
+
     Returns:
     --------
     full_trial_teatures: list
         [Epoch]->[Samples/Time x Features]
 
     """
+
+
     Series_Trial = Series_LFP_Clipper(Features, Offset=Offset, Tr_Length=Tr_Length)
 
     if Feature_Type == 'Power':
@@ -1519,14 +1524,18 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
         print(" You didn't input a Valid Feature Type")
         return
 
+    ml_labels = series_ml_order_label(labels)  # Convert Labels to Scikit-Learn format
+
     full_trial_features = []
     trial_length = len(Features[0][0][:, 0]) - Offset - Tr_Length
 
-    # Break the long time series back into the Constituent Epochs
-    for i in range(len(Features[0][0][0, :])):
-        full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
+    if re_break == True: # Option for Re-Breaking the epoch to get visualize their individual performances in Testing
+        # Break the long time series back into the Constituent Epochs
+        for i in range(len(Features[0][0][0, :])):
+            full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
 
-    return full_trial_features, labels, ordered_index
+        return full_trial_features, labels, ordered_index
+    return series_ordered, ml_labels, ordered_index
 
 
 ## Function Only Works with SciKitLearn 19.1 and later [Due to Change in how skf syntax]
@@ -1748,75 +1757,24 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 ###
 # Series Analysis Code
 
-def series_pearson_ml_order_pipeline(Extracted_Features, labels):
-    """ series equvalent to pearson_ml_order_pipeline
 
-    :param Extracted_Features:
-    :return:
 
+def series_ml_order_label(labels: list)
+    """ Convert labels to a format that will work with Scikit-Learn
+    ParametersL
+    labels: int
+        [epoch]->[labels]
+    return:
+    ml_labels: ndarray
+        restructure labels to work nicely with 
     """
-    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
+
     ml_labels = np.zeros((1, 1))
-    for i in range(len(Extracted_Features)):
-        ordered_trials, ordered_index = pearson_ml_module(Extracted_Features[i])
-        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
-
-        dyn_labels = labels[i]
-        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
-
-    ml_ready = np.delete(ml_ready, 0, 0)
+    for epoch in labels:
+        ml_labels = np.concatenate((ml_labels, epoch), axis=0)
     ml_labels = np.delete(ml_labels, 0, 0)
-    return ml_ready, ml_labels, ordered_index
 
-
-def series_power_ml_order_pipeline(Extracted_Features, labels):
-    """
-
-    Parameters:
-    -----------
-    Extracted_Features:
-    labels:
-
-    Returns:
-    --------
-    ml_ready:
-
-    ml_labels:
-
-    ordered_index:
-    """
-
-    ordered_trials, ordered_index = power_ml_order_module(Extracted_Features)
-    ml_labels = labels
-
-    return ml_ready, ml_labels, ordered_index
-
-
-def series_both_order_pipeline(extracted_features_power, extracted_features_pearson, labels):
-    """
-
-    :param extracted_features_power:
-    :return:
-    """
-
-    ml_ready = np.zeros((1, (len(extracted_features_power[0]) * len(extracted_features_power[0][0]))))
-    ml_labels = np.zeros((1, 1))
-    for i in range(len(extracted_features_power)):
-        # Power Re-Ordered
-        ordered_trials_pow, ordered_index_pow = power_ml_order_module(extracted_features_power[i])
-        ml_ready = np.concatenate((ml_ready, ordered_trials_pow), axis=0)
-
-        # Pearson Re-Ordered
-        ordered_trials_pears, ordered_index_pears = pearson_ml_module(extracted_features_pearson[i])
-        ml_ready = np.concatenate((ml_ready, ordered_trials_pears), axis=1)
-
-        dyn_labels = labels[i]
-        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
-
-    ml_ready = np.delete(ml_ready, 0, 0)
-    ml_labels = np.delete(ml_labels, 0, 0)
-    ordered_index = ordered_index_pow + ordered_index_pears
-    return ml_ready, ml_labels, ordered_index
+    return ml_labels
 
 
 # def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
