@@ -1287,25 +1287,7 @@ def series_lfp_label_clipper(labels, clippings, label_instructions, Offset: int,
             series_labels.append(epoch_labels[:Offset + Tr_Length, 0])
     return series_labels
 
-
-def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, undetermined=False):
-    """ Creates a timeline of the syllable Labels for Visualization
-
-    Parameters:
-    -----------
-    labels:
-    clippings:
-    sel_epoch:
-    label_instructions:
-
-    Returns:
-    --------
-    conversion: int
-        Machine Learning encoding of labels based on label_instructions
-
-    """
-
-    def label_conversion(label, instructions, spec_instr):
+def label_conversion(label, instructions, spec_instr):
         """Function converts the labels to a integer that is of the structure of the label_instructions parameter
 
         Parameters:
@@ -1335,6 +1317,24 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
                     return
                 count += 1
         return conversion
+
+
+def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, undetermined=False):
+    """ Creates a timeline of the syllable Labels for Visualization
+
+    Parameters:
+    -----------
+    labels:
+    clippings:
+    sel_epoch:
+    label_instructions:
+
+    Returns:
+    --------
+    conversion: int
+        Machine Learning encoding of labels based on label_instructions
+
+    """
 
     time_series_labels = []
     # # Make Dummy List (THIS is really bad coding)
@@ -1413,7 +1413,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
     return ML_Trials, ML_Labels, Ordered_Index
 
 
-def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Feature_Type=str, Temps=None):
+def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Feature_Type=str, labels: list, Temps=None):
     """
 
     Parameters:
@@ -1438,21 +1438,19 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
 
     if Feature_Type == 'Power':
         series_power = Find_Power(Series_Trial)
-        series_ordered, ordered_index = ML_Order(series_power)
+        series_ordered, series_labels, ordered_index = series_power_ml_order_pipeline(series_power, labels = labels)
 
     elif Feature_Type == 'Pearson':
         series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_ordered, ordered_index = Pearson_ML_Order(series_pearson)
+        series_ordered, series_labels, ordered_index = series_pearson_ml_order_pipeline(series_pearson, labels = labels )
 
     elif Feature_Type == 'Both':
         series_power = Find_Power(Series_Trial)
-        series_power_ordered, Ordered_Index1 = ML_Order(series_power)
         series_pearson = Pearson_Coeff_Finder(Series_Trial, Temps)
-        series_pearson_ordered, Ordered_Index2 = Pearson_ML_Order(series_pearson)
-        series_ordered = np.concatenate((series_power_ordered, series_pearson_ordered), axis=1)
-        ordered_index = []
-        ordered_index.append(Ordered_Index1)
-        ordered_index.append(Ordered_Index2)
+        series_ordered, series_labels, ordered_index = series_both_order_pipeline(extracted_features_power= series_power,
+                                                                   extracted_features_pearson= series_pearson ,
+                                                                   labels= labels )
+
 
     else:
         print(" You didn't input a Valid Feature Type")
@@ -1465,7 +1463,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset=int, Tr_Length=int, Fea
     for i in range(len(Features[0][0][0, :])):
         full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
 
-    return full_trial_features, ordered_index
+    return full_trial_features, series_labels, ordered_index
 
 
 ## Function Only Works with SciKitLearn 19.1 and later [Due to Change in how skf syntax]
@@ -1566,23 +1564,7 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     return sel_set, sel_labels, sel_starts
 
 
-def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
-    """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
-    :param Onsets:
-    :param Features:
-    :param Labels:
-    :param Sel_index:
-    :return:
-    """
-
-    starts = Onsets[0]
-    ends = Onsets[1]
-    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
-    sel_starts = Label_Selector(starts, Sel_index=Sel_index)
-    sel_ends = Label_Selector(ends, Sel_index=Sel_index)
-    return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
@@ -1696,6 +1678,77 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
     return meanAcc_nb, stdErr_nb, Classifier_Components, c,
 
+###
+# Series Analysis Code
+
+def series_pearson_ml_order_pipeline(Extracted_Features, labels):
+    """ series equvalent to pearson_ml_order_pipeline
+
+    :param Extracted_Features:
+    :return:
+
+    """
+    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]) * len(Extracted_Features))))
+    ml_labels = np.zeros((1, 1))
+    for i in range(len(Extracted_Features)):
+        ordered_trials, ordered_index = Pearson_ML_Order(Extracted_Features[i])
+        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
+
+        dyn_labels = labels[i]
+        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
+
+    ml_ready = np.delete(ml_ready, 0, 0)
+    ml_labels = np.delete(ml_labels, 0, 0)
+    return ml_ready, ml_labels, ordered_index
+
+
+def series_power_ml_order_pipeline(Extracted_Features, labels):
+    """
+
+    :param Extracted_Features:
+    :return:
+    """
+
+    ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
+    ml_labels = np.zeros((1, 1))
+    for i in range(len(Extracted_Features)):
+        ordered_trials, ordered_index = ML_Order(Extracted_Features[i])
+        ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
+
+        dyn_labels = labels[i]
+        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
+
+    ml_ready = np.delete(ml_ready, 0, 0)
+    ml_labels = np.delete(ml_labels, 0, 0)
+    return ml_ready, ml_labels, ordered_index
+
+
+def series_both_order_pipeline(extracted_features_power, extracted_features_pearson, labels):
+    """
+
+    :param extracted_features_power:
+    :return:
+    """
+
+    ml_ready = np.zeros((1, (len(extracted_features_power[0]) * len(extracted_features_power[0][0]))))
+    ml_labels = np.zeros((1, 1))
+    for i in range(len(extracted_features_power)):
+        # Power Re-Ordered
+        ordered_trials_pow, ordered_index_pow = ML_Order(extracted_features_power[i])
+        ml_ready = np.concatenate((ml_ready, ordered_trials_pow), axis=0)
+
+        # Pearson Re-Ordered
+        ordered_trials_pears, ordered_index_pears = Pearson_ML_Order(extracted_features_pearson[i])
+        ml_ready = np.concatenate((ml_ready, ordered_trials_pears), axis=1)
+
+        dyn_labels = labels[i]
+        ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
+
+    ml_ready = np.delete(ml_ready, 0, 0)
+    ml_labels = np.delete(ml_labels, 0, 0)
+    ordered_index = ordered_index_pow + ordered_index_pears
+    return ml_ready, ml_labels, ordered_index
+
 
 def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
     """ Handles the Preparation for series_clip_kfold
@@ -1713,6 +1766,27 @@ def KFold_Series_Prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_T
                                                        Feature_Type=Feature_Type, Temps=temps)
 
     return series_ready,
+
+
+def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
+    """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
+
+    :param Onsets:
+    :param Features:
+    :param Labels:
+    :param Sel_index:
+    :return:
+    """
+
+    starts = Onsets[0]
+    ends = Onsets[1]
+    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
+    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
+    sel_starts = Label_Selector(starts, Sel_index=Sel_index)
+    sel_ends = Label_Selector(ends, Sel_index=Sel_index)
+    return sel_set, sel_labels, (sel_starts, sel_ends)
+
+
 
 
 def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
@@ -1773,27 +1847,18 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
         else:
             templates = None
 
-        ml_train_trials, train_ordered_index = Series_Classification_Prep_Pipeline(Features=train_set,
+        ml_train_trials, ml_train_labels, train_ordered_index = Series_Classification_Prep_Pipeline(Features=train_set,
                                                                                    Offset=Offset,
                                                                                    Tr_Length=Tr_Length,
                                                                                    Feature_Type=Feature_Type,
                                                                                    Temps=templates)
-        ml_train_labels = series_lfp_label_clipper(labels=train_labels,
-                                                   clippings=train_onsets,
-                                                   label_instructions=Label_Instructions,
-                                                   Offset=Offset,
-                                                   Tr_Length=Tr_Length)
 
-        ml_test_trials, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
+        ml_test_trials, ml_test_labels, test_ordered_index = Series_Classification_Prep_Pipeline(Features=test_set,
                                                                                  Offset=Offset,
                                                                                  Tr_Length=Tr_Length,
                                                                                  Feature_Type=Feature_Type,
                                                                                  Temps=templates)
-        ml_test_labels = series_lfp_label_clipper(labels=test_labels,
-                                                  clippings=test_onsets,
-                                                  label_instructions=Label_Instructions,
-                                                  Offset=Offset,
-                                                  Tr_Length=Tr_Length)
+
 
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
                                                                                ml_train_labels,
