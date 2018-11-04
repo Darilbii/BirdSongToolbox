@@ -10,12 +10,24 @@ import numpy as np
 import pandas as pd
 import os
 import random
+import matplotlib.pyplot as plt
+from itertools import cycle
+from sklearn import svm, datasets
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
+from scipy import interp
+from sklearn.preprocessing import label_binarize
+import matplotlib.patches as mpatches
+
 
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.multiclass import OneVsRestClassifier
+
 
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
@@ -1290,16 +1302,9 @@ def Series_LFP_Clipper(Features, Offset: int, Tr_Length: int):
             for trials in range(nt):
                 for ex in range(len(starts[trials])):
                     if starts[trials][ex] - Offset - Tr_Length >= 0 and starts[trials][ex] - Offset <= len(Features[0][0][:, 0]) :
-#                         if Offset < 0:
-#                             print('here')
                         chan_holder[:, counter] = frequency[
                                                       starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
                                                       trials]  # Select Motif
-
-#                         else:
-#                             chan_holder[:, counter] = frequency[
-#                                                       starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
-#                                                       trials]  # Select Motif
                         counter = counter + 1
             freq_trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
         dynamic_freq_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
@@ -1923,3 +1928,187 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
     return mean_acc_nb, std_err_nb, classifier_components, confusion,
+
+########################################################################################################################
+####################### Code for Visualizing the Characteristic of Trained Models ######################################
+########################################################################################################################
+
+
+# Functions For Plotting the Confusion Matrix
+
+def plot_confusion_matrix(cm, Names, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(cm))
+    plt.xticks(tick_marks, Names, rotation=45)
+    plt.yticks(tick_marks, Names)
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+
+def plot_Norm_confusion_matrix(cm, Names):
+    """Normalize the confusion matrix by row (i.e by the number of samples in each class)"""
+
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    print('Normalized confusion matrix')
+    print(cm_normalized)
+    plt.figure()
+    plot_confusion_matrix(cm_normalized, Names, title='Normalized confusion matrix')
+
+
+#     plt.show()
+
+def plot_all_confusion_matrix(cm, Names):
+    f, ax = plt.subplots(2, 2, sharex='col', sharey='row')
+    ax[1] = plot_Norm_confusion_matrix(cm[0], Names)
+    ax[1].set_title('Sharing x per column, y per row')
+    ax[2] = plot_Norm_confusion_matrix(cm[1], Names)
+    ax[3] = plot_Norm_confusion_matrix(cm[2], Names)
+    ax[4] = plot_Norm_confusion_matrix(cm[3], Names)
+    plt.show()
+
+
+def plot_mean_confusion_matrix(cm, Names):
+    x, y = np.shape(cm[0])
+    holder = np.zeros([x, y])
+    plt.figure()
+    for i in range(len(cm)):
+        holder += cm[i]
+    plot_Norm_confusion_matrix(holder, Names)
+    plt.show()
+
+# Visualize Offline Series Performance
+
+def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
+    plt.figure(1, figsize=(20, 4))
+
+    # First_Predictions_List = list(First_Predictions)
+    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
+
+    for i in range(len(colors)):
+        for j in range(len(Predictions)):
+            if Predictions[j] == i:
+                plt.axvline(x=(j + Offset + Tr_Len) * 30, color=colors[i])
+
+    # This is a Hack Improve for Actual use:
+    black_patch = mpatches.Patch(color='black', label='Syllable 1')
+    red_patch = mpatches.Patch(color='red', label='Syllable 2')
+    orange_patch = mpatches.Patch(color='orange', label='Syllable 3')
+    yellow_patch = mpatches.Patch(color='yellow', label='Syllable 4')
+    pink_patch = mpatches.Patch(color='pink', label='Introductory Note')
+    white_patch = mpatches.Patch(color='white', label='Silence')
+
+    #     plt.legend(handles=[red_patch])
+    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, white_patch],
+               bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.plot(Audio)
+
+# Visualize Classifier Performance Characteristics
+
+
+
+def ROC_Indepth(y_test, y_score, n_classes, binarize=True):
+    if binarize == True:
+        Classes = np.arange(n_classes)
+        y_test = label_binarize(y_test, classes=Classes)
+
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_score[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+
+    # Compute micro-average ROC curve and ROC area
+    fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_score.ravel())
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+    # Compute macro-average ROC curve and ROC area
+
+    # First aggregate all false positive rates
+    all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+    # Then interpolate all ROC curves at this points
+    mean_tpr = np.zeros_like(all_fpr)
+    for i in range(n_classes):
+        mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+
+    # Finally average it and compute AUC
+    mean_tpr /= n_classes
+
+    fpr["macro"] = all_fpr
+    tpr["macro"] = mean_tpr
+    roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+    return fpr, tpr, roc_auc
+
+
+def Plot_ROC_Indepth(y_test, y_score, n_classes, class_names, binarize=True, Name_This_Bool=False):
+    fpr, tpr, roc_auc = ROC_Indepth(y_test, y_score, n_classes, binarize=binarize)
+
+    lw = 2
+    # Plot all ROC curves
+    plt.figure()
+
+    if Name_This_Bool == True:
+        plt.plot(fpr["micro"], tpr["micro"],
+                 label='micro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["micro"]),
+                 color='deeppink', linestyle=':', linewidth=4)
+
+        plt.plot(fpr["macro"], tpr["macro"],
+                 label='macro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["macro"]),
+                 color='navy', linestyle=':', linewidth=4)
+
+    colors = cycle(['aqua', 'darkorange', 'cornflowerblue', 'tab:brown', 'tab:pink',
+                    'tab:gray', 'tab:green', 'xkcd:dark olive green',
+                    'xkcd:ugly yellow', 'xkcd:fire engine red', 'xkcd:radioactive green'])
+    for i, color in zip(range(n_classes), colors):
+        plt.plot(fpr[i], tpr[i], color=color, lw=lw,
+                 label='ROC curve of class {0} (area = {1:0.2f})'
+                       ''.format(class_names[i], roc_auc[i]))
+
+    plt.plot([0, 1], [0, 1], 'k--', lw=lw)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Some extension of Receiver operating characteristic to multi-class')
+    plt.legend(loc="lower right")
+    plt.show()
+
+def Visualize_True_Audio_Labels(Audio, Predictions):
+    """ Visualizes the True Label for Epoch Audio"""
+    plt.figure(1, figsize=(20, 4))
+
+    Conversion_Dict = {1: 0, 2: 1, 3: 2, 4: 3, 'I': 4, 6: 5, 'C': 6}  # 6 is Silence for original Labling
+
+    # First_Predictions_List = list(First_Predictions)
+    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
+
+    for i in range(len(colors)):
+        for j in range(len(Predictions)):
+            if Conversion_Dict[Predictions[j]] == i:
+                plt.axvline(x=(j) * 30, color=colors[i])
+
+    # This is a Hack Improve for Actual use:
+    black_patch = mpatches.Patch(color='black', label='Syllable 1')
+    red_patch = mpatches.Patch(color='red', label='Syllable 2')
+    orange_patch = mpatches.Patch(color='orange', label='Syllable 3')
+    yellow_patch = mpatches.Patch(color='yellow', label='Syllable 4')
+    pink_patch = mpatches.Patch(color='pink', label='Introductory Note')
+    white_patch = mpatches.Patch(color='white', label='Silence')
+
+    #     plt.legend(handles=[red_patch])
+    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, white_patch],
+               bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.xlim(xmin=0, xmax=135000)
+    plt.title('True Labels for Epoch')
+    plt.plot(Audio)
+
+
+
+
