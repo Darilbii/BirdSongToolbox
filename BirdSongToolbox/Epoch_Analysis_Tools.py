@@ -2110,5 +2110,22 @@ def Visualize_True_Audio_Labels(Audio, Predictions):
     plt.plot(Audio)
 
 
+def series_performance_prep(Data_Set, Test_index, Offset=int, Tr_Length=int, Feature_Type=str):
+    """Function grabs the true Labels for the Test of of Epoch and Returns them for Performance Visualizaiton
+
+    :param Data_Set:
+    :param Test_index:
+    :param Offset:
+    :param Tr_Length:
+    :param Feature_Type:
+    :return:
+    list of epoch with their true labels
+    """
+    Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
+
+    series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
+                                                       Feature_Type=Feature_Type, re_break=True)
+    return series_ready
+
 
 
