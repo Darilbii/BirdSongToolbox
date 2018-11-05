@@ -1669,6 +1669,7 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     :param Sel_index:
     :return:
     """
+
     sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
     sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
     sel_starts = Label_Selector(Starts, Sel_index=Sel_index)
@@ -2236,17 +2237,27 @@ def find_days_accuracy(predictions, truths):
 
     return mean_acc, std_err
 
-def find_days_confusion(predictions, truths):
+def find_days_confusion(predictions, truths, labels = None):
     """Calculate the Confusion Matrix for the Day
 
     :param predictions:
     :param truths:
+
+    labels: list
+        list of the classes as interpreted by Scikitlearn
+        optional List of labels to index the matrix. This may be used to reorder or select a subset of labels.
+        If none is given, those that appear at least once in y_true or y_pred are used in sorted order.
+
     Returns:
     --------
+
     """
     confusion_step = []
     for ep_pred, ep_truth in zip(predictions, truths):
-        confusion_step.append(confusion_matrix(ep_truth, ep_pred).astype(float))
+        if labels:
+            confusion_step.append(confusion_matrix(ep_truth, ep_pred, labels = labels).astype(float))
+        else:
+            confusion_step.append(confusion_matrix(ep_truth, ep_pred).astype(float))
 
     confusion = np.zeros((np.shape(confusion_step[0])))
     for epoch in confusion_step:
@@ -2275,7 +2286,7 @@ def predict_by_epoch(Classifier, Features):
     return epochs_predictions
 
 
-def classify_another_day(Classifier, features, truths):
+def classify_another_day(Classifier, features, truths, sckit_labels=None):
     """Test a trained classifier from one day on another day and break into its epochs then characterize its behavior
 
     Parameters:
@@ -2284,6 +2295,8 @@ def classify_another_day(Classifier, features, truths):
         The Trained classifier to be tested
     features:
     truths:
+    scikit_labels: list
+        list of labels
 
     Returns:
     --------
@@ -2303,7 +2316,7 @@ def classify_another_day(Classifier, features, truths):
 
     mean_acc, std_err = find_days_accuracy(epoch_predictions, truths)  # Calculate the mean and standard Error
 
-    confusion = find_days_confusion(epoch_predictions, truths)  # Calculate the confusion matrix
+    confusion = find_days_confusion(epoch_predictions, truths, sckit_labels)  # Calculate the confusion matrix
 
     return epoch_predictions, truths, mean_acc, std_err, confusion
 
