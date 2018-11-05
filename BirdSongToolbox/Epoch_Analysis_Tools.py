@@ -2162,7 +2162,7 @@ def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
         The percent predicted correctly
     """
     assert len(prediction) == len(truth), "The two inputs must be equal"
-    return sum(prediction == truth)/len(truth)
+    return sum(list(prediction == truth))/len(truth)
 
 
 def find_days_accuracy(predictions, truths):
