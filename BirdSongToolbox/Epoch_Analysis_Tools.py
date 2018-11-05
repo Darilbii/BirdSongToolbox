@@ -986,15 +986,15 @@ def ml_order_power(Extracted_Features):
     """
 
     ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
-    ml_labels = np.zeros((1, 1))
+    ml_labels = np.zeros((1, 0))
     for label in range(len(Extracted_Features)):
         ordered_trials, Ordered_Index = power_ml_order_module(Extracted_Features[label])
         ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
 
         # Handles Labels so they are flexible when grouping
         row, coll = np.shape(ordered_trials)
-        dyn_labels = np.zeros([row, 1])
-        dyn_labels[:, 0] = label
+        dyn_labels = np.zeros([row, 0])
+        dyn_labels[:] = label
         ml_labels = np.concatenate((ml_labels, dyn_labels), axis=0)
 
     ml_ready = np.delete(ml_ready, 0, 0)
