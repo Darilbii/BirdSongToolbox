@@ -1586,10 +1586,27 @@ def Clip_Classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Label
 
     Parameters:
     -----------
+    Class_Obj: class
+        classifier object from the scikit-learn package
+    Train_Set:
+
+    Train_LabelsL
+
+    Test_Set:
+
+    Test_Labels:
+
+    verbose: bool
+        If True it prints useful characteristics of the trained model, defaults to False
 
     Returns:
     --------
-
+    acc: int
+        the accuracy of the trained classifier
+    classifier: class
+        a trained classifier dictacted by the CLass_Object Parameter from scikit-learn
+    confusion: array
+        Confusion matrix, shape = [n_classes, n_classes]
 
     """
 
@@ -1675,7 +1692,9 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     :param Step:
     :param verbose:
 
-    :return:
+    Returns:
+    --------
+
 
     """
     #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
@@ -1840,7 +1859,8 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
 def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
                       Feature_Type=str, k_folds=4, verbose=False):
     """
-
+    Parameters:
+    -----------
     :param Class_Obj:
     :param Data_Set:
     :param Data_Labels:
@@ -1854,7 +1874,22 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
     :param Step:
     :param verbose:
 
-    :return:
+    Returns:
+    --------
+    mean_acc_nb: int
+        the mean accuracy across the folds
+    std_err_nb: int
+        the standard error across the folds
+    classifier_components: tuple
+        Tuples containing two Dictionaries with the fold number being the keys (using 0 indexing).
+        Their Values are:
+            1.) trained Classifier instances and the index of features for their models
+                The values are that fold's trained classifier instance of the the CLass_Object Parameter
+                (from scikit-learn)
+            2.) list of the Test set for the corresponding trained Classifier
+       shape =  ({ Fold_Num: Trained_Classifiers }, {Fold_Num: Test_Index})
+    confusion: list
+        list of each fold's Confusion matrix, shape = [n_classes, n_classes]
 
     """
     #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
@@ -1930,7 +1965,7 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
 
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
-    return mean_acc_nb, std_err_nb, classifier_components, confusion,
+    return mean_acc_nb, std_err_nb, classifier_components, confusion
 
 ########################################################################################################################
 ####################### Code for Visualizing the Characteristic of Trained Models ######################################
@@ -2077,9 +2112,9 @@ def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
     colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
 
     for i in range(len(colors)):
-        for j in range(len(Predictions)):
-            if Predictions[j] == i:
-                plt.axvline(x=(j + Offset + Tr_Len) * 30, color=colors[i])
+        for predict in Predictions:
+            if int(predict) == i:
+                plt.axvline(x=(predict + Offset + Tr_Len) * 30, color=colors[i])
 
     # This is a Hack Improve for Actual use:
     black_patch = mpatches.Patch(color='black', label='Syllable 1')
@@ -2165,6 +2200,7 @@ def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
 #     return sum([1 for x, y in zip(prediction, truth) if x==y])/len(truth)
     return sum(prediction == truth)/len(truth)
 
+
 def find_days_accuracy(predictions, truths):
     """Determines the accuracy across all epochs for that day
 
@@ -2225,8 +2261,9 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
     truths:
     epoch_len:
         the length of a full epoch for that bird
-    offset:
-    tr_len:
+    offset: int
+
+    tr_len:int
 
     Returns:
     --------
@@ -2239,7 +2276,7 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
     std_err: float
         the mean std error of the classifier across all epochs for that day
     confusion:
-
+        Confusion matrix, shape = [n_classes, n_classes]
     """
 
     predictions = classifier.predict(features)  # Predict labels for the entire day
