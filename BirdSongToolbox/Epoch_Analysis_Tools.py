@@ -1050,7 +1050,7 @@ def power_ml_order_module(Features):
 
 
 def Slider(Ext_Starts, Slide: int, Step=False):
-    """
+    """ Slider is a parameter to increase the number of samples around the onset of a behavior of interest
     Parameters:
     -----------
     Ext_Starts: list
@@ -1988,12 +1988,13 @@ def plot_confusion_matrix(cm, Names, title='Confusion matrix', cmap=plt.cm.Blues
     plt.xlabel('Predicted label')
 
 
-def plot_Norm_confusion_matrix(cm, Names):
+def plot_Norm_confusion_matrix(cm, Names, verbose=False):
     """Normalize the confusion matrix by row (i.e by the number of samples in each class)"""
 
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    print('Normalized confusion matrix')
-    print(cm_normalized)
+    if verbose == True:
+        print('Normalized confusion matrix')
+        print(cm_normalized)
     plt.figure()
     plot_confusion_matrix(cm_normalized, Names, title='Normalized confusion matrix')
 
@@ -2164,6 +2165,7 @@ def Visualize_True_Audio_Labels(Audio, Predictions):
     plt.title('True Labels for Epoch')
     plt.plot(Audio)
 
+#RODO: Determine what to do with this function
 #TODO: Change the Performance visualization to be a fill between implementation istead of a vertical line
 def series_performance_prep(Data_Set, Test_index, label_instructions, labels, onsets, Offset=int, Tr_Length=int, Feature_Type=str):
     """Function grabs the true Labels for the Test of of Epoch and Returns them for Performance Visualizaiton
@@ -2174,14 +2176,14 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
     :param Tr_Length:
     :param Feature_Type:
     :return:
-    list of epoch with their true labels
+
     """
     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
 
-    series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length, labels=labels,
+    ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length, labels=labels,
                                                        label_instructions=label_instructions,onsets=onsets,
                                                        Feature_Type=Feature_Type, re_break=True)
-    return series_ready
+    return ml_trials, ml_labels, ordered_index
 
 
 def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
