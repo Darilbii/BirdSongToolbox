@@ -2111,10 +2111,10 @@ def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
     # First_Predictions_List = list(First_Predictions)
     colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
 
-    for i in range(len(colors)):
-        for index, predict in enumerate(Predictions):
-            if int(predict) == i:
-                plt.axvline(x=(index + Offset + Tr_Len) * 30, color=colors[i])
+    # for i in range(len(colors)):
+    for index, predict in enumerate(Predictions):
+        # if int(predict) == i:
+        plt.axvline(x=(index + Offset + Tr_Len) * 30, color=colors[index])
 
     # This is a Hack Improve for Actual use:
     black_patch = mpatches.Patch(color='black', label='Syllable 1')
