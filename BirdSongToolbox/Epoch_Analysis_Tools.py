@@ -2254,7 +2254,7 @@ def find_days_confusion(predictions, truths, labels = None):
     """
     confusion_step = []
     for ep_pred, ep_truth in zip(predictions, truths):
-        print('Prediction Values: ', ep_pred, 'True Labels: ', ep_truth)
+        # print('Prediction Values: ', ep_pred, 'True Labels: ', ep_truth)
         if labels:
             confusion_step.append(confusion_matrix(ep_truth, ep_pred, labels = labels).astype(float))
         else:
