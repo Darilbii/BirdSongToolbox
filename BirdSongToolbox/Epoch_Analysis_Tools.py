@@ -1505,8 +1505,11 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     Returns:
     --------
-    full_trial_teatures: list
+    #TODO: rename variable and document
+    series_ordered: list
         [Epoch]->[Samples/Time x Features]
+    ml_labels:
+    ordered_index:
 
     """
 
@@ -1833,7 +1836,7 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     sel_ends = Label_Selector(ends, Sel_index=Sel_index)
     return sel_set, sel_labels, (sel_starts, sel_ends)
 
-
+#TODO: Add Parameter that will allow for pior jutter inclusion of a behavior to just prior its the True Onset
 def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
                       Feature_Type=str, k_folds=4, verbose=False):
     """
@@ -1979,31 +1982,7 @@ def plot_mean_confusion_matrix(cm, Names):
     plot_Norm_confusion_matrix(holder, Names)
     plt.show()
 
-# Visualize Offline Series Performance
 
-def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
-    plt.figure(1, figsize=(20, 4))
-
-    # First_Predictions_List = list(First_Predictions)
-    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
-
-    for i in range(len(colors)):
-        for j in range(len(Predictions)):
-            if Predictions[j] == i:
-                plt.axvline(x=(j + Offset + Tr_Len) * 30, color=colors[i])
-
-    # This is a Hack Improve for Actual use:
-    black_patch = mpatches.Patch(color='black', label='Syllable 1')
-    red_patch = mpatches.Patch(color='red', label='Syllable 2')
-    orange_patch = mpatches.Patch(color='orange', label='Syllable 3')
-    yellow_patch = mpatches.Patch(color='yellow', label='Syllable 4')
-    pink_patch = mpatches.Patch(color='pink', label='Introductory Note')
-    white_patch = mpatches.Patch(color='white', label='Silence')
-
-    #     plt.legend(handles=[red_patch])
-    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, white_patch],
-               bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    plt.plot(Audio)
 
 # Visualize Classifier Performance Characteristics
 
@@ -2080,8 +2059,46 @@ def Plot_ROC_Indepth(y_test, y_score, n_classes, class_names, binarize=True, Nam
     plt.legend(loc="lower right")
     plt.show()
 
+
+# Visualize Offline Series Performance
+
+def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
+    """Creates Plot of how the Classifiers predictions look against the Behavior
+
+    :param Audio:
+    :param Predictions:
+    :param Offset:
+    :param Tr_Len:
+    :return:
+    """
+    plt.figure(1, figsize=(20, 4))
+
+    # First_Predictions_List = list(First_Predictions)
+    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
+
+    for i in range(len(colors)):
+        for j in range(len(Predictions)):
+            if Predictions[j] == i:
+                plt.axvline(x=(j + Offset + Tr_Len) * 30, color=colors[i])
+
+    # This is a Hack Improve for Actual use:
+    black_patch = mpatches.Patch(color='black', label='Syllable 1')
+    red_patch = mpatches.Patch(color='red', label='Syllable 2')
+    orange_patch = mpatches.Patch(color='orange', label='Syllable 3')
+    yellow_patch = mpatches.Patch(color='yellow', label='Syllable 4')
+    pink_patch = mpatches.Patch(color='pink', label='Introductory Note')
+    white_patch = mpatches.Patch(color='white', label='Silence')
+
+    #     plt.legend(handles=[red_patch])
+    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, white_patch],
+               bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.plot(Audio)
+
+
 def Visualize_True_Audio_Labels(Audio, Predictions):
-    """ Visualizes the True Label for Epoch Audio"""
+    """ Visualizes the True Label for Epoch Audio
+
+    """
     plt.figure(1, figsize=(20, 4))
 
     Conversion_Dict = {1: 0, 2: 1, 3: 2, 4: 3, 'I': 4, 6: 5, 'C': 6}  # 6 is Silence for original Labling
@@ -2128,5 +2145,112 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
                                                        Feature_Type=Feature_Type, re_break=True)
     return series_ready
 
+
+def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
+    """"Finds the accuracy of the prediction against the truth values
+
+    Parameters:
+    -----------
+    prediction: np.ndarry
+        Predictions as a ndarrary
+    truth: np.ndarray
+        The True Values as a ndarray
+
+    Returns:
+    --------
+    accuracy: float
+        The percent predicted correctly
+    """
+    assert len(prediction) == len(truth), "The two inputs must be equal"
+    return sum(prediction == truth)/len(truth)
+
+
+def find_days_accuracy(predictions, truths):
+    """Determines the accuracy across all epochs for that day
+
+    Parameters:
+    -----------
+    predictions: list
+        list of each days predictions [epoch] -> (predictions x 1)
+    truths: list
+        list of each days true labels [epoch] -> (predictions x 1)
+    Returns:
+    --------
+    mean_accuracy: float
+        The mean accuracy of the classifier
+    std_err: float
+        The mean standard error of the accuracy of the classifier
+    """
+
+    epoch_accuracy = []
+    for ep_pred, ep_truth  in zip(predictions, truths):
+        epoch_accuracy.append(find_accuracy(ep_pred, ep_truth))
+    mean_acc = np.mean(epoch_accuracy)
+    std_err = np.std(epoch_accuracy) / np.sqrt(len(epoch_accuracy))
+    return mean_acc, std_err
+
+
+# TODO: Make this a universal funciton that can be used nomater the context
+
+def break_by_epoch(predictions, truths, epoch_len):
+    """Test a trained classifier from one day during another day
+
+    Parameters:
+    -----------
+
+
+    Returns:
+    --------
+
+    """
+
+    epochs_predictions = []
+    epoch_truths = []
+
+    for i in range(len(predictions[:, 0])):
+        epochs_predictions.append(predictions[epoch_len * i:epoch_len * (i + 1), :])
+        epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1), :])
+
+    return epochs_predictions, epoch_truths
+
+
+def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len):
+    """Test a trained classifier from one day on another day and break into its epochs then characterize its behavior
+
+    Parameters:
+    -----------
+    classifier:
+        The Trained classifier to be tested
+    features:
+    truths:
+    epoch_len:
+        the length of a full epoch for that bird
+    offset:
+    tr_len:
+
+    Returns:
+    --------
+    epochs_predictions:  list
+        list of each epochs predictions. [epoch] -> (Predicted Label x 1)
+    epoch_truths: list
+        list of each epochs true label. [epoch] -> (true Label x 1)
+    mean_acc: float
+        the mean accuracy of the classifier across all epochs for that day
+    std_err: float
+        the mean std error of the classifier across all epochs for that day
+    confusion:
+
+    """
+
+    predictions = classifier.predict(features)  # Predict labels for the entire day
+
+    epoch_len = epoch_len - abs(offset + tr_len)  # Determine the viable samples based on offset ane Trial Length
+
+    confusion = confusion_matrix(truths, predictions).astype(float)  # Calculate the confusion matrix
+
+    epochs_predictions, epoch_truths = break_by_epoch(features, truths, epoch_len)  # Break Predictions by Epoch
+    mean_acc, std_err = find_days_accuracy(epochs_predictions, epoch_truths)  # Calculate the mean and standard Error
+
+    return epochs_predictions, epoch_truths, mean_acc, std_err, confusion
 
 
