@@ -389,15 +389,15 @@ def Label_Grouper(Focuses, Labels, Starts):
     """Group Selected Labels together into One Label e.g. Combine Calls and Intro. Notes (Group these labels together)
 
     """
-    Label_Index = []
+    label_index = []
 
-    for i in range(len(Labels)):
-        Group_Labels = []
-        for j in range(len(Focuses)):
-            Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focuses[j]]
-            Group_Labels.extend(Trial_Labels)
-        Label_Index.extend(Group_Labels)
-    return Label_Index
+    for start, epoch in zip(Starts, Labels):
+        group_labels = []
+        for foc_label in Focuses:
+            trial_labels = [int(start[i] / 30) for i, x in enumerate(epoch) if x == foc_label]
+            group_labels.extend(trial_labels)
+        label_index.append(group_labels)
+    return label_index
 
 
 # Function for grabing more examples from a onset
