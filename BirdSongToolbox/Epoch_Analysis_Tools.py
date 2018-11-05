@@ -455,7 +455,7 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
             label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Starts)
 
         if type(Slide) == int:
-            label_starts = Slider(label_starts, Slide=Slide, Step=Step)
+            label_starts = Slider(label_starts, len(Full_Trials[0][0][:, 0]), Slide=Slide, Step=Step)
 
         clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
         clippings.append(clips)
@@ -1049,11 +1049,13 @@ def power_ml_order_module(Features):
     return Ordered_Trials, Column_Index
 
 
-def Slider(Ext_Starts, Slide: int, Step=False):
+def Slider(Ext_Starts, full_trial, Slide: int, Step=False):
     """ Slider is a parameter to increase the number of samples around the onset of a behavior of interest
     Parameters:
     -----------
     Ext_Starts: list
+
+    full_trial: int
 
     Slide: int (optional)
 
@@ -1071,10 +1073,12 @@ def Slider(Ext_Starts, Slide: int, Step=False):
         for j in range(len(Ext_Starts[i])):
             if Step == False:
                 for k in range(Slide):
-                    Slid_Trial.append(Ext_Starts[i][j] + k)
+                    if (Ext_Starts[i][j] + k) <= full_trial:
+                        Slid_Trial.append(Ext_Starts[i][j] + k)
             if Step == True:
                 for k in range(0, Slide, Step):
-                    Slid_Trial.append(Ext_Starts[i][j] + k)
+                    if (Ext_Starts[i][j] + k) <= full_trial:
+                        Slid_Trial.append(Ext_Starts[i][j] + k)
         Slid_starts.append(Slid_Trial)
     return Slid_starts
 
