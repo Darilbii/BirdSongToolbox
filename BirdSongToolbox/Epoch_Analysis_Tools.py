@@ -1550,7 +1550,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
         trial_length = len(Features[0][0][:, 0]) - abs(Offset + Tr_Length)
         for i in range(len(Features[0][0][0, :])):
             full_trial_features.append(series_ordered[trial_length * i:trial_length * (i + 1), :])
-            full_trial_labels.append(ml_labels[trial_length * i:trial_length * (i + 1), :])
+            full_trial_labels.append(ml_labels[trial_length * i:trial_length * (i + 1)])
         return full_trial_features, full_trial_labels, ordered_index
 
     return series_ordered, ml_labels, ordered_index
