@@ -1673,7 +1673,7 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
 
-def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
+def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
                Feature_Type=str, K=4, Slide=None, Step=False, verbose=False):
     """
 
@@ -1704,8 +1704,8 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     skf = StratifiedKFold(n_splits=K)
 
     acc = np.zeros(K)
-    c = []  # Just Added
-    ROC = []  # Just Added too 8/10
+    confusion = []  # Just Added
+    # ROC = []  # Just Added too 8/10
     foldNum = 0
 
     Trained_Classifiers = dict()
@@ -1770,15 +1770,15 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                                                                                               Slide=Slide,
                                                                                               Step=Step)
 
-        acc[foldNum], Trained_Classifiers[foldNum], C = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
+        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
                                                                             ml_test_trials, ml_test_labels,
                                                                             verbose=False)
         Trained_Index[foldNum] = test
         foldNum += 1
 
         if verbose:
-            print(C)
-        c.append(C)
+            print(conf)
+        confusion.append(conf)
 
     meanAcc_nb = np.mean(acc)
     stdErr_nb = np.std(acc) / np.sqrt(K)
@@ -1786,7 +1786,7 @@ def Clip_KFold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
-    return meanAcc_nb, stdErr_nb, Classifier_Components, c,
+    return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
 
 
 ###
