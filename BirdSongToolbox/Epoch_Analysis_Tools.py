@@ -1674,7 +1674,7 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
 
 def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
-               Feature_Type=str, K=4, Slide=None, Step=False, verbose=False):
+               Feature_Type=str, k_folds=4, Slide=None, Step=False, verbose=False):
     """
 
     :param Class_Obj:
@@ -1689,7 +1689,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     Tr_Length=int
         Number of Samples to use for Features
     :param Feature_Type:
-    :param K:
+    :param k_folds:
     :param Slide:
     :param Step:
     :param verbose:
@@ -1701,9 +1701,9 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     """
     #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
 
-    skf = StratifiedKFold(n_splits=K)
+    skf = StratifiedKFold(n_splits=k_folds)
 
-    acc = np.zeros(K)
+    acc = np.zeros(k_folds)
     confusion = []  # Just Added
     # ROC = []  # Just Added too 8/10
     foldNum = 0
@@ -1781,7 +1781,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         confusion.append(conf)
 
     meanAcc_nb = np.mean(acc)
-    stdErr_nb = np.std(acc) / np.sqrt(K)
+    stdErr_nb = np.std(acc) / np.sqrt(k_folds)
     Classifier_Components = (Trained_Classifiers, Trained_Index)
 
     if verbose:
