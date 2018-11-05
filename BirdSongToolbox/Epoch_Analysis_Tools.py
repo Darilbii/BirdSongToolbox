@@ -2162,8 +2162,8 @@ def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
         The percent predicted correctly
     """
     assert len(prediction) == len(truth), "The two inputs must be equal"
-    return sum(list(prediction == truth))/len(truth)
-
+#     return sum([1 for x, y in zip(prediction, truth) if x==y])/len(truth)
+    return sum(prediction == truth)/len(truth)
 
 def find_days_accuracy(predictions, truths):
     """Determines the accuracy across all epochs for that day
@@ -2207,8 +2207,8 @@ def break_by_epoch(predictions, truths, epoch_len):
     epochs_predictions = []
     epoch_truths = []
 
-    for i in range(len(predictions[:, 0])):
-        epochs_predictions.append(predictions[epoch_len * i:epoch_len * (i + 1), :])
+    for i in range(int(len(predictions)/epoch_len)):
+        epochs_predictions.append(predictions[epoch_len * i:epoch_len * (i + 1)])
         epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1)])
 
     return epochs_predictions, epoch_truths
@@ -2248,7 +2248,7 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
 
     confusion = confusion_matrix(truths, predictions).astype(float)  # Calculate the confusion matrix
 
-    epochs_predictions, epoch_truths = break_by_epoch(features, truths, epoch_len)  # Break Predictions by Epoch
+    epochs_predictions, epoch_truths = break_by_epoch(predictions, truths, epoch_len)  # Break Predictions by Epoch
     mean_acc, std_err = find_days_accuracy(epochs_predictions, epoch_truths)  # Calculate the mean and standard Error
 
     return epochs_predictions, epoch_truths, mean_acc, std_err, confusion
