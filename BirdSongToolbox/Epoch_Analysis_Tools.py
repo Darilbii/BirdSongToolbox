@@ -2229,7 +2229,7 @@ def find_days_accuracy(predictions, truths):
 
 # TODO: Make this a universal funciton that can be used nomater the context
 
-def break_by_epoch(predictions, truths, epoch_len):
+def break_by_epoch(predictions, truths, epoch_len, offset, tr_len):
     """Test a trained classifier from one day during another day
 
     Parameters:
@@ -2245,7 +2245,7 @@ def break_by_epoch(predictions, truths, epoch_len):
     epoch_truths = []
 
     for i in range(int(len(predictions)/epoch_len)):
-        epochs_predictions.append(predictions[epoch_len * i:epoch_len * (i + 1)])
+        epochs_predictions.append(predictions[(epoch_len * i)+ abs(offset + tr_len):(epoch_len * (i + 1)) + abs(offset + tr_len)])
         epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1)])
 
     return epochs_predictions, epoch_truths
@@ -2286,7 +2286,7 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
 
     confusion = confusion_matrix(truths, predictions).astype(float)  # Calculate the confusion matrix
 
-    epochs_predictions, epoch_truths = break_by_epoch(predictions, truths, epoch_len)  # Break Predictions by Epoch
+    epochs_predictions, epoch_truths = break_by_epoch(predictions, truths, epoch_len, offset, tr_len)  # Break Predictions by Epoch
     mean_acc, std_err = find_days_accuracy(epochs_predictions, epoch_truths)  # Calculate the mean and standard Error
 
     return epochs_predictions, epoch_truths, mean_acc, std_err, confusion
