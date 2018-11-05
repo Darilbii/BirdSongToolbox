@@ -377,9 +377,12 @@ def Label_Focus(Focus, Labels, Starts):
     """
     Label_Index = []
 
-    for i in range(len(Labels)):
-        Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
-        Label_Index.append(Trial_Labels)
+    # for i in range(len(Labels)):
+    #     Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
+
+    for start, epoch in zip(Starts, Labels):
+        trial_labels = [int(start[i] / 30) for i, x in enumerate(epoch) if x == Focus]
+        Label_Index.append(trial_labels)
     return Label_Index
 
 
