@@ -2209,7 +2209,7 @@ def break_by_epoch(predictions, truths, epoch_len):
 
     for i in range(len(predictions[:, 0])):
         epochs_predictions.append(predictions[epoch_len * i:epoch_len * (i + 1), :])
-        epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1), :])
+        epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1)])
 
     return epochs_predictions, epoch_truths
 
