@@ -1546,9 +1546,9 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
     if re_break == True:  # Option for Re-Breaking the epoch to get visualize their individual performances in Testing
         # Break the long time series back into the Constituent Epochs
         full_trial_features = []
-        trial_length = len(Features[0][0][:, 0]) - Offset - Tr_Length
+        trial_length = len(Features[0][0][:, 0]) - abs(Offset + Tr_Length)
         for i in range(len(Features[0][0][0, :])):
-            full_trial_features.append(series_ordered[trial_length * (i):trial_length * (i + 1), :])
+            full_trial_features.append(series_ordered[trial_length * i:trial_length * (i + 1), :])
         return full_trial_features, labels, ordered_index
 
     return series_ordered, ml_labels, ordered_index
@@ -2220,16 +2220,34 @@ def find_days_accuracy(predictions, truths):
     """
 
     epoch_accuracy = []
-    for ep_pred, ep_truth  in zip(predictions, truths):
+    for ep_pred, ep_truth in zip(predictions, truths):
         epoch_accuracy.append(find_accuracy(ep_pred, ep_truth))
+
     mean_acc = np.mean(epoch_accuracy)
     std_err = np.std(epoch_accuracy) / np.sqrt(len(epoch_accuracy))
+
     return mean_acc, std_err
 
+def find_days_confusion(predictions, truths):
+    """Calculate the Confusion Matrix for the Day
+
+    :param predictions:
+    :param truths:
+    Returns:
+    --------
+    """
+    confusion_step = []
+    for ep_pred, ep_truth in zip(predictions, truths):
+        confusion_step.append(confusion_matrix(ep_truth, ep_pred).astype(float))
+
+    confusion = np.zeros((np.shape(confusion_step[0])))
+    for epoch in confusion_step:
+        confusion = confusion + epoch
+    return confusion
 
 # TODO: Make this a universal funciton that can be used nomater the context
 
-def break_by_epoch(predictions, truths, epoch_len, offset, tr_len):
+def predict_by_epoch(Classifier, Features):
     """Test a trained classifier from one day during another day
 
     Parameters:
@@ -2242,16 +2260,14 @@ def break_by_epoch(predictions, truths, epoch_len, offset, tr_len):
     """
 
     epochs_predictions = []
-    epoch_truths = []
 
-    for i in range(int(len(predictions)/epoch_len)):
-        epochs_predictions.append(predictions[(epoch_len * i)+ abs(offset + tr_len):(epoch_len * (i + 1)) + abs(offset + tr_len)])
-        epoch_truths.append(truths[epoch_len * i: epoch_len * (i + 1)])
+    for epoch in Features:
+        epochs_predictions.append(Classifier.predict(epoch))
 
-    return epochs_predictions, epoch_truths
+    return epochs_predictions
 
 
-def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len):
+def classify_another_day(Classifier, features, truths):
     """Test a trained classifier from one day on another day and break into its epochs then characterize its behavior
 
     Parameters:
@@ -2260,15 +2276,10 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
         The Trained classifier to be tested
     features:
     truths:
-    epoch_len:
-        the length of a full epoch for that bird
-    offset: int
-
-    tr_len:int
 
     Returns:
     --------
-    epochs_predictions:  list
+    epoch_predictions:  list
         list of each epochs predictions. [epoch] -> (Predicted Label x 1)
     epoch_truths: list
         list of each epochs true label. [epoch] -> (true Label x 1)
@@ -2280,15 +2291,12 @@ def classify_another_day(classifier, features, truths, epoch_len, offset, tr_len
         Confusion matrix, shape = [n_classes, n_classes]
     """
 
-    predictions = classifier.predict(features)  # Predict labels for the entire day
+    epoch_predictions = predict_by_epoch(Classifier, features)  # Predict labels for the entire day
 
-    epoch_len = epoch_len - abs(offset + tr_len)  # Determine the viable samples based on offset ane Trial Length
+    mean_acc, std_err = find_days_accuracy(epoch_predictions, truths)  # Calculate the mean and standard Error
 
-    confusion = confusion_matrix(truths, predictions).astype(float)  # Calculate the confusion matrix
+    confusion = find_days_confusion(epoch_predictions, truths)  # Calculate the confusion matrix
 
-    epochs_predictions, epoch_truths = break_by_epoch(predictions, truths, epoch_len, offset, tr_len)  # Break Predictions by Epoch
-    mean_acc, std_err = find_days_accuracy(epochs_predictions, epoch_truths)  # Calculate the mean and standard Error
-
-    return epochs_predictions, epoch_truths, mean_acc, std_err, confusion
+    return epoch_predictions, truths, mean_acc, std_err, confusion
 
 
