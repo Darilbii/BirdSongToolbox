@@ -2109,12 +2109,12 @@ def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
     plt.figure(1, figsize=(20, 4))
 
     # First_Predictions_List = list(First_Predictions)
-    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'white']
+    colors = ['black', 'red', 'orange', 'yellow', 'pink', 'green', 'white']
 
     # for i in range(len(colors)):
     for index, predict in enumerate(Predictions):
         # if int(predict) == i:
-        plt.axvline(x=(index + Offset + Tr_Len) * 30, color=colors[index])
+        plt.axvline(x=(index + Offset + Tr_Len) * 30, color=colors[predict])
 
     # This is a Hack Improve for Actual use:
     black_patch = mpatches.Patch(color='black', label='Syllable 1')
@@ -2122,10 +2122,11 @@ def Visualize_Psuedo_Real(Audio, Predictions, Offset=int, Tr_Len=int):
     orange_patch = mpatches.Patch(color='orange', label='Syllable 3')
     yellow_patch = mpatches.Patch(color='yellow', label='Syllable 4')
     pink_patch = mpatches.Patch(color='pink', label='Introductory Note')
+    green_patch = mpatches.Patch(color='green', label='Silence')
     white_patch = mpatches.Patch(color='white', label='Silence')
 
     #     plt.legend(handles=[red_patch])
-    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, white_patch],
+    plt.legend(handles=[black_patch, red_patch, orange_patch, yellow_patch, pink_patch, green_patch, white_patch],
                bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     plt.plot(Audio)
 
