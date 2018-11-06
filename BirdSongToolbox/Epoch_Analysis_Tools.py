@@ -2483,7 +2483,7 @@ def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset = int):
     for i in range(len(Onset_Predictions)):
         Onset_candidates = np.zeros([len(True_Onsets), 1])
         for j in range(len(True_Onsets)):
-            Onset_candidates[j] =  Onset_Predictions[i] + Offset - True_Onsets[j]
+            Onset_candidates[j] = Onset_Predictions[i] + Offset - True_Onsets[j]
         Closest_Onset = [Onset_candidates[x] for x,y in enumerate(Onset_candidates) if abs(y) == min(abs(Onset_candidates))]
 #         print Closest_Onset
         Onset_Holder[i] = Closest_Onset[0]
@@ -2516,6 +2516,8 @@ def Label_Onset_Culmination(One_Classifier, Series_PrePd, All_Dev_Starts, Test_I
         # Find the Predicted Starts for a particular Label of One Trial
         Syll_predict = Predicted_Onset_Finder(One_Classifier.predict(Series_PrePd[Test_Index[i]]), Sel_Label=Sel_Label)
 
+        print(np.shape(Syll_predict))
+        print(np.shape(All_Dev_Starts[Sel_Label][Test_Index[i]]))
         Hist_Components = Onset_Detection_Metrics(All_Dev_Starts[Sel_Label][Test_Index[i]],
                                                   Syll_predict, Offset=Offset)
 
