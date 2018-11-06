@@ -2564,7 +2564,7 @@ def All_Folds_Onset_Metrics(Data_Set, K_Classifiers, Label_Instructions, All_Tru
             print
             'Fold #: ' + str(i + 1)
         ## Prepare the Series Test_Set
-        kFold_Series = KFold_Series_Prep(Data_Set, Test_index=Test_Index_d[i], Offset=Offset,
+        kFold_Series = Full_Trial_LFP_Clipper(Data_Set, Test_index=Test_Index_d[i], Offset=Offset,
                                          Tr_Length=Tr_Length, Feature_Type=Feature_Type)
 
         Fold_Hist[i] = Classifier_Onset_Metrics(Classifier_d[i], kFold_Series, All_True_Onsets,
