@@ -2474,9 +2474,32 @@ def classify_another_day(Classifier, features, truths, sckit_labels=None):
 #         onset_holder[onset_ind] = closest_onset[0]
 #     return onset_holder
 
+def Starts_Extract_Pipeline(All_Labels, Time_Stamps, Label_Instructions):
+    """ Pipeline for Extracing all of the Starts of User Selected Labels and
+    return them the designated manner.
+
+    Label_Instructions = tells the Function what labels to extract and whether to group them together"""
+
+    Starts = []
+    Ends = []
+
+    for i in range(len(Label_Instructions)):
+        if type(Label_Instructions[i]) == int or type(Label_Instructions[i]) == str:
+            Label_Starts = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps[0])
+            Label_Ends = Label_Focus(Label_Instructions[i], All_Labels, Time_Stamps[1])
+        else:
+            Label_Starts = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps[0])
+            Label_Ends = Label_Grouper(Label_Instructions[i], All_Labels, Time_Stamps[1])
+
+        Starts.append(Label_Starts)
+        Ends.append(Label_Ends)
+    return Starts, Ends
+
 def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset = int):
-    ''' Finds the distance between ONE class's predictions to the nearest true value
-    for ONE Specific Label for ONE Trial'''
+    """ Finds the distance between ONE class's predictions to the nearest true value
+    for ONE Specific Label for ONE Trial
+
+    """
     Onset_Holder = np.zeros([len(Onset_Predictions), 1])
 #     Onset_Holder = []
 #     print np.shape(Onset_Holder)
