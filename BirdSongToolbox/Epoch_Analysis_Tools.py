@@ -1798,119 +1798,119 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
 
 #TODO: FInisht the Train_on_All Function. It is unoperatable and incomplete
-def train_on_all(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
-               Feature_Type=str, Slide=None, Step=False, verbose=False):
-    """
-
-    :param Class_Obj:
-    :param Data_Set:
-    :param Data_Labels:
-    :param Data_Starts:
-    Label_Instructions: list
-        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
-        this nested list will be treated as if they are the same label
-    Offset = int
-        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
-    Tr_Length=int
-        Number of Samples to use for Features
-    :param Feature_Type:
-    :param k_folds:
-    :param Slide:
-    :param Step:
-    :param verbose:
-
-    Returns:
-    --------
-
-
-    """
-    #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
-
-    # skf = StratifiedKFold(n_splits=k_folds)
-
-    # acc = np.zeros(k_folds)
-    # confusion = []  # Just Added
-    # ROC = []  # Just Added too 8/10
-    # foldNum = 0
-
-    Trained_Classifiers = dict()
-    Trained_Index = dict()
-
-    Num_Clippings = np.ones(len(Data_Labels))
-
-    # for train, test in skf.split(Num_Clippings, Num_Clippings):
-        if verbose:
-            print("Fold %s..." % foldNum)
-            # print "%s %s" % (train, test)
-
-        # print(train)
-        # train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, )
-
-        # print(test)
-        # test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
-
-        # if Feature_Type != 'Pearson':
-        ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(Data_Set,
-                                                                                             Data_Labels,
-                                                                                             Data_Starts
-                                                                                             Label_Instructions,
-                                                                                             Offset=Offset,
-                                                                                             Tr_Length=Tr_Length,
-                                                                                             Feature_Type=Feature_Type,
-                                                                                             Temps=None,
-                                                                                             Slide=Slide,
-                                                                                             Step=Step)
-
-        # ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
-        #                                                                                   test_labels,
-        #                                                                                   test_starts,
-        #                                                                                   Label_Instructions,
-        #                                                                                   Offset=Offset,
-        #                                                                                   Tr_Length=Tr_Length,
-        #                                                                                   Feature_Type=Feature_Type,
-        #                                                                                   Temps=None,
-        #                                                                                   Slide=Slide,
-        #                                                                                   Step=Step)
-
-        if Feature_Type == 'Pearson':
-            ml_train_trials, ml_train_labels, train_ordered_index, Temps_int = Classification_Prep_Pipeline(Data_Set,
-                                                                                                            Data_Labels,
-                                                                                                            Data_Starts
-                                                                                                            Offset=Offset,
-                                                                                                            Tr_Length=Tr_Length,
-                                                                                                            Feature_Type=Feature_Type,
-                                                                                                            Temps=None,
-                                                                                                            Slide=Slide,
-                                                                                                            Step=Step)
-
-            ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
-                                                                                              test_labels,
-                                                                                              test_starts,
-                                                                                              Label_Instructions,
-                                                                                              Offset=Offset,
-                                                                                              Tr_Length=Tr_Length,
-                                                                                              Feature_Type=Feature_Type,
-                                                                                              Temps=Temps_int,
-                                                                                              Slide=Slide,
-                                                                                              Step=Step)
-
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
-                                                                            ml_test_trials, ml_test_labels,
-                                                                            verbose=False)
-        Trained_Index[foldNum] = test
-        foldNum += 1
-
-        if verbose:
-            print(conf)
-        confusion.append(conf)
-
-    meanAcc_nb = np.mean(acc)
-    stdErr_nb = np.std(acc) / np.sqrt(k_folds)
-    Classifier_Components = (Trained_Classifiers, Trained_Index)
-
-    if verbose:
-        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
-    return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
+# def train_on_all(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
+#                Feature_Type=str, Slide=None, Step=False, verbose=False):
+#     """
+#
+#     :param Class_Obj:
+#     :param Data_Set:
+#     :param Data_Labels:
+#     :param Data_Starts:
+#     Label_Instructions: list
+#         list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+#         this nested list will be treated as if they are the same label
+#     Offset = int
+#         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+#     Tr_Length=int
+#         Number of Samples to use for Features
+#     :param Feature_Type:
+#     :param k_folds:
+#     :param Slide:
+#     :param Step:
+#     :param verbose:
+#
+#     Returns:
+#     --------
+#
+#
+#     """
+#     #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
+#
+#     # skf = StratifiedKFold(n_splits=k_folds)
+#
+#     # acc = np.zeros(k_folds)
+#     # confusion = []  # Just Added
+#     # ROC = []  # Just Added too 8/10
+#     # foldNum = 0
+#
+#     Trained_Classifiers = dict()
+#     Trained_Index = dict()
+#
+#     Num_Clippings = np.ones(len(Data_Labels))
+#
+#     # for train, test in skf.split(Num_Clippings, Num_Clippings):
+#         if verbose:
+#             print("Fold %s..." % foldNum)
+#             # print "%s %s" % (train, test)
+#
+#         # print(train)
+#         # train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, )
+#
+#         # print(test)
+#         # test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+#
+#         # if Feature_Type != 'Pearson':
+#         ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(Data_Set,
+#                                                                                              Data_Labels,
+#                                                                                              Data_Starts
+#                                                                                              Label_Instructions,
+#                                                                                              Offset=Offset,
+#                                                                                              Tr_Length=Tr_Length,
+#                                                                                              Feature_Type=Feature_Type,
+#                                                                                              Temps=None,
+#                                                                                              Slide=Slide,
+#                                                                                              Step=Step)
+#
+#         # ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+#         #                                                                                   test_labels,
+#         #                                                                                   test_starts,
+#         #                                                                                   Label_Instructions,
+#         #                                                                                   Offset=Offset,
+#         #                                                                                   Tr_Length=Tr_Length,
+#         #                                                                                   Feature_Type=Feature_Type,
+#         #                                                                                   Temps=None,
+#         #                                                                                   Slide=Slide,
+#         #                                                                                   Step=Step)
+#
+#         if Feature_Type == 'Pearson':
+#             ml_train_trials, ml_train_labels, train_ordered_index, Temps_int = Classification_Prep_Pipeline(Data_Set,
+#                                                                                                             Data_Labels,
+#                                                                                                             Data_Starts
+#                                                                                                             Offset=Offset,
+#                                                                                                             Tr_Length=Tr_Length,
+#                                                                                                             Feature_Type=Feature_Type,
+#                                                                                                             Temps=None,
+#                                                                                                             Slide=Slide,
+#                                                                                                             Step=Step)
+#
+#             ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+#                                                                                               test_labels,
+#                                                                                               test_starts,
+#                                                                                               Label_Instructions,
+#                                                                                               Offset=Offset,
+#                                                                                               Tr_Length=Tr_Length,
+#                                                                                               Feature_Type=Feature_Type,
+#                                                                                               Temps=Temps_int,
+#                                                                                               Slide=Slide,
+#                                                                                               Step=Step)
+#
+#         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
+#                                                                             ml_test_trials, ml_test_labels,
+#                                                                             verbose=False)
+#         Trained_Index[foldNum] = test
+#         foldNum += 1
+#
+#         if verbose:
+#             print(conf)
+#         confusion.append(conf)
+#
+#     meanAcc_nb = np.mean(acc)
+#     stdErr_nb = np.std(acc) / np.sqrt(k_folds)
+#     Classifier_Components = (Trained_Classifiers, Trained_Index)
+#
+#     if verbose:
+#         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+#     return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
 
 ###
 # Series Analysis Code
