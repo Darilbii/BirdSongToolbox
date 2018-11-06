@@ -1797,6 +1797,121 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
 
 
+#TODO: FInisht the Train_on_All Function. It is unoperatable and incomplete
+def train_on_all(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
+               Feature_Type=str, Slide=None, Step=False, verbose=False):
+    """
+
+    :param Class_Obj:
+    :param Data_Set:
+    :param Data_Labels:
+    :param Data_Starts:
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
+    :param Feature_Type:
+    :param k_folds:
+    :param Slide:
+    :param Step:
+    :param verbose:
+
+    Returns:
+    --------
+
+
+    """
+    #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
+
+    # skf = StratifiedKFold(n_splits=k_folds)
+
+    # acc = np.zeros(k_folds)
+    # confusion = []  # Just Added
+    # ROC = []  # Just Added too 8/10
+    # foldNum = 0
+
+    Trained_Classifiers = dict()
+    Trained_Index = dict()
+
+    Num_Clippings = np.ones(len(Data_Labels))
+
+    # for train, test in skf.split(Num_Clippings, Num_Clippings):
+        if verbose:
+            print("Fold %s..." % foldNum)
+            # print "%s %s" % (train, test)
+
+        # print(train)
+        # train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, )
+
+        # print(test)
+        # test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+
+        # if Feature_Type != 'Pearson':
+        ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(Data_Set,
+                                                                                             Data_Labels,
+                                                                                             Data_Starts
+                                                                                             Label_Instructions,
+                                                                                             Offset=Offset,
+                                                                                             Tr_Length=Tr_Length,
+                                                                                             Feature_Type=Feature_Type,
+                                                                                             Temps=None,
+                                                                                             Slide=Slide,
+                                                                                             Step=Step)
+
+        # ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+        #                                                                                   test_labels,
+        #                                                                                   test_starts,
+        #                                                                                   Label_Instructions,
+        #                                                                                   Offset=Offset,
+        #                                                                                   Tr_Length=Tr_Length,
+        #                                                                                   Feature_Type=Feature_Type,
+        #                                                                                   Temps=None,
+        #                                                                                   Slide=Slide,
+        #                                                                                   Step=Step)
+
+        if Feature_Type == 'Pearson':
+            ml_train_trials, ml_train_labels, train_ordered_index, Temps_int = Classification_Prep_Pipeline(Data_Set,
+                                                                                                            Data_Labels,
+                                                                                                            Data_Starts
+                                                                                                            Offset=Offset,
+                                                                                                            Tr_Length=Tr_Length,
+                                                                                                            Feature_Type=Feature_Type,
+                                                                                                            Temps=None,
+                                                                                                            Slide=Slide,
+                                                                                                            Step=Step)
+
+            ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+                                                                                              test_labels,
+                                                                                              test_starts,
+                                                                                              Label_Instructions,
+                                                                                              Offset=Offset,
+                                                                                              Tr_Length=Tr_Length,
+                                                                                              Feature_Type=Feature_Type,
+                                                                                              Temps=Temps_int,
+                                                                                              Slide=Slide,
+                                                                                              Step=Step)
+
+        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
+                                                                            ml_test_trials, ml_test_labels,
+                                                                            verbose=False)
+        Trained_Index[foldNum] = test
+        foldNum += 1
+
+        if verbose:
+            print(conf)
+        confusion.append(conf)
+
+    meanAcc_nb = np.mean(acc)
+    stdErr_nb = np.std(acc) / np.sqrt(k_folds)
+    Classifier_Components = (Trained_Classifiers, Trained_Index)
+
+    if verbose:
+        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+    return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
+
 ###
 # Series Analysis Code
 
@@ -1976,6 +2091,7 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
     return mean_acc_nb, std_err_nb, classifier_components, confusion
+
 
 ########################################################################################################################
 ####################### Code for Visualizing the Characteristic of Trained Models ######################################
@@ -2323,5 +2439,241 @@ def classify_another_day(Classifier, features, truths, sckit_labels=None):
     confusion = find_days_confusion(epoch_predictions, truths, sckit_labels)  # Calculate the confusion matrix
 
     return epoch_predictions, truths, mean_acc, std_err, confusion
+
+
+########################################################################################################################
+####################### Code for Visualizing the Onsets for Trained Models ######################################
+########################################################################################################################
+
+
+def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset: int):
+    """Finds the distance between ONE class's predictions to the nearest true value for ONE Specific Label for ONE Trial
+
+    Parameters:
+    -----------
+    True_Onsets:
+
+    Onset_Predictions:
+
+    Offset: int
+
+
+    Returns:
+    --------
+    Onset_Holder:
+
+    """
+
+    onset_holder = np.zeros([len(Onset_Predictions), 1])
+
+    for onset_ind, onset in enumerate(Onset_Predictions):
+        candidates = np.zeros([len(True_Onsets), 1])
+        for true_index, true_start in enumerate(True_Onsets):
+            candidates[true_index] = onset + Offset - true_start
+        closest_onset = [y for y in candidates if abs(y) == min(abs(candidates))]
+        onset_holder[onset_ind] = closest_onset[0]
+    return onset_holder
+
+
+# Predicted Onset Finder
+
+def Predicted_Onset_Finder(Onset_Predictions, Sel_Label):
+    """ Find all of the predictions for a particular Label [Labels are denamed into Label_Instruction Order]"""
+    Pred_Onsets = [x for x,y in enumerate(Onset_Predictions) if y == Sel_Label]
+    return Pred_Onsets
+
+
+
+def Label_Onset_Culmination(One_Classifier, Series_PrePd, All_Dev_Starts, Test_Index, Sel_Label=int, Offset=int):
+    """Go over all Test Sets for one Label
+
+    Input:
+        [1] One_Classifier: A Specified Trained Classifier
+        [2] Series_PrePd: List of Test Sets Feature Extracted and Aligned in Time
+                {Series_PrePd is Prepared by the Function kFold_Series_Test}
+        [3] All_Dev_Starts: All Starts For All Labels [For Nesting in a Series Labeled Function]
+        [4] Test_Index: Index of the Classifiers Test Set
+    """
+
+    Full_Hist = np.zeros([1, 1])
+
+    for i in range(len(Series_PrePd)):
+        # Find the Predicted Starts for a particular Label of One Trial
+        Syll_predict = Predicted_Onset_Finder(One_Classifier.predict(Series_PrePd[i]), Sel_Label=Sel_Label)
+
+        Hist_Components = Onset_Detection_Metrics(All_Dev_Starts[Sel_Label][Test_Index[i]],
+                                                  Syll_predict, Offset=Offset)
+
+        Full_Hist = np.concatenate((Full_Hist, Hist_Components), axis=0)
+    Full_Hist = np.delete(Full_Hist, 0, 0)  # Delete the First Row (Initialized Row)
+    return Full_Hist
+
+
+def Classifier_Onset_Metrics(One_Classifier, Series_PrePd, All_True_Onsets, Test_Index, Class_Index, Offset=int):
+    """Loops over the Test Set for a Single Trained Classifier. One Label at a time
+
+    Inputs:
+        [1] One_Classifier: A Specified Trained Classifier
+        [2] Series_PrePd: List of Test Sets Feature Extracted and Aligned in Time
+                {Series_PrePd is Prepared by the Function kFold_Series_Test}
+        [3] All_True_Onsets: All Starts For All Labels [For Nesting in a Series Labeled Function]
+        [4] Test_Index: Index of the Classifiers Test Set
+        [5] Class_Index: Index of the Labels passed as Label_Instructions
+
+    Output:
+            [Number of Labels]-> ndarray(Offsets,1)
+    """
+    print
+    'Under Development'
+
+    Fold_Onsets = []
+
+    for i in range(len(Class_Index)):
+        Full_HIST_TEST = Label_Onset_Culmination(One_Classifier=One_Classifier,
+                                                 Series_PrePd=Series_PrePd,
+                                                 All_Dev_Starts=All_True_Onsets,
+                                                 Test_Index=Test_Index,
+                                                 Sel_Label=i,
+                                                 Offset=Offset)
+        Fold_Onsets.append(Full_HIST_TEST)
+    return Fold_Onsets
+
+
+def All_Folds_Onset_Metrics(Data_Set, K_Classifiers, Label_Instructions, All_True_Onsets, Offset=int, Tr_Length=int,
+                            Feature_Type='Power', verbose=False):
+    ''' Loop over each Fold's Trained Classifier and Find the each Labels Onset Metrics
+
+    Inputs:
+        [1] Data_Set:
+        [2] K_Classifier: All Trained Classifier Components
+        [3] Label_Instructions: Index of the Labels Instructions
+        [4] All_True_Onsets: All Starts For All Labels [For Nesting in a Series Labeled Function]
+
+    Output:
+            [Dict of Folds] -> [Number of Labels] -> ndarray(Offsets,1)
+    '''
+    #     Dev_Starts, Dev_Ends = Starts_Extract_Pipeline(Day2_Labels, Day2_Clippings, [1,2,3,4,'I'])
+
+    # Break-up Tuple
+    Classifier_d, Test_Index_d = K_Classifiers
+    Fold_Hist = dict()
+
+    for i in range(len(Test_Index_d)):  # For Each Fold
+
+        if verbose == True:
+            print
+            'Fold #: ' + str(i + 1)
+        ## Prepare the Series Test_Set
+        kFold_Series = KFold_Series_Prep(Data_Set, Test_index=Test_Index_d[i], Offset=Offset,
+                                         Tr_Length=Tr_Length, Feature_Type=Feature_Type)
+
+        Fold_Hist[i] = Classifier_Onset_Metrics(Classifier_d[i], kFold_Series, All_True_Onsets,
+                                                Test_Index_d[i], Class_Index=Label_Instructions,
+                                                Offset=Offset)
+
+    return Fold_Hist
+
+
+import matplotlib.mlab as mlab
+
+
+def Onset_Histogram(Label_Onsets, Bin_Width=1, Normalize=True, ax=False):
+    if ax == False:
+        plt.hist(Label_Onsets, bins=len(range(min(Label_Onsets), max(Label_Onsets))) / Bin_Width, normed=Normalize,
+                 stacked=False)
+        plt.axvline(x=0, linestyle='--', color='black')
+    if ax == True:
+        ax.hist(Label_Onsets, bins=len(range(min(Label_Onsets), max(Label_Onsets))) / Bin_Width, normed=Normalize,
+                stacked=False)
+        ax.axvline(x=0, linestyle='--', color='black')
+
+
+def Fold_Onsets_Histograms(Fold_Onsets, Bin_Width=1, Normalize=True, Repeat=False, ax=False):
+    #     fig= plt.figure(figsize=(20,30))
+    if Repeat == False:
+        fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+        fig.suptitle('Onsets for Fold #: %d' % (1), y=1.01, size=30)
+
+    Map = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]
+
+    for i in range(len(Fold_Onsets)):
+        print
+        min(Fold_Onsets[i])
+        print
+        max(Fold_Onsets[i])
+        print
+        len(range(min(Fold_Onsets[i]), max(Fold_Onsets[i])))
+        ax[Map[i][0], Map[i][1]].hist(Fold_Onsets[i],
+                                      bins=((len(range(min(Fold_Onsets[i]), max(Fold_Onsets[i]))))) / Bin_Width,
+                                      align='mid', normed=Normalize, stacked=False)
+        ax[Map[i][0], Map[i][1]].axvline(x=0, linestyle='--', color='black')
+        ax[Map[i][0], Map[i][1]].set_title('Label: %d' % (i))
+
+
+def Better_Onsets_Histograms(Fold_Onsets, Labels, Bin_Width=1, Normalize=True, Repeat=False, ax=False):
+    sizeCorrect = 15
+    if Repeat == False:
+        fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+        fig.suptitle('Onsets for Fold #: %d' % (1), y=1.01, size=30 - sizeCorrect)
+
+    Map = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]
+
+    for i in range(len(Fold_Onsets)):
+        n, bins, patches = ax[Map[i][0], Map[i][1]].hist(Fold_Onsets[i],
+                                                         bins=((len(range(min(Fold_Onsets[i]),
+                                                                          max(Fold_Onsets[i]))))) / Bin_Width,
+                                                         normed=1, alpha=0.5)
+
+        #         ax[Map[i][0],Map[i][1]].hist(Fold_Onsets[i], bins = ((len(range(min(Fold_Onsets[i]),max(Fold_Onsets[i])))))/Bin_Width, align= 'mid' , normed = Normalize, stacked = False)
+        ax[Map[i][0], Map[i][1]].axvline(x=0, linestyle='--', color='black', linewidth=2)
+
+        ax[Map[i][0], Map[i][1]].set_title(str(Labels[i]), size=30 - sizeCorrect)
+
+        ax[Map[i][0], Map[i][1]].set_xlabel('Time [10 ms Binwidth]', fontsize=30 - sizeCorrect)
+        #         ax[Map[i][0],Map[i][1]].set_ylabel('Normalized Count', fontsize=30-sizeCorrect)
+        ax[Map[i][0], Map[i][1]].tick_params(axis='both', which='major', labelsize=25 - sizeCorrect)
+        ax[Map[i][0], Map[i][1]].tick_params(axis='both', which='minor', labelsize=25 - sizeCorrect)
+
+
+def Better_Onsets_Histograms2(Fold_Onsets, Labels, Bin_Width=1, Normalize=True, Repeat=False, ax=False):
+    if Repeat == False:
+        fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+        fig.suptitle('Onsets for Fold #: %d' % (1), y=1.01, size=30)
+
+    Map = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]
+
+    for i in range(len(Fold_Onsets)):
+        n, bins, patches = ax[i].hist(Fold_Onsets[i],
+                                      bins=((len(range(min(Fold_Onsets[i]), max(Fold_Onsets[i]))))) / Bin_Width,
+                                      normed=1, alpha=0.5)
+
+        #         ax[Map[i][0],Map[i][1]].hist(Fold_Onsets[i], bins = ((len(range(min(Fold_Onsets[i]),max(Fold_Onsets[i])))))/Bin_Width, align= 'mid' , normed = Normalize, stacked = False)
+        ax[i].axvline(x=0, linestyle='--', color='black', linewidth=4)
+        ax[i].set_title(str(Labels[i]), size=30)
+
+        ax[i].set_xlabel('Time [10 ms Binwidth]', fontsize='30')
+        ax[i].set_ylabel('Normalized Count', fontsize='30')
+        ax[i].tick_params(axis='both', which='major', labelsize=25)
+        ax[i].tick_params(axis='both', which='minor', labelsize=25)
+
+
+def Better_Onsets_Histograms3(Fold_Onsets, Labels, Bin_Width=1, Normalize=True, Repeat=False):
+    if Repeat == False:
+        fig, ax = plt.subplots(1, 3, figsize=(20, 10))
+        fig.suptitle('Onsets for Fold #: %d' % (1), y=1.01, size=30)
+
+    for i in range(len(Fold_Onsets)):
+        n, bins, patches = ax[i].hist(Fold_Onsets[i],
+                                      bins=((len(range(min(Fold_Onsets[i]), max(Fold_Onsets[i]))))) / Bin_Width,
+                                      normed=1, alpha=0.5)
+
+        #         ax[Map[i][0],Map[i][1]].hist(Fold_Onsets[i], bins = ((len(range(min(Fold_Onsets[i]),max(Fold_Onsets[i])))))/Bin_Width, align= 'mid' , normed = Normalize, stacked = False)
+        ax[i].axvline(x=0, linestyle='--', color='black', linewidth=4)
+        ax[i].set_title(str(Labels[i]))
+
+#     n, bins, patches = plt.hist(x, num_bins, normed=1, facecolor='green', alpha=0.5)
+#     # add a 'best fit' line
+#     y = mlab.normpdf(bins, mu, sigma)
+#     plt.plot(bins, y, 'r--')
 
 
