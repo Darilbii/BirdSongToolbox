@@ -2512,9 +2512,9 @@ def Label_Onset_Culmination(One_Classifier, Series_PrePd, All_Dev_Starts, Test_I
 
     Full_Hist = np.zeros([1, 1])
 
-    for i in range(len(Series_PrePd)):
+    for i in range(len(Test_Index)):
         # Find the Predicted Starts for a particular Label of One Trial
-        Syll_predict = Predicted_Onset_Finder(One_Classifier.predict(Series_PrePd[i]), Sel_Label=Sel_Label)
+        Syll_predict = Predicted_Onset_Finder(One_Classifier.predict(Series_PrePd[Test_Index[i]]), Sel_Label=Sel_Label)
 
         Hist_Components = Onset_Detection_Metrics(All_Dev_Starts[Sel_Label][Test_Index[i]],
                                                   Syll_predict, Offset=Offset)
