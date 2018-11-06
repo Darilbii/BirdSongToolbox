@@ -2446,33 +2446,48 @@ def classify_another_day(Classifier, features, truths, sckit_labels=None):
 ########################################################################################################################
 
 
-def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset: int):
-    """Finds the distance between ONE class's predictions to the nearest true value for ONE Specific Label for ONE Trial
+# def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset: int):
+#     """Finds the distance between ONE class's predictions to the nearest true value for ONE Specific Label for ONE Trial
+#
+#     Parameters:
+#     -----------
+#     True_Onsets:
+#
+#     Onset_Predictions:
+#
+#     Offset: int
+#
+#
+#     Returns:
+#     --------
+#     Onset_Holder:
+#
+#     """
+#
+#     onset_holder = np.zeros([len(Onset_Predictions), 1])
+#
+#     for onset_ind, onset in enumerate(Onset_Predictions):
+#         candidates = np.zeros([len(True_Onsets), 1])
+#         for true_index, true_start in enumerate(True_Onsets):
+#             candidates[true_index] = onset + Offset - true_start
+#         closest_onset = [y for y in candidates if abs(y) == min(abs(candidates))]
+#         onset_holder[onset_ind] = closest_onset[0]
+#     return onset_holder
 
-    Parameters:
-    -----------
-    True_Onsets:
-
-    Onset_Predictions:
-
-    Offset: int
-
-
-    Returns:
-    --------
-    Onset_Holder:
-
-    """
-
-    onset_holder = np.zeros([len(Onset_Predictions), 1])
-
-    for onset_ind, onset in enumerate(Onset_Predictions):
-        candidates = np.zeros([len(True_Onsets), 1])
-        for true_index, true_start in enumerate(True_Onsets):
-            candidates[true_index] = onset + Offset - true_start
-        closest_onset = [y for y in candidates if abs(y) == min(abs(candidates))]
-        onset_holder[onset_ind] = closest_onset[0]
-    return onset_holder
+def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset = int):
+    ''' Finds the distance between ONE class's predictions to the nearest true value
+    for ONE Specific Label for ONE Trial'''
+    Onset_Holder = np.zeros([len(Onset_Predictions), 1])
+#     Onset_Holder = []
+#     print np.shape(Onset_Holder)
+    for i in range(len(Onset_Predictions)):
+        Onset_candidates = np.zeros([len(True_Onsets), 1])
+        for j in range(len(True_Onsets)):
+            Onset_candidates[j] =  Onset_Predictions[i] + Offset - True_Onsets[j]
+        Closest_Onset = [Onset_candidates[x] for x,y in enumerate(Onset_candidates) if abs(y) == min(abs(Onset_candidates))]
+#         print Closest_Onset
+        Onset_Holder[i] = Closest_Onset[0]
+    return Onset_Holder
 
 
 # Predicted Onset Finder
