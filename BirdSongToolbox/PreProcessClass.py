@@ -14,7 +14,7 @@ from .PreProcTools import bandpass_filter, bandpass_filter_causal, Create_Bands,
 
 def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
                FiltFilt=True):
-    '''Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
+    """Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
 
     Strategy:
     ---------
@@ -45,7 +45,7 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
     --------
     Freq_Bins: list [ch]->[Song Length (Samples) x Freq. Bin]
         List of Resulting Bandpass Filtered Neural Data per channel
-    '''
+    """
     Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
 
     # Filter all Channels over each Frequency Band
@@ -177,7 +177,7 @@ def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int
 
 
 def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
-    '''Re-reference All Frequencies on All Channels for ONE Behavioral Trial. *Must Be Run For Each Trial*
+    """Re-reference All Frequencies on All Channels for ONE Behavioral Trial. *Must Be Run For Each Trial*
 
     Strategy:
     ---------
@@ -210,7 +210,7 @@ def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
     Avg_Freq_Bins_LFP: np.array
         Array of the Mean Activity of each frequency band accross all included Channels
         [Time (Samples) x Frequency Band]
-    '''
+    """
     Freq_Bins_rr = []  # For The RR'ed Band Passed Filtered Data
 
     ##[1] Find the Average for each Frequency Band over all Channels
@@ -277,7 +277,7 @@ def RR_Neural_Master(Frequencies, Num_Trials, Good_Channels, Num_Freq, SN_L=int,
 
 
 def Find_Z_Score_Metrics(Frequencies_Song, Frequencies_Silence, Num_Freq, Numb_Motifs, Numb_Silence):
-    ''' Find the Mean and Standard Deviation of Day's Recordings
+    """ Find the Mean and Standard Deviation of Day's Recordings
 
     Description:
     ------------
@@ -317,7 +317,7 @@ def Find_Z_Score_Metrics(Frequencies_Song, Frequencies_Silence, Num_Freq, Numb_M
     Chan_StdDev: list
         List of Each Channels Standard Deviation Over all Trials for Each Frequency Band
         [Ch]->[1 (Mean) x Freq. Band]
-    '''
+    """
     # [1] Initialize variables
     Freq_Bins_norm = []  # For Normalized Data
     Chan_Mean = []  # For Storing Means
@@ -348,7 +348,7 @@ def Find_Z_Score_Metrics(Frequencies_Song, Frequencies_Silence, Num_Freq, Numb_M
 
 
 def Z_Score_Module(Frequencies, Num_Trials, Chan_Mean, Chan_StdDev):
-    ''' Z-Score All of the Input Data using the Inputed Mean and Standard Deviation of All Channels for All Frequency Bands
+    """ Z-Score All of the Input Data using the Inputed Mean and Standard Deviation of All Channels for All Frequency Bands
 
     Equation Used:
     --------------
@@ -373,7 +373,7 @@ def Z_Score_Module(Frequencies, Num_Trials, Chan_Mean, Chan_StdDev):
     Z_Scored_Data: list
         Sample Based Z-Score of Input Neural Data
         [Trials]->[Ch]->[Frequency Bands x Time (Samples)]
-    '''
+    """
 
     Z_Scored_Data = []  # For Z-scored Data
 
@@ -390,7 +390,7 @@ def Z_Score_Module(Frequencies, Num_Trials, Chan_Mean, Chan_StdDev):
 
 
 def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_Motifs, Numb_Silence):
-    ''' Z-Score Based on Neural Activity during Both Song and Silence
+    """ Z-Score Based on Neural Activity during Both Song and Silence
 
     Equation Used:
     --------------
@@ -430,7 +430,7 @@ def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_M
     StdDevs: list
         List of Each Channels Standard Deviation Over all Trials for Each Frequency Band
         [Ch]->[1 (Mean) x Freq. Band]
-    '''
+    """
     # Find Mean & Standard Deviation of All Frequencies on Each Channel
     Means, StdDevs = Find_Z_Score_Metrics(Frequencies_Song, Frequencies_Silence, Num_Freq=Numb_Freq,
                                           Numb_Motifs=Numb_Motifs, Numb_Silence=Numb_Silence)
