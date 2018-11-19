@@ -34,7 +34,7 @@ from sklearn.multiclass import OneVsRestClassifier
 # Edited/Written 2/14/2018
 
 def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet=0):
-    ''' Re-Organizes Data for Machine Learning and Visualization. It also Finds the Mean of Each Frequency Band on Each Channel
+    """ Re-Organizes Data for Machine Learning and Visualization. It also Finds the Mean of Each Frequency Band on Each Channel
 
     ** Limit: This code can only parse the central motif of the Epoch **
 
@@ -64,7 +64,7 @@ def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet
     Channel_Matches: list
         Templates (Mean) of Every Frequency Band for Each Channel
         [Ch]->[Freq]->[Time(Samples) x 1]
-    '''
+    """
     # Input= shape:(34, 16, 4500, 13)
 
     Channel_Matches = []  # Index of all Channels
