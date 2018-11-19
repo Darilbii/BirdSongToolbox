@@ -99,7 +99,7 @@ def Mean_match(Features, Sel_Motifs, Num_Chan, Num_Freq, Sn_Len, Gap_Len, OffSet
 
 
 def Get_LFP_Templates(Trials, Tr_Len, Gap_Len, Buffer):
-    '''Function grabs the time segment of Neural Activity during the designated time Vocal Behavior
+    """Function grabs the time segment of Neural Activity during the designated time Vocal Behavior
 
     Steps:
     ------
@@ -123,7 +123,7 @@ def Get_LFP_Templates(Trials, Tr_Len, Gap_Len, Buffer):
     Returns:
     --------
 
-    '''
+    """
 
     # for Channels in Num_Channels:
     #
@@ -173,7 +173,7 @@ def Get_Validation_Test_Sets(Epoch_Index):
 # This is a Altered Version of Mean_Match. It Intakes the Full PrePd Motif Trials (Including Gaps)
 
 def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2, Sliding=False, SUPP=False):
-    ''' Grabs every epoch in Sel_Motifs for Each Frequency Band on Each Channel and returns them in a structure list
+    """ Grabs every epoch in Sel_Motifs for Each Frequency Band on Each Channel and returns them in a structure list
 
 
     Information:
@@ -194,7 +194,7 @@ def Full_Trial_LFP_Clipper_Old(Features, Sel_Motifs, SS=15, Low=5, Sel_Feature=2
      Channel_Full_Freq_Trials: list
         [Ch]->[Freq]->(Time Samples x Trials)
 
-    '''
+    """
     # Remove:  Sel_Freq, Channel = 1, SN = 1,
     # Offset = How much prior or after onset
 
