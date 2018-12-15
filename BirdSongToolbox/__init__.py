@@ -1,4 +1,4 @@
-from BirdSongToolbox.config import *
+from BirdSongToolbox.config import settings
 from .ImportClass import *
 from .PreProcessClass import *
 from .PreProcTools import *
