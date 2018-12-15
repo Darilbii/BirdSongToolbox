@@ -128,7 +128,7 @@ def main():
         return handle_local_data_path()
 
 
-DATA_PATH = main()
+DATA_PATH = main() # This is a Hacky way to get the variable to be a global variable usefule to ImportClass.py
 
 if __name__ == main():
     main()
