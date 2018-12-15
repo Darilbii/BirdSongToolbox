@@ -135,7 +135,7 @@ def create_local_config():
 
         if verify.exists():
             # Create the setting.pckl file
-            with default_path.Open(mode='w') as settings_file:
+            with default_path.open(mode='w') as settings_file:
                 pk.dump(local_data_path, settings_file, protocol=0)  # Protocol 0 is human readable and backwards compatible
             making = False
 
@@ -154,7 +154,7 @@ def load_local_data_path():
 
     default_path = Path(DEFAULT_PATH)
 
-    with default_path.Open(mode='r') as settings_file:
+    with default_path.open(mode='r') as settings_file:
         local_path = pk.load(settings_file)
 
     return local_path
