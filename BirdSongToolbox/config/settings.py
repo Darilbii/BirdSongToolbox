@@ -123,12 +123,15 @@ def main():
     """ Determines the host computer being used and determines where the data directory is on the host"""
 
     if using_lab_server():
-        DATA_PATH = handle_lab_data_path()
+        return handle_lab_data_path()
     else:
-        DATA_PATH = handle_local_data_path()
+        return handle_local_data_path()
 
 
 if __name__ == main():
-    main()
+    global DATA_PATH
+    DATA_PATH = main()
+
+
 
 
