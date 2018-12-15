@@ -91,21 +91,42 @@ def handle_lab_data_path():
 
 def handle_local_data_path():
     """ Function for handling package settings on non-lab computers"""
-    print('You are not currently working on a lab server and there is no local_config.py in your package')
-    interacting = True
-    while interacting:
-        response = input('Would you like to create one now? (Y/N)')
-        if response == 'y' or response == 'Y':
-            create_local_config()  # Create the local_config.pckl file
-            data_path = load_local_data_path()  # return the data path from the local_config.pckl file
-            interacting = False
-        elif response == 'n' or response == 'N':
-            print('Ok then...')
-            print('Note: Without a local_config.py this package will not be able to import data on this system')
-            data_path = ''
-            interacting = False
-        else:
-            response = input('Did not receive a Y or N. Would you like to create one now? (Y/N)')
+
+    local_config = Path(DEFAULT_PATH)
+    local_config.resolve()
+
+    if local_config.exists():
+        # import local path
+        data_path = load_local_data_path()  # return the data path from the local_config.pckl file
+
+    else:
+
+        print('You are not currently working on a lab server and there is no local_config.pckl in your package')
+        interacting = True
+
+        while interacting:
+
+            response = input('Would you like to create one now? (Y/N)')
+
+            if response == 'y' or response == 'Y':
+
+                # Give User Instructions to create path
+                print("To make your local config file to enable full functionality of this package you need to find where ",
+                      "Birdsong Data is located on your host computer. \n Once this is done determine the full path to its" +
+                      "location. \n Examples: \n Linux/Mac: /Users/Username/Documents/Data \n Windows: c:/Program Files/Data")
+
+                create_local_config()  # Create the local_config.pckl file
+                data_path = load_local_data_path()  # return the data path from the local_config.pckl file
+                interacting = False
+
+            elif response == 'n' or response == 'N':
+                print('Ok then...')
+                print('Note: Without a local_config.py this package will not be able to import data on this system')
+                data_path = ''
+                interacting = False
+
+            else:
+                print('Did not receive a Y or N. Would you like to create one now? (Y/N)')
 
 
     return data_path
@@ -122,10 +143,6 @@ def create_local_config():
 
     # Main Section of Function
     while making:
-        # Give User Instructions to create path
-        print("To make your local config file to enable full functionality of this package you need to find where ",
-              "Birdsong Data is located on your host computer. \n Once this is done determine the full path to its",
-              "location. \n Examples: \n Linux/Mac: /Users/Username/Documents/Data \n Windows: c:/Program Files/Data")
 
         local_data_path = input("What is the path to the data folder on your local computer?)")
 
@@ -135,7 +152,7 @@ def create_local_config():
 
         if verify.exists():
             # Create the setting.pckl file
-            with default_path.open(mode='w') as settings_file:
+            with default_path.open(mode='wb') as settings_file:
                 pk.dump(local_data_path, settings_file, protocol=0)  # Protocol 0 is human readable and backwards compatible
             making = False
 
@@ -154,13 +171,13 @@ def load_local_data_path():
 
     default_path = Path(DEFAULT_PATH)
 
-    with default_path.open(mode='r') as settings_file:
+    with default_path.open(mode='rb') as settings_file:
         local_path = pk.load(settings_file)
 
     return local_path
 
 
-# Actuall
+# Main Function for Determining Settings on Import
 def main():
     """ Determines the host computer being used and determines where the data directory is on the host"""
     if using_lab_server():
