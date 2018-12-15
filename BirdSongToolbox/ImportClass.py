@@ -2,7 +2,7 @@ import numpy as np
 import os
 import scipy.io as sio
 # import BirdSongToolbox.config.settings as settings
-from .config.settings import *
+from .config.settings import DATA_PATH
 
 
 
