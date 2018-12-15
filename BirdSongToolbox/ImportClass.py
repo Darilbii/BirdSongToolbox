@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import scipy.io as sio
-import BirdSongToolbox.config.settings as settings
+# import BirdSongToolbox.config.settings as settings
 
 
 # Class function for Importing PrePd Data
@@ -116,7 +116,8 @@ class Import_PrePd_Data():
 
         # Basic Setup for path Creation
         # experiment_folder = '/net/expData/birdSong/'
-        experiment_folder = settings.DATA_PATH
+        # experiment_folder = settings.DATA_PATH
+        experiment_folder = DATA_PATH
         Prepd_ss_data_folder = os.path.join(experiment_folder, 'ss_data_Processed')
 
         # Modularized Data Import Steps
