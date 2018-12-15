@@ -2,7 +2,6 @@
 import platform
 import pickle as pk
 from pathlib import Path
-import os
 
 
 # TODO: handle paths for lintu and txori
@@ -12,6 +11,7 @@ lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
 HOSTNAME = platform.uname()[1]  # Get the identity of the host computer
 DEFAULT_PATH = Path(__file__)
 DEFAULT_PATH = DEFAULT_PATH.parent / 'local_config.pckl'
+DATA_PATH = ''
 
 
 def using_lab_server():
@@ -128,9 +128,12 @@ def main():
         return handle_local_data_path()
 
 
+DATA_PATH = main()
+
 if __name__ == main():
-    global DATA_PATH
-    DATA_PATH = main()
+    main()
+
+
 
 
 
