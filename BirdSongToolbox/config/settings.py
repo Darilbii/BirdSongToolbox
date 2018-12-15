@@ -10,7 +10,6 @@ lab_servers = ['crunch', 'lintu', 'txori']
 lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
 
 HOSTNAME = platform.uname()[1]  # Get the identity of the host computer
-# DEFAULT_PATH = Path('/config/local_config.pckl')
 DEFAULT_PATH = Path(__file__)
 DEFAULT_PATH = DEFAULT_PATH.parent / 'local_config.pckl'
 
@@ -32,8 +31,6 @@ def handle_lab_data_path():
 def handle_local_data_path():
     """ Function for handling package settings on non-lab computers"""
 
-    # local_config = Path(DEFAULT_PATH)
-    # local_config.resolve()
     local_config = DEFAULT_PATH
 
     if local_config.exists():
@@ -77,10 +74,9 @@ def create_local_config():
     """ Create a local_config file from user input
     """
 
-    # Make local Variables for while loop
-    # default_path = Path(DEFAULT_PATH)
-    # default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DEFAULT_PATH)
     default_path = DEFAULT_PATH
+
+    # Make local Variables for while loop
     making = True  # Currently Making Local Config File
     counter = 0  # Counts the number of attempts to verify the data path
 
@@ -114,9 +110,6 @@ def load_local_data_path():
     """ Reads the local_config.pckl file and Loads the local Data path"""
 
     default_path = DEFAULT_PATH
-    # default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local_config.pckl')
-    # print(__file__)
-    # print(os.path.abspath(__file__))
 
     with default_path.open(mode='rb') as settings_file:
         local_path = pk.load(settings_file)
@@ -128,12 +121,6 @@ def load_local_data_path():
 # Main Function for Determining Settings on Import
 def main():
     """ Determines the host computer being used and determines where the data directory is on the host"""
-    print(__file__)
-    print(os.path.dirname(os.path.abspath(__file__)))
-
-    test = Path(__file__)
-    print(test.resolve())
-    print(test.exists())
 
     if using_lab_server():
         DATA_PATH = handle_lab_data_path()
