@@ -24,7 +24,7 @@ lab_servers = ['crunch', 'lintu', 'txori']
 lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
 
 HOSTNAME = platform.uname()[1]  # Get the identity of the host computer
-DEFAULT_PATH = Path('BirdSongToolbox/config/local_config.pckl')
+DEFAULT_PATH = Path('/config/local_config.pckl')
 
 # DATA_PATH = get_data_path()
 
@@ -152,6 +152,7 @@ def create_local_config():
 
         if verify.exists():
             # Create the setting.pckl file
+            default_path.resolve()
             with default_path.open(mode='wb') as settings_file:
                 pk.dump(local_data_path, settings_file, protocol=0)  # Protocol 0 is human readable and backwards compatible
             making = False
