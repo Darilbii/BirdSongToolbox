@@ -4,7 +4,7 @@ import scipy.io as sio
 # import BirdSongToolbox.config.settings as settings
 from .config.settings import *
 
-print(DEFAULT_PATH)
+
 
 # Class function for Importing PrePd Data
 ### Confirm this works as intended
