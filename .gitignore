@@ -103,3 +103,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Pycharm
+.idea
+
+# local BirdsongToolbox config files
+/BirdSongToolbox/config/local_config.pckl
+
