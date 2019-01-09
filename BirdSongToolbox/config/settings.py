@@ -3,7 +3,6 @@ import platform
 import pickle as pk
 from pathlib import Path
 
-
 # TODO: handle paths for lintu and txori
 lab_servers = ['crunch', 'lintu', 'txori']
 lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
@@ -28,6 +27,7 @@ def handle_lab_data_path():
         if host in HOSTNAME.lower():
             return lab_paths[host]
 
+
 def handle_local_data_path():
     """ Function for handling package settings on non-lab computers"""
 
@@ -49,9 +49,10 @@ def handle_local_data_path():
             if response == 'y' or response == 'Y':
 
                 # Give User Instructions to create path
-                print("To make your local config file to enable full functionality of this package you need to find where ",
-                      "Birdsong Data is located on your host computer. \n Once this is done determine the full path to its" +
-                      "location. \n Examples: \n Linux/Mac: /Users/Username/Documents/Data \n Windows: c:/Program Files/Data")
+                print(
+                    "To make your local config file to enable full functionality of this package you need to find where ",
+                    "Birdsong Data is located on your host computer. \n Once this is done determine the full path to its" +
+                    "location. \n Examples: \n Linux/Mac: /Users/Username/Documents/Data \n Windows: c:/Program Files/Data")
 
                 create_local_config()  # Create the local_config.pckl file
                 data_path = load_local_data_path()  # return the data path from the local_config.pckl file
@@ -65,7 +66,6 @@ def handle_local_data_path():
 
             else:
                 print('Did not receive a Y or N. Would you like to create one now? (Y/N)')
-
 
     return data_path
 
@@ -93,7 +93,8 @@ def create_local_config():
             # Create the setting.pckl file
             default_path.resolve()
             with default_path.open(mode='wb') as settings_file:
-                pk.dump(local_data_path, settings_file, protocol=0)  # Protocol 0 is human readable and backwards compatible
+                pk.dump(local_data_path, settings_file,
+                        protocol=0)  # Protocol 0 is human readable and backwards compatible
             making = False
 
         else:
@@ -127,14 +128,9 @@ def main():
     else:
         return handle_local_data_path()
 
-#TODO: Find a less hacky way to make this a global variable or determine if this way isn't that hacky
-DATA_PATH = main() # This is a Hacky way to get the variable to be a global variable usefule to ImportClass.py
+
+# TODO: Find a less hacky way to make this a global variable or determine if this way isn't that hacky Resource https://www.python-course.eu/python3_global_vs_local_variables.php
+DATA_PATH = main()  # This is a Hacky way to get the variable to be a global variable usefule to ImportClass.py
 
 if __name__ == main():
     main()
-
-
-
-
-
-
