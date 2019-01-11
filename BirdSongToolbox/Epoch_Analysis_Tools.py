@@ -364,10 +364,12 @@ def Label_Focus(Focus, Labels, Starts):
     -----------
     Focus: str or int
         User defined Label to focus on
-    Labels:
-
-    Starts:
-
+    Labels: list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    Starts: list
+        List of all Start Times corresponding to each Epoch in Full_Trials
+        [Epochs]->[Start Time]
 
     Returns:
     --------
@@ -613,6 +615,7 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     Starts: list
         A list of Lists containing the Start Times of only One type of Label in each Clipping.
         (Note: that the Starts Argument must be converted to the 1 KHz Sampling Frequency)
+        [Epochs]->[Start Time (For only one Type of Label)]
     Offset: int
         How much prior or after onset
 
@@ -1057,7 +1060,8 @@ def Slider(Ext_Starts, full_trial, Slide: int, Step=False):
     Parameters:
     -----------
     Ext_Starts: list
-
+        List of all Start Times corresponding to ONE Label in each Epoch in Full_Trials
+        [Epochs]->[Start Time]
     full_trial: int
 
     Slide: int (optional)
@@ -1687,8 +1691,12 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
     :param Class_Obj:
     :param Data_Set:
-    :param Data_Labels:
-    :param Data_Starts:
+    Data_Labels: list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    Data_Starts: list
+        List of all Start Times corresponding to each Epoch in Full_Trials
+        [Epochs]->[Start Time]
     Label_Instructions: list
         list of labels and how they should be treated. If you use a nested list in the instructions the labels in
         this nested list will be treated as if they are the same label
@@ -1696,15 +1704,33 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
     Tr_Length=int
         Number of Samples to use for Features
-    :param Feature_Type:
-    :param k_folds:
-    :param Slide:
-    :param Step:
-    :param verbose:
+    Feature_Type: str
+        Options: [Power','Pearson']
+    k_folds: int
+        Number of Folds for Cross-Validation
+    Slide: bool (Optional)
+        #TODO: Invesitage Slide Parameter in clipkfold
+    Step:
+        #TODO: Investigate and Document the Step Parameter
+    verbose: bool
+        If True the function will print out messages to update user on its progress
 
     Returns:
     --------
-
+    mean_acc_nb: int
+        the mean accuracy across the folds
+    std_err_nb: int
+        the standard error across the folds
+    classifier_components: tuple
+        Tuples containing two Dictionaries with the fold number being the keys (using 0 indexing).
+        Their Values are:
+            1.) trained Classifier instances and the index of features for their models
+                The values are that fold's trained classifier instance of the the CLass_Object Parameter
+                (from scikit-learn)
+            2.) list of the Test set for the corresponding trained Classifier
+       shape =  ({ Fold_Num: Trained_Classifiers }, {Fold_Num: Test_Index})
+    confusion: list
+        list of each fold's Confusion matrix, shape = [n_classes, n_classes]
 
     """
     #     Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset = int, Tr_Length= int, Feature_Type = str) , Temps = None
@@ -1788,13 +1814,13 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
             print(conf)
         confusion.append(conf)
 
-    meanAcc_nb = np.mean(acc)
-    stdErr_nb = np.std(acc) / np.sqrt(k_folds)
-    Classifier_Components = (Trained_Classifiers, Trained_Index)
+    meanacc_nb = np.mean(acc)
+    stderr_nb = np.std(acc) / np.sqrt(k_folds)
+    classifier_components = (Trained_Classifiers, Trained_Index)
 
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
-    return meanAcc_nb, stdErr_nb, Classifier_Components, confusion,
+    return meanacc_nb, stderr_nb, classifier_components, confusion,
 
 
 #TODO: FInisht the Train_on_All Function. It is unoperatable and incomplete
@@ -1988,16 +2014,27 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
     -----------
     :param Class_Obj:
     :param Data_Set:
-    :param Data_Labels:
-    :param Data_Starts:
-    :param Label_Instructions:
-    :param Offset:
-    :param Tr_Length:
-    :param Feature_Type:
-    :param k_folds:
-    :param Slide:
-    :param Step:
-    :param verbose:
+    Data_Labels: list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    Data_Starts: list
+        List of all Start Times corresponding to each Epoch in Full_Trials
+        [Epochs]->[Start Time]
+    Label_Instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Offset = int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    Tr_Length=int
+        Number of Samples to use for Features
+    Feature_Type: str
+        Options: [Power','Pearson']
+    k_folds: int
+        Number of Folds for Cross-Validation
+    Slide: bool (Optional)
+        #TODO: Invesitage Slide Parameter in clipkfold
+    verbose: bool
+        If True the function will print out messages to update user on its progress
 
     Returns:
     --------
