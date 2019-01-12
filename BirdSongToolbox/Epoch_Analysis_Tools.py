@@ -1456,7 +1456,9 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
     Tr_Length=int
         Number of Samples to use for Features
-    :param Feature_Type:
+    Feature_Type: str
+        Options [Power, Pearson]
+        TODO: Populate the Docustring of the CLassification_Prep_Pipeline
     :param Temps:
     :param Slide:
     :param Step:
