@@ -1482,14 +1482,14 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         # Function for Finding Pearson
         ## [Probably should add *kwargs]
         # Fucntion for Ordering Pearson
-        if Temps == None:
+        if Temps is None:
             Pearson = pearson_extraction(Clips, Temps_internal)
-        if Temps != None:
+        if Temps is not None:
             Pearson = pearson_extraction(Clips, Temps)
 
         ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(Pearson)
 
-        if Temps == None:
+        if Temps is None:
             return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
 
     return ML_Trials, ML_Labels, Ordered_Index
@@ -1656,14 +1656,25 @@ def Trial_Selector(Features, Sel_index):
     return Sel_Trials
 
 
-def Label_Selector(Labels, Sel_index):
+def Label_Selector(labels, sel_index):
     """This Function allows you to easily parse out specific Trial's Labels for K-Fold validation
     and Test Set Seperation
+
+    Parameters:
+    ----------
+    labels:
+
+    sel_index:
+
+    Returns:
+    --------
+    sel_labels:
+
     """
 
     sel_labels = []
-    for i in range(len(Sel_index)):
-        sel_labels.append(Labels[Sel_index[i]])
+    for i in range(len(sel_index)):
+        sel_labels.append(labels[sel_index[i]])
     return sel_labels
 
 
@@ -1675,12 +1686,49 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     :param Starts:
     :param Sel_index:
     :return:
+
+    # sel_set: list
+    #     list of the selected K-Fold's Training set
+    #     [ch] -> [Freq] -> (Time x Num_Epoxhs)
+    # sel_labels: list
+    #     list of each Epoch/Samples labels
+    #     [Trial/EPoch] -> [labels]
+    # (sel_starts, sel_ends): tuple
+    #     Tuple of the Label Onsets
+    #         ( [Stars] , [Ends] )
     """
 
     sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
-    sel_starts = Label_Selector(Starts, Sel_index=Sel_index)
+    sel_labels = Label_Selector(Labels, sel_index=Sel_index)
+    sel_starts = Label_Selector(Starts, sel_index=Sel_index)
     return sel_set, sel_labels, sel_starts
+
+    # def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
+    #     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
+    #
+    #     :param Onsets:
+    #     :param Features:
+    #     :param Labels:
+    #     :param Sel_index:
+    #
+    #     Returns:
+    #     sel_set: list
+    #         list of the selected K-Fold's Training set
+    #         [ch] -> [Freq] -> (Time x Num_Epoxhs)
+    #     sel_labels: list
+    #         list of each Epoch/Samples labels
+    #         [Trial/EPoch] -> [labels]
+    #     (sel_starts, sel_ends): tuple
+    #         Tuple of the Label Onsets
+    #             ( [Stars] , [Ends] )
+    #     """
+    # starts = Onsets[0]
+    # ends = Onsets[1]
+    # sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
+    # sel_labels = Label_Selector(Labels, sel_index=Sel_index)
+    # sel_starts = Label_Selector(starts, sel_index=Sel_index)
+    # sel_ends = Label_Selector(ends, sel_index=Sel_index)
+    # return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
 #### NEED TO AD OPTIONAL IF STATETMENT HANDLING FOR RETURNING THE TEMPLATES FOR SERIES CLASSIFICATION
@@ -1759,6 +1807,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
 
         # if Feature_Type != 'Pearson':
+
         ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
                                                                                              train_labels,
                                                                                              train_starts,
@@ -2001,9 +2050,9 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     starts = Onsets[0]
     ends = Onsets[1]
     sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    sel_labels = Label_Selector(Labels, Sel_index=Sel_index)
-    sel_starts = Label_Selector(starts, Sel_index=Sel_index)
-    sel_ends = Label_Selector(ends, Sel_index=Sel_index)
+    sel_labels = Label_Selector(Labels, sel_index=Sel_index)
+    sel_starts = Label_Selector(starts, sel_index=Sel_index)
+    sel_ends = Label_Selector(ends, sel_index=Sel_index)
     return sel_set, sel_labels, (sel_starts, sel_ends)
 
 #TODO: Add Parameter that will allow for pior jutter inclusion of a behavior to just prior its the True Onset
