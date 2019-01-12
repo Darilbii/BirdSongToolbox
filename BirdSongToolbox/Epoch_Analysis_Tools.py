@@ -1490,6 +1490,7 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(pearson)
 
         if Temps is None:
+            print('Hello')
             return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
 
     return ML_Trials, ML_Labels, Ordered_Index
