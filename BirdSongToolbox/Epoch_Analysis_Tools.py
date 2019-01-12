@@ -1483,11 +1483,11 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         ## [Probably should add *kwargs]
         # Fucntion for Ordering Pearson
         if Temps is None:
-            Pearson = pearson_extraction(Clips, Temps_internal)
-        if Temps is not None:
-            Pearson = pearson_extraction(Clips, Temps)
+            pearson = pearson_extraction(Clips, Temps_internal)
+        elif Temps is not None:
+            pearson = pearson_extraction(Clips, Temps)
 
-        ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(Pearson)
+        ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(pearson)
 
         if Temps is None:
             return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
@@ -1831,7 +1831,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                                                                                           Step=Step)
 
         if Feature_Type == 'Pearson':
-            ml_train_trials, ml_train_labels, train_ordered_index, Temps_int = Classification_Prep_Pipeline(train_set,
+            ml_train_trials, ml_train_labels, train_ordered_index, temps_int = Classification_Prep_Pipeline(train_set,
                                                                                                             train_labels,
                                                                                                             train_starts,
                                                                                                             Label_Instructions,
@@ -1849,7 +1849,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                                                                                               Offset=Offset,
                                                                                               Tr_Length=Tr_Length,
                                                                                               Feature_Type=Feature_Type,
-                                                                                              Temps=Temps_int,
+                                                                                              Temps=temps_int,
                                                                                               Slide=Slide,
                                                                                               Step=Step)
 
