@@ -21,13 +21,11 @@ from scipy import interp
 from sklearn.preprocessing import label_binarize
 import matplotlib.patches as mpatches
 
-
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.multiclass import OneVsRestClassifier
-
 
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
@@ -989,7 +987,7 @@ def ml_order_power(Extracted_Features):
     """
 
     ml_ready = np.zeros((1, (len(Extracted_Features[0]) * len(Extracted_Features[0][0]))))
-    ml_labels = np.zeros((1, ))
+    ml_labels = np.zeros((1,))
     for label in range(len(Extracted_Features)):
         ordered_trials, Ordered_Index = power_ml_order_module(Extracted_Features[label])
         ml_ready = np.concatenate((ml_ready, ordered_trials), axis=0)
@@ -1312,10 +1310,11 @@ def Series_LFP_Clipper(Features, Offset: int, Tr_Length: int):
             counter = 0  # For stackin all examples of label in full trial
             for trials in range(nt):
                 for ex in range(len(starts[trials])):
-                    if starts[trials][ex] - Offset - Tr_Length >= 0 and starts[trials][ex] - Offset <= len(Features[0][0][:, 0]) :
+                    if starts[trials][ex] - Offset - Tr_Length >= 0 and starts[trials][ex] - Offset <= len(
+                            Features[0][0][:, 0]):
                         chan_holder[:, counter] = frequency[
-                                                      starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
-                                                      trials]  # Select Motif
+                                                  starts[trials][ex] - Offset - Tr_Length:starts[trials][ex] - Offset,
+                                                  trials]  # Select Motif
                         counter = counter + 1
             freq_trials.append(chan_holder)  # Save all of the Trials for that Frequency on that Channel
         dynamic_freq_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
@@ -1490,7 +1489,6 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         ML_Trials, ML_Labels, Ordered_Index = ml_order_pearson(pearson)
 
         if Temps is None:
-            print('Hello')
             return ML_Trials, ML_Labels, Ordered_Index, Temps_internal
 
     return ML_Trials, ML_Labels, Ordered_Index
@@ -1807,29 +1805,27 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         print(test)
         test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
 
-        # if Feature_Type != 'Pearson':
-
-        ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
-                                                                                             train_labels,
-                                                                                             train_starts,
-                                                                                             Label_Instructions,
-                                                                                             Offset=Offset,
-                                                                                             Tr_Length=Tr_Length,
-                                                                                             Feature_Type=Feature_Type,
-                                                                                             Temps=None,
-                                                                                             Slide=Slide,
-                                                                                             Step=Step)
-
-        ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
-                                                                                          test_labels,
-                                                                                          test_starts,
-                                                                                          Label_Instructions,
-                                                                                          Offset=Offset,
-                                                                                          Tr_Length=Tr_Length,
-                                                                                          Feature_Type=Feature_Type,
-                                                                                          Temps=None,
-                                                                                          Slide=Slide,
-                                                                                          Step=Step)
+        if Feature_Type != 'Pearson':
+            ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
+                                                                                                 train_labels,
+                                                                                                 train_starts,
+                                                                                                 Label_Instructions,
+                                                                                                 Offset=Offset,
+                                                                                                 Tr_Length=Tr_Length,
+                                                                                                 Feature_Type=Feature_Type,
+                                                                                                 Temps=None,
+                                                                                                 Slide=Slide,
+                                                                                                 Step=Step)
+            ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+                                                                                              test_labels,
+                                                                                              test_starts,
+                                                                                              Label_Instructions,
+                                                                                              Offset=Offset,
+                                                                                              Tr_Length=Tr_Length,
+                                                                                              Feature_Type=Feature_Type,
+                                                                                              Temps=None,
+                                                                                              Slide=Slide,
+                                                                                              Step=Step)
 
         if Feature_Type == 'Pearson':
             ml_train_trials, ml_train_labels, train_ordered_index, temps_int = Classification_Prep_Pipeline(train_set,
@@ -1854,9 +1850,10 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                                                                                               Slide=Slide,
                                                                                               Step=Step)
 
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
-                                                                            ml_test_trials, ml_test_labels,
-                                                                            verbose=False)
+        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
+                                                                               ml_train_labels,
+                                                                               ml_test_trials, ml_test_labels,
+                                                                               verbose=False)
         Trained_Index[foldNum] = test
         foldNum += 1
 
@@ -1873,7 +1870,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     return meanacc_nb, stderr_nb, classifier_components, confusion,
 
 
-#TODO: FInisht the Train_on_All Function. It is unoperatable and incomplete
+# TODO: FInisht the Train_on_All Function. It is unoperatable and incomplete
 # def train_on_all(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions, Offset=int, Tr_Length=int,
 #                Feature_Type=str, Slide=None, Step=False, verbose=False):
 #     """
@@ -2056,7 +2053,8 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
     sel_ends = Label_Selector(ends, sel_index=Sel_index)
     return sel_set, sel_labels, (sel_starts, sel_ends)
 
-#TODO: Add Parameter that will allow for pior jutter inclusion of a behavior to just prior its the True Onset
+
+# TODO: Add Parameter that will allow for pior jutter inclusion of a behavior to just prior its the True Onset
 def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instructions, Offset=int, Tr_Length=int,
                       Feature_Type=str, k_folds=4, verbose=False):
     """
@@ -2232,9 +2230,7 @@ def plot_mean_confusion_matrix(cm, Names):
     plt.show()
 
 
-
 # Visualize Classifier Performance Characteristics
-
 
 
 def ROC_Indepth(y_test, y_score, n_classes, binarize=True):
@@ -2376,9 +2372,11 @@ def Visualize_True_Audio_Labels(Audio, Predictions):
     plt.title('True Labels for Epoch')
     plt.plot(Audio)
 
-#RODO: Determine what to do with this function
-#TODO: Change the Performance visualization to be a fill between implementation istead of a vertical line
-def series_performance_prep(Data_Set, Test_index, label_instructions, labels, onsets, Offset=int, Tr_Length=int, Feature_Type=str):
+
+# RODO: Determine what to do with this function
+# TODO: Change the Performance visualization to be a fill between implementation istead of a vertical line
+def series_performance_prep(Data_Set, Test_index, label_instructions, labels, onsets, Offset=int, Tr_Length=int,
+                            Feature_Type=str):
     """Function grabs the true Labels for the Test of of Epoch and Returns them for Performance Visualizaiton
 
     :param Data_Set:
@@ -2391,9 +2389,11 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
     """
     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
 
-    ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length, labels=labels,
-                                                       label_instructions=label_instructions,onsets=onsets,
-                                                       Feature_Type=Feature_Type, re_break=True)
+    ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset,
+                                                                              Tr_Length=Tr_Length, labels=labels,
+                                                                              label_instructions=label_instructions,
+                                                                              onsets=onsets,
+                                                                              Feature_Type=Feature_Type, re_break=True)
     return ml_trials, ml_labels, ordered_index
 
 
@@ -2413,8 +2413,8 @@ def find_accuracy(prediction: np.ndarray, truth: np.ndarray):
         The percent predicted correctly
     """
     assert len(prediction) == len(truth), "The two inputs must be equal"
-#     return sum([1 for x, y in zip(prediction, truth) if x==y])/len(truth)
-    return sum(prediction == truth)/len(truth)
+    #     return sum([1 for x, y in zip(prediction, truth) if x==y])/len(truth)
+    return sum(prediction == truth) / len(truth)
 
 
 def find_days_accuracy(predictions, truths):
@@ -2443,7 +2443,8 @@ def find_days_accuracy(predictions, truths):
 
     return mean_acc, std_err
 
-def find_days_confusion(predictions, truths, labels = None):
+
+def find_days_confusion(predictions, truths, labels=None):
     """Calculate the Confusion Matrix for the Day
 
     :param predictions:
@@ -2462,7 +2463,7 @@ def find_days_confusion(predictions, truths, labels = None):
     for ep_pred, ep_truth in zip(predictions, truths):
         # print('Prediction Values: ', ep_pred, 'True Labels: ', ep_truth)
         if labels:
-            confusion_step.append(confusion_matrix(ep_truth, ep_pred, labels = labels).astype(float))
+            confusion_step.append(confusion_matrix(ep_truth, ep_pred, labels=labels).astype(float))
         else:
             confusion_step.append(confusion_matrix(ep_truth, ep_pred).astype(float))
 
@@ -2470,6 +2471,7 @@ def find_days_confusion(predictions, truths, labels = None):
     for epoch in confusion_step:
         confusion = confusion + epoch
     return confusion
+
 
 # TODO: Make this a universal funciton that can be used nomater the context
 
@@ -2582,20 +2584,22 @@ def Starts_Extract_Pipeline(All_Labels, Time_Stamps, Label_Instructions):
         Ends.append(Label_Ends)
     return Starts, Ends
 
-def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset = int):
+
+def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset=int):
     """ Finds the distance between ONE class's predictions to the nearest true value
     for ONE Specific Label for ONE Trial
 
     """
     Onset_Holder = np.zeros([len(Onset_Predictions), 1])
-#     Onset_Holder = []
-#     print np.shape(Onset_Holder)
+    #     Onset_Holder = []
+    #     print np.shape(Onset_Holder)
     for i in range(len(Onset_Predictions)):
         Onset_candidates = np.zeros([len(True_Onsets), 1])
         for j in range(len(True_Onsets)):
             Onset_candidates[j] = Onset_Predictions[i] + Offset - True_Onsets[j]
-        Closest_Onset = [Onset_candidates[x] for x,y in enumerate(Onset_candidates) if abs(y) == min(abs(Onset_candidates))]
-#         print Closest_Onset
+        Closest_Onset = [Onset_candidates[x] for x, y in enumerate(Onset_candidates) if
+                         abs(y) == min(abs(Onset_candidates))]
+        #         print Closest_Onset
         Onset_Holder[i] = Closest_Onset[0]
     return Onset_Holder
 
@@ -2604,9 +2608,8 @@ def Onset_Detection_Metrics(True_Onsets, Onset_Predictions, Offset = int):
 
 def Predicted_Onset_Finder(Onset_Predictions, Sel_Label):
     """ Find all of the predictions for a particular Label [Labels are denamed into Label_Instruction Order]"""
-    Pred_Onsets = [x for x,y in enumerate(Onset_Predictions) if y == Sel_Label]
+    Pred_Onsets = [x for x, y in enumerate(Onset_Predictions) if y == Sel_Label]
     return Pred_Onsets
-
 
 
 def Label_Onset_Culmination(One_Classifier, Series_PrePd, All_Dev_Starts, Test_Index, Sel_Label=int, Offset=int):
@@ -2804,5 +2807,3 @@ def Better_Onsets_Histograms3(Fold_Onsets, Labels, Bin_Width=1, Normalize=True, 
 #     # add a 'best fit' line
 #     y = mlab.normpdf(bins, mu, sigma)
 #     plt.plot(bins, y, 'r--')
-
-
