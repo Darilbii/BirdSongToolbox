@@ -594,17 +594,3 @@ class Import_PrePd_Data():
         """
         print('Hello Here is a walk through of this Function (Under Development)')
         print('The Initializing code does all of the Heavy Lifting If you would like more information use .Describe()')
-
-class Bank():
-    def __init__(self):
-		self.accounts = {} #Changed to dictionary
-	def summarize_account(account):
-		print("This account has this much money: ", account.balance_attribute)
-
-	def open_account(self, account, account_id):
- 		self.accounts[account_id] = account
-
-    def withdraw_from_account (self, account_id= str, amount = int or float):
-        # Pseudo-code begins here (Can't make it that easy)
-        # Get Value pair of input account_id (It should be a instance of either checking, savings, or credit)
-        # do something with the account instance
