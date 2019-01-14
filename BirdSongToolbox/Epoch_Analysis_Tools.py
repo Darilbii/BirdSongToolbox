@@ -26,6 +26,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.multiclass import OneVsRestClassifier
+import copy
 
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
@@ -1467,10 +1468,14 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
     Returns:
     --------
-    ML_Trials:
-        TODO: Fill in Documentation for Classification_Prep_Pipeline
-    ML_Labels:
-        TODO: Fill in Documentation for Classification_Prep_Pipeline
+    ML_Trials: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    ML_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
     Ordered_Index: list
         Index of Features for Feature Dropping
                             [list] -> (Tuple)
@@ -1532,11 +1537,19 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
     --------
     #TODO: rename variable and document
     series_ordered: list
-     list of ndarrays of All Instance/Sample's Features for the Label Passes
+        list of ndarrays of All Instance/Sample's Features for the Label Passes
         [Epoch]->[Samples/Time x Features]
                     (1 x Num Features)     * Note: Num Features = Num Chans x Num Freq
-
-    ml_labels:
+    #TODO: Improve Documentation
+    #TODO: Determine the shape of the series_ordered output use the ML_Trials info found below
+    # ML_Trials: ndarray
+    #     Array that is structured to work with the SciKit-learn Package
+    #     (n_samples, n_features)
+    #         n_samples = Num of Instances Total
+    #         n_features = Num_Ch * Num_Freq)
+    ml_labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
 
     ordered_index: list
         Index of Features for Feature Dropping
@@ -1759,7 +1772,8 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                Feature_Type=str, k_folds=4, Slide=None, Step=False, verbose=False):
     """
 
-    :param Class_Obj:
+    Class_Obj: class
+        classifier object from the scikit-learn package
     :param Data_Set:
     Data_Labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
@@ -1775,7 +1789,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
     Tr_Length=int
         Number of Samples to use for Features
     Feature_Type: str
-        Options: [Power','Pearson']
+        Options: ['Power','Pearson']
     k_folds: int
         Number of Folds for Cross-Validation
     Slide: bool (Optional)
@@ -1828,7 +1842,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
         print(test)
         test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
 
-        if Feature_Type != 'Pearson':
+        if Feature_Type == 'Power':
             ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
                                                                                                  train_labels,
                                                                                                  train_starts,
@@ -2083,7 +2097,8 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
     """
     Parameters:
     -----------
-    :param Class_Obj:
+    Class_Obj: class
+        classifier object from the scikit-learn package
     :param Data_Set:
     Data_Labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
@@ -2407,7 +2422,18 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
     :param Offset:
     :param Tr_Length:
     :param Feature_Type:
-    :return:
+
+    Returns:
+    --------
+    ml_trials
+
+    ml_labels:
+
+    ordered_index:
+        Index of Features for Feature Dropping
+                            [list] -> (Tuple)
+        Power:   [Num of Features] -> (Chan Num , Freq Num)
+        Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
 
     """
     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
@@ -2826,7 +2852,264 @@ def Better_Onsets_Histograms3(Fold_Onsets, Labels, Bin_Width=1, Normalize=True, 
         ax[i].axvline(x=0, linestyle='--', color='black', linewidth=4)
         ax[i].set_title(str(Labels[i]))
 
+
 #     n, bins, patches = plt.hist(x, num_bins, normed=1, facecolor='green', alpha=0.5)
 #     # add a 'best fit' line
 #     y = mlab.normpdf(bins, mu, sigma)
 #     plt.plot(bins, y, 'r--')
+
+
+# ----------------------------
+# Scratch post
+
+
+def Feature_Dropping_Selector(features, labels, removal_index):
+    """Takes Epochs and Labels that are ndarray compatible with scikitlearn and takes away the set designated by removal_index
+
+    Note: This function works by removing the entries for the indexes given by removal_index.
+    For example to get the training set you would input the index for the test set for the removal_index variable.
+
+    Parameters:
+    -----------
+    features: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    removal_index: list
+        list of indexes to be removed from the features input to get the opposite set.
+
+
+    Returns:
+    --------
+    sel_set:
+
+    sel_labels:
+
+    sel_set: ndarray
+        Array of the selected K-Fold's Opposite corresponding set of the input
+        [ch] -> [Freq] -> (Time x Num_Epoxhs)
+    sel_labels: ndarray
+        1-d array of Labels of the Opposite Corresponding n_samples
+        ( n_samples   x   1 )
+    """
+
+    sel_set = np.delete(features, removal_index, axis=0)
+    sel_labels = np.delete(labels, removal_index, axis=0)
+    return sel_set, sel_labels
+
+
+def Drop_Features(Features, Keys, Desig_Drop):
+    """Function for Selectively Removing Columns for Feature Dropping
+    Des_igDrop is short for Designated to be Dropped
+    """
+
+    Full_Drop = []
+
+    for i in range(len(Desig_Drop)):
+        Full_Drop.extend(Keys[Desig_Drop[i]])
+
+    Remaining_Features = np.delete(Features, Full_Drop, axis=1)
+
+    return Remaining_Features, Full_Drop
+
+
+def make_channel_dict(ordered_index):
+    """Creates a Dictionary of the the indexes for each Channel's features in the ordered_index
+
+    Parameters:
+    -----------
+    ordered_index: list
+        Index of Features for Feature Dropping
+                            [list] -> (Tuple)
+        Power:   [Num of Features] -> (Chan Num , Freq Num)
+        Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
+
+    Returns:
+    -------
+    channel_dict: dict
+        dictionary to be used to remove all features for a single channel
+        {Channel: [list of Indexes]}
+
+    """
+
+    channel_dict = {}
+    nun_channels = ordered_index[-1][0]+1  # Determine the Number of Channels (Assumes the ordered_index is in order)
+
+    # Iterate over the number of channels
+    for chan_focus in range(nun_channels):
+        value = []
+
+        # Iterate over the total number of features
+        for index in range(len(ordered_index)):
+            if ordered_index[index][0]==chan_focus:
+                value.append(index)
+        channel_dict[chan_focus] = value # Store the list of that Channel's Features to its corresponding Key in the Dict
+
+    return channel_dict
+
+
+
+
+
+def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
+    """ Runs the Clip_Classifcation for Crossfold Validation. (Used for the feature Dropping Code)
+
+    Parameters:
+    -----------
+    Data_Set: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    Data_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    k_folds: int
+        Number of Folds for Cross-Validation
+    Class_Obj: class
+        classifier object from the scikit-learn package
+    verbose: bool
+        If True the function will print out useful print statements to inform the user of program's progress
+
+    Returns:
+    --------
+    mean_acc: int
+        the mean accuracy across the folds
+    std_err: int
+        the standard error across the folds
+    classifier_components: tuple
+        Tuples containing two Dictionaries with the fold number being the keys (using 0 indexing).
+        Their Values are:
+            1.) trained Classifier instances and the index of features for their models
+                The values are that fold's trained classifier instance of the the CLass_Object Parameter
+                (from scikit-learn)
+            2.) list of the Test set for the corresponding trained Classifier
+       shape =  ({ Fold_Num: Trained_Classifiers }, {Fold_Num: Test_Index})
+    confusion: list
+        list of each fold's Confusion matrix, shape = [n_classes, n_classes]
+    """
+
+    skf = StratifiedKFold(n_splits=k_folds)
+
+    acc = np.zeros(k_folds)
+    confusion = []  # Just Added
+    # ROC = []  # Just Added too 8/10
+    foldNum = 0
+
+    Trained_Classifiers = dict()
+    Trained_Index = dict()
+
+    Num_Clippings = np.ones(len(Data_Labels))
+
+    for train, test in skf.split(Num_Clippings, Num_Clippings):
+        if verbose:
+            print("Fold %s..." % foldNum)
+            # print "%s %s" % (train, test)
+
+        print(train)
+        train_trials, train_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels,
+                                                               removal_index=test)
+
+        print(test)
+        test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
+
+        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, train_trials,
+                                                                               train_labels,
+                                                                               test_trials, test_labels,
+                                                                               verbose=False)
+        Trained_Index[foldNum] = test
+        foldNum += 1
+
+        if verbose:
+            print(conf)
+        confusion.append(conf)
+
+    meanacc = np.mean(acc)
+    stderr = np.std(acc) / np.sqrt(k_folds)
+    classifier_components = (Trained_Classifiers, Trained_Index)
+
+    if verbose:
+        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+    return meanacc, stderr, classifier_components, confusion,
+
+
+def run_feature_dropping(Data_Set, Data_Labels, SKF, ordered_index, Class_Obj, k_folds=2, verbose=False):
+    """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
+
+    Parameters:
+    -----------
+
+    Returns:
+    --------
+
+    """
+
+    # 1.) Initiate Lists for Curve Components
+    droppingCurve = []
+    StdERR = []
+    dropFeats = []
+
+    feat_ids = make_channel_dict(ordered_index=ordered_index)
+
+    # 2.) Initiate Variables
+    B = len(feat_ids[0])  # Determine the number of columns per dropped feature
+    C = len(feat_ids)  # Find the number of Features
+    print(B)
+    print(C)
+    print(np.shape(feat_ids))
+
+
+    Temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
+
+    # 3.) Begin Feature Dropping steps
+    # Find the first k-Fold Acc.
+    first_mean_acc, first_err_bars, _, _ = kfold_wrapper(Data_Set=Data_Set, Data_Labels=Data_Labels, k_folds=k_folds, Class_Obj=Class_Obj, verbose=verbose)
+
+
+    if verbose == True:
+        print("First acc: %s..." % first_mean_acc)
+        print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
+    droppingCurve.append(first_mean_acc)  # Append BDF's Accuracy to Curve List
+    StdERR.append(first_err_bars)  # Append BDF's StdErr to Curve List
+
+    N = 16 # Number of Channels
+    #     N = 200
+    while N > 2:  # Decrease once done with development
+        IDs = Temp.keys()  # Make List of the Keys(Features)
+        print(IDs)
+
+        N = len(IDs)  # keep track of the number of Features
+        print(N)
+        meanAcc = np.zeros(N)  # Create Container for all of the Means
+        ErrBars = np.zeros(N)  # Create Container for all of the StdErrs
+
+        print(N)
+
+        for n in range(0, N):
+            Test_Drop = []
+            Test_Drop = copy.deepcopy(dropFeats)  # Copy over the Previously Dropped Features
+            Test_Drop.append(n)  # add n to the Previously Dropped Features
+            Remaining_Features, _ = Drop_Features(Data_Set, feat_ids, Test_Drop)  # Remove selected Features
+
+            # Find the k-Fold Acc.
+            meanAcc[n], ErrBars,  _, _ = kfold_wrapper(Data_Set=Remaining_Features,
+                                                       Data_Labels=Data_Labels,
+                                                       k_folds=k_folds,
+                                                       Class_Obj=Class_Obj,
+                                                       verbose=verbose)
+
+        dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
+        droppingCurve.append(meanAcc.max())  # Append BDF's Accuracy to Curve List
+        StdERR.append(ErrBars)  # Append BDF's StdErr to Curve List
+
+        if verbose == True:
+            print("Max. acc: %s..." % (meanAcc.max()))
+            print("My attempt at finding the Standard Error is: %s" % (ErrBars) ) ###### I added this for the error bars
+            print("Dropping Feature %s..." % (dropFeatID))
+        dropFeats.append(dropFeatID)  # Append BDF to List of Dropped Features
+        del Temp[dropFeatID]  # Delete key for BDF from Temp Dict
+    return droppingCurve, StdERR
