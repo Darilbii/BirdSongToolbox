@@ -3037,7 +3037,7 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
     return meanacc, stderr, classifier_components, confusion,
 
 
-def run_feature_dropping(Data_Set, Data_Labels, SKF, ordered_index, Class_Obj, k_folds=2, verbose=False):
+def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_folds=2, verbose=False):
     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
 
     Parameters:
