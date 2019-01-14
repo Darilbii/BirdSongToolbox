@@ -3003,9 +3003,9 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
     Trained_Classifiers = dict()
     Trained_Index = dict()
 
-    Num_Clippings = np.ones(len(Data_Labels))
+    # Num_Clippings = np.ones(len(Data_Labels))
 
-    for train, test in skf.split(Num_Clippings, Num_Clippings):
+    for train, test in skf.split(Data_Set, Data_Labels):
         if verbose:
             print("Fold %s..." % foldNum)
             # print "%s %s" % (train, test)
@@ -3016,6 +3016,8 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
 
         print(test)
         test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
+
+
 
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, train_trials,
                                                                                train_labels,
