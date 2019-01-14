@@ -3104,7 +3104,8 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
                                                        Class_Obj=Class_Obj,
                                                        verbose=verbose)
 
-        dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
+        # dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
+        dropFeatID = meanAcc.argmax() #Test to see if works
         droppingCurve.append(meanAcc.max())  # Append BDF's Accuracy to Curve List
         StdERR.append(ErrBars)  # Append BDF's StdErr to Curve List
 
