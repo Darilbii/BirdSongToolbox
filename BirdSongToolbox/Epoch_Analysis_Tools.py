@@ -1444,6 +1444,8 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
                                  Feature_Type: str, Temps=None, Slide=None, Step=False):
     """
 
+    Parameters:
+    -----------
     :param Offset:
     :param Tr_Length:
     :param Full_Trials:
@@ -1462,7 +1464,18 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
     :param Temps:
     :param Slide:
     :param Step:
-    :return:
+
+    Returns:
+    --------
+    ML_Trials:
+        TODO: Fill in Documentation for Classification_Prep_Pipeline
+    ML_Labels:
+        TODO: Fill in Documentation for Classification_Prep_Pipeline
+    Ordered_Index: list
+        Index of Features for Feature Dropping
+                            [list] -> (Tuple)
+        Power:   [Num of Features] -> (Chan Num , Freq Num)
+        Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
     """
 
     Clips, Temps_internal = Label_Extract_Pipeline(Full_Trials,
@@ -1519,9 +1532,17 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
     --------
     #TODO: rename variable and document
     series_ordered: list
+     list of ndarrays of All Instance/Sample's Features for the Label Passes
         [Epoch]->[Samples/Time x Features]
+                    (1 x Num Features)     * Note: Num Features = Num Chans x Num Freq
+
     ml_labels:
-    ordered_index:
+
+    ordered_index: list
+        Index of Features for Feature Dropping
+                            [list] -> (Tuple)
+        Power:   [Num of Features] -> (Chan Num , Freq Num)
+        Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
 
     """
 
