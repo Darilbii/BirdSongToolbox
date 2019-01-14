@@ -3081,7 +3081,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     N = 16 # Number of Channels
     #     N = 200
     while N > 2:  # Decrease once done with development
-        IDs = Temp.keys()  # Make List of the Keys(Features)
+        IDs = list(Temp.keys())  # Make List of the Keys(Features)
         print(IDs)
 
         N = len(IDs)  # keep track of the number of Features
@@ -3104,8 +3104,8 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
                                                        Class_Obj=Class_Obj,
                                                        verbose=verbose)
 
-        # dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
-        dropFeatID = meanAcc.argmax() #Test to see if works
+        dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
+        # dropFeatID = meanAcc.argmax() #Test to see if works
         droppingCurve.append(meanAcc.max())  # Append BDF's Accuracy to Curve List
         StdERR.append(ErrBars)  # Append BDF's StdErr to Curve List
 
