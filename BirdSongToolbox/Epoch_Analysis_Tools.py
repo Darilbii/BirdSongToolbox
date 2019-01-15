@@ -3024,11 +3024,12 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
             print("Fold %s..." % foldNum)
             # print "%s %s" % (train, test)
 
-        print(train)
+        if verbose:
+            print("train set: ", train)
         train_trials, train_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels,
                                                                removal_index=test)
-
-        print(test)
+        if verbose:
+            print("test set: ", test)
         test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
 
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, train_trials,
@@ -3039,7 +3040,7 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
         foldNum += 1
 
         if verbose:
-            print(conf)
+            print("Confusion: ", conf)
         confusion.append(conf)
 
     meanacc = np.mean(acc)
@@ -3048,6 +3049,7 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
 
     if verbose:
         print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+
     return meanacc, stderr, classifier_components, confusion,
 
 
@@ -3092,12 +3094,11 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     std_err = []
     dropFeats = []
 
-    feat_ids = make_channel_dict(
-        ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature dropping
+    feat_ids = make_channel_dict(ordered_index=ordered_index)  #Convert ordered_index to a dict to index feature drops
 
     # 2.) Print Information about the Feature Set to be Dropped
-    print("umber of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
-    print("Number of features total:", len(feat_ids))  # Print number of Features
+    print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+    print("Number of Channels total:", len(feat_ids))  # Print number of Features
 
     Temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
 
@@ -3109,6 +3110,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     if verbose:
         print("First acc: %s..." % first_mean_acc)
         print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
+
     droppingCurve.append(first_mean_acc)  # Append BDF's Accuracy to Curve List
     std_err.append(first_err_bars)  # Append BDF's StdErr to Curve List
 
@@ -3116,7 +3118,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
 
     while num_channels > 2:  # Decrease once done with development
         IDs = list(Temp.keys())  # Make List of the Keys(Features)
-        print("List of All Channels: ", IDs)
+        print("List of Channels Left: ", IDs)
 
         num_channels = len(IDs)  # keep track of the number of Features
         print(num_channels)
