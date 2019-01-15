@@ -2902,19 +2902,35 @@ def Feature_Dropping_Selector(features, labels, removal_index):
     return sel_set, sel_labels
 
 
-def Drop_Features(Features, Keys, Desig_Drop):
+def Drop_Features(features, keys, desig_drop):
     """Function for Selectively Removing Columns for Feature Dropping
     Des_igDrop is short for Designated to be Dropped
+
+    Parameters:
+    -----------
+    Features:
+
+    Keys: list
+        list of all Channels which are keys to the columns of their corresponding features
+    desig_drop: list
+        list of all channels (which are also index of their features) to be dropped
+
+    Returns:
+    --------
+    remaining_features:
+
+    Full_Drop: list
+        list of list of all Features (columns) to be dropped
     """
 
-    Full_Drop = []
+    full_drop = []
 
-    for i in range(len(Desig_Drop)):
-        Full_Drop.extend(Keys[Desig_Drop[i]])
+    for i in range(len(desig_drop)):
+        full_drop.extend(keys[desig_drop[i]])
 
-    Remaining_Features = np.delete(Features, Full_Drop, axis=1)
+    remaining_features = np.delete(features, full_drop, axis=1)
 
-    return Remaining_Features, Full_Drop
+    return remaining_features, full_drop
 
 
 def make_channel_dict(ordered_index):
@@ -2937,7 +2953,7 @@ def make_channel_dict(ordered_index):
     """
 
     channel_dict = {}
-    nun_channels = ordered_index[-1][0]+1  # Determine the Number of Channels (Assumes the ordered_index is in order)
+    nun_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
 
     # Iterate over the number of channels
     for chan_focus in range(nun_channels):
@@ -2945,14 +2961,12 @@ def make_channel_dict(ordered_index):
 
         # Iterate over the total number of features
         for index in range(len(ordered_index)):
-            if ordered_index[index][0]==chan_focus:
+            if ordered_index[index][0] == chan_focus:
                 value.append(index)
-        channel_dict[chan_focus] = value # Store the list of that Channel's Features to its corresponding Key in the Dict
+        channel_dict[
+            chan_focus] = value  # Store the list of that Channel's Features to its corresponding Key in the Dict
 
     return channel_dict
-
-
-
 
 
 def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
@@ -3017,8 +3031,6 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
         print(test)
         test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
 
-
-
         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, train_trials,
                                                                                train_labels,
                                                                                test_trials, test_labels,
@@ -3039,80 +3051,108 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
     return meanacc, stderr, classifier_components, confusion,
 
 
-def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_folds=2, verbose=False):
+def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_folds=2, verbose=False, fold_verbose=False):
     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
 
     Parameters:
     -----------
+    Data_Set: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    Data_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    ordered_index: list
+        Index of Features for Feature Dropping
+                            [list] -> (Tuple)
+        Power:   [Num of Features] -> (Chan Num , Freq Num)
+        Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
+    Class_Obj: class
+        classifier object from the scikit-learn package
+    k_folds: int (optional)
+        Number of Cross-validation folds to use, defaults to 2
+    verbose: bool
+        If True the funtion will print out useful information for user as it runs, defaults to False.
+    fold_verbose: bool
+        If True the Function will print out information about every Cross-Validation fold, defaults to False.
 
     Returns:
     --------
+    droppingCurve:
+
+    std_err:
+
 
     """
 
     # 1.) Initiate Lists for Curve Components
     droppingCurve = []
-    StdERR = []
+    std_err = []
     dropFeats = []
 
-    feat_ids = make_channel_dict(ordered_index=ordered_index)
+    feat_ids = make_channel_dict(
+        ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature dropping
 
-    # 2.) Initiate Variables
-    B = len(feat_ids[0])  # Determine the number of columns per dropped feature
-    C = len(feat_ids)  # Find the number of Features
-    print(B)
-    print(C)
-    print(np.shape(feat_ids))
-
+    # 2.) Print Information about the Feature Set to be Dropped
+    print("umber of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+    print("Number of features total:", len(feat_ids))  # Print number of Features
 
     Temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
 
     # 3.) Begin Feature Dropping steps
     # Find the first k-Fold Acc.
-    first_mean_acc, first_err_bars, _, _ = kfold_wrapper(Data_Set=Data_Set, Data_Labels=Data_Labels, k_folds=k_folds, Class_Obj=Class_Obj, verbose=verbose)
+    first_mean_acc, first_err_bars, _, _ = kfold_wrapper(Data_Set=Data_Set, Data_Labels=Data_Labels, k_folds=k_folds,
+                                                         Class_Obj=Class_Obj, verbose=verbose)
 
-
-    if verbose == True:
+    if verbose:
         print("First acc: %s..." % first_mean_acc)
         print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
     droppingCurve.append(first_mean_acc)  # Append BDF's Accuracy to Curve List
-    StdERR.append(first_err_bars)  # Append BDF's StdErr to Curve List
+    std_err.append(first_err_bars)  # Append BDF's StdErr to Curve List
 
-    N = 16 # Number of Channels
-    #     N = 200
-    while N > 2:  # Decrease once done with development
+    num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
+
+    while num_channels > 2:  # Decrease once done with development
         IDs = list(Temp.keys())  # Make List of the Keys(Features)
-        print(IDs)
+        print("List of All Channels: ", IDs)
 
-        N = len(IDs)  # keep track of the number of Features
-        print(N)
-        meanAcc = np.zeros(N)  # Create Container for all of the Means
-        ErrBars = np.zeros(N)  # Create Container for all of the StdErrs
+        num_channels = len(IDs)  # keep track of the number of Features
+        print(num_channels)
+        mean_acc = np.zeros(num_channels)  # Create Container for all of the Means
+        err_bars = np.zeros(num_channels)  # Create Container for all of the StdErrs
 
-        print(N)
+        print(num_channels)
 
-        for n in range(0, N):
-            Test_Drop = []
-            Test_Drop = copy.deepcopy(dropFeats)  # Copy over the Previously Dropped Features
-            Test_Drop.append(n)  # add n to the Previously Dropped Features
-            Remaining_Features, _ = Drop_Features(Data_Set, feat_ids, Test_Drop)  # Remove selected Features
+        for n in range(0, num_channels):
+            # test_drop = []
+            test_drop = copy.deepcopy(dropFeats)  # Copy over the Previously Dropped Features
+            if n not in test_drop:
+                test_drop.append(n)  # add n to the Previously Dropped Features
+                Remaining_Features, _ = Drop_Features(Data_Set, feat_ids, test_drop)  # Remove selected Features
 
-            # Find the k-Fold Acc.
-            meanAcc[n], ErrBars,  _, _ = kfold_wrapper(Data_Set=Remaining_Features,
-                                                       Data_Labels=Data_Labels,
-                                                       k_folds=k_folds,
-                                                       Class_Obj=Class_Obj,
-                                                       verbose=verbose)
+                # Find the k-Fold Acc.
+                mean_acc[n], err_bars, _, _ = kfold_wrapper(Data_Set=Remaining_Features,
+                                                            Data_Labels=Data_Labels,
+                                                            k_folds=k_folds,
+                                                            Class_Obj=Class_Obj,
+                                                            verbose=fold_verbose)
+            else:
+                mean_acc[n] = 0
 
-        dropFeatID = IDs[meanAcc.argmax()]  # Find the Best Dropped Feature (BDF)
-        # dropFeatID = meanAcc.argmax() #Test to see if works
-        droppingCurve.append(meanAcc.max())  # Append BDF's Accuracy to Curve List
-        StdERR.append(ErrBars)  # Append BDF's StdErr to Curve List
+        drop_feat_id = IDs[mean_acc.argmax()]  # Find the Best Dropped Feature (BDF)
+        droppingCurve.append(mean_acc.max())  # Append BDF's Accuracy to Curve List
+        std_err.append(err_bars)  # Append BDF's StdErr to Curve List
+        # TODO: Review Std_err (Standard Error) and determine if it is the best thing for this analysis
 
-        if verbose == True:
-            print("Max. acc: %s..." % (meanAcc.max()))
-            print("My attempt at finding the Standard Error is: %s" % (ErrBars) ) ###### I added this for the error bars
-            print("Dropping Feature %s..." % (dropFeatID))
-        dropFeats.append(dropFeatID)  # Append BDF to List of Dropped Features
-        del Temp[dropFeatID]  # Delete key for BDF from Temp Dict
-    return droppingCurve, StdERR
+        if verbose:
+            print("Max. acc: %s..." % (mean_acc.max()))
+            print("My attempt at finding the Standard Error is: %s" % err_bars)  ###### I added this for the error bars
+            print("Dropping Feature %s..." % drop_feat_id)
+
+        dropFeats.append(drop_feat_id)  # Append BDF to List of Dropped Features
+        del Temp[drop_feat_id]  # Delete key for BDF from Temp Dict
+
+    return droppingCurve, std_err
+
