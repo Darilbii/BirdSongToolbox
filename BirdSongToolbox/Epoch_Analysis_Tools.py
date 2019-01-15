@@ -3105,7 +3105,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     # 3.) Begin Feature Dropping steps
     # Find the first k-Fold Acc.
     first_mean_acc, first_err_bars, _, _ = kfold_wrapper(Data_Set=Data_Set, Data_Labels=Data_Labels, k_folds=k_folds,
-                                                         Class_Obj=Class_Obj, verbose=verbose)
+                                                         Class_Obj=Class_Obj, verbose=fold_verbose)
 
     if verbose:
         print("First acc: %s..." % first_mean_acc)
