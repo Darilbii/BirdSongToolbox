@@ -3165,8 +3165,8 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     return droppingCurve, std_err
 
 
-def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, temp_set_size=0.50, seed = None)
-    """ Modular code to create a single Feature Drop Curve
+def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feature_type="Pearson", offset=0, tr_length=10, temp_set_size=0.50, seed = None)
+    """Modular code to create a single Feature Drop Curve
 
     Parameters:
     -----------
@@ -3225,9 +3225,9 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, temp
                                                          train_labels,
                                                          train_starts,
                                                          label_instructions,
-                                                         Offset=0,
-                                                         Tr_Length=10,
-                                                         Feature_Type='Pearson',
+                                                         Offset=offset,
+                                                         Tr_Length=tr_length,
+                                                         Feature_Type=feature_type,
                                                          Temps=None)  # ,
     #                                                       Slide=Slide,
     #                                                       Step=Step)
@@ -3237,9 +3237,9 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, temp
                                                                                       test_labels,
                                                                                       test_starts,
                                                                                       label_instructions,
-                                                                                      Offset=0,
-                                                                                      Tr_Length=10,
-                                                                                      Feature_Type='Pearson',
+                                                                                      Offset=offset,
+                                                                                      Tr_Length=tr_length,
+                                                                                      Feature_Type=feature_type,
                                                                                       Temps=temps_int)  # ,
     #                                                                                   Slide=Slide,
     #                                                                                   Step=Step)
