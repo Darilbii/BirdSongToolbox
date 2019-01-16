@@ -3192,7 +3192,7 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj):
 
 
     ## 2. Split into [Template] / [Train/Test] Sets
-    num_clippings = np.ones(np.arange(labels))
+    num_clippings = np.arange(len(labels))
     train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=0.33, random_state=42)
 
     print("train set:", train)
