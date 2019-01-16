@@ -3161,7 +3161,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     return droppingCurve, std_err
 
 
-def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj):
+def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, seed = None)
     """ Modular code to create a single Feature Drop Curve
 
     Parameters:
@@ -3181,6 +3181,8 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj):
         this nested list will be treated as if they are the same label
     Class_Obj: class
         classifier object from the scikit-learn package
+    seed: int
+        controls the seed fo the random number generator, defaults to None
 
     Returns:
     --------
@@ -3193,7 +3195,11 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj):
 
     ## 2. Split into [Template] / [Train/Test] Sets
     num_clippings = np.arange(len(labels))
-    train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=0.33, random_state=42)
+
+    if isinstance(seed, int):
+        train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=0.33, random_state=seed)
+    else:
+        train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=0.33)
 
     print("train set:", train)
     train_set, train_labels, train_starts = Convienient_Selector(Features=dataset,
