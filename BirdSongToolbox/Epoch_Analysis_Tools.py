@@ -3082,9 +3082,10 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
 
     Returns:
     --------
-    droppingCurve:
-
-    std_err:
+    droppingCurve: list
+        list of accuracy values from the feature dropping code (values are floats)
+    std_err: list
+        list of error values from the feature dropping code (values are floats)
 
 
     """
@@ -3094,7 +3095,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     std_err = []
     dropFeats = []
 
-    feat_ids = make_channel_dict(ordered_index=ordered_index)  #Convert ordered_index to a dict to index feature drops
+    feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
 
     # 2.) Print Information about the Feature Set to be Dropped
     print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
@@ -3116,16 +3117,14 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
 
     num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
 
-    while num_channels > 2:  # Decrease once done with development
+    while num_channels > 1:  # Decrease once done with development
         IDs = list(Temp.keys())  # Make List of the Keys(Features)
         print("List of Channels Left: ", IDs)
 
         num_channels = len(IDs)  # keep track of the number of Features
-        print(num_channels)
+        print("Number of Channels Left:", num_channels)
         mean_acc = np.zeros(num_channels)  # Create Container for all of the Means
         err_bars = np.zeros(num_channels)  # Create Container for all of the StdErrs
-
-        print(num_channels)
 
         for n in range(0, num_channels):
             # test_drop = []
@@ -3157,4 +3156,5 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
         del Temp[drop_feat_id]  # Delete key for BDF from Temp Dict
 
     return droppingCurve, std_err
+
 
