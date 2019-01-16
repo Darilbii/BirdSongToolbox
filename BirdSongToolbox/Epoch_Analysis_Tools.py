@@ -28,6 +28,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.multiclass import OneVsRestClassifier
 import copy
 
+from BirdSongToolbox import Create_Bands
+
 
 # The Following Function Finds the Template for Each Motif for Each Frequency Band on Each Channel
 # Edited/Written 2/14/2018
@@ -316,7 +318,7 @@ def get_hand_labels(bird_id='z020', sess_name='day-2016-06-03', supp_path=None, 
     return Epoch_Dict
 
 
-def Prep_Handlabels_for_ML(Hand_labels, Index):
+def prep_handlabels_for_ml(Hand_labels, Index):
     """Restructures the Dictionary of Hand labels to a list for use in Machine Learning Pipeline
 
     Parameters:
@@ -331,8 +333,10 @@ def Prep_Handlabels_for_ML(Hand_labels, Index):
     Returns:
     --------
     labels_list: list
+        list of labels for all epochs for one day
         [Epoch] -> [Labels]
     onsets_list: list
+        list of start and end times for all labels for one day
         [[Epochs]->[Start TIme] , [Epochs]->[End Time]]
 
     """
@@ -3204,6 +3208,7 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, temp
         train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=temp_set_size)
 
     print("train set:", train)
+
     train_set, train_labels, train_starts = Convienient_Selector(Features=dataset,
                                                                  Labels=labels,
                                                                  Starts=onsets[0],
@@ -3247,3 +3252,59 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, temp
                                                     k_folds=2,
                                                     verbose=True)
     return dropping_curve, err_bars
+
+
+
+def plot_featdrop_multi(drop_curve_list, Tops, Bottoms, chance_level, font=20, title_font=30, title="Place Holder", verbose=False):
+    """ Plots a single feature dropping cure
+
+    :param drop_curve_list:
+    :param Tops:
+    :param Bottoms:
+    :param chance_level:
+    :param font:
+    :param title_font:
+    :param title:
+    :param verbose:
+    :return:
+    """
+
+    patch_list = []
+    colors = cycle(['aqua', 'darkorange', 'cornflowerblue', 'tab:brown', 'tab:pink',
+                    'tab:gray', 'tab:green', 'xkcd:dark olive green',
+                    'xkcd:ugly yellow', 'xkcd:fire engine red', 'xkcd:radioactive green'])
+    Len_Test = len(drop_curve_list)
+
+    ch_range = np.arange(0, Len_Test, 1)
+
+    if verbose:
+        print("Chance Level is: ", chance_level)
+    # Test1 = Test1[::-1]
+
+    # Main Dropping Curve
+
+    # fig= plt.figure(figsize=(15,15))
+    plt.figure(figsize=(7, 7))  # Create Figure and Set Size
+
+    for index, curve in enumerate(drop_curve_list):
+        color = next(colors)
+        plt.plot(ch_range[::-1], curve, color=color, label=' {:d} - {:d} Hz'.format(Tops[index], Bottoms[index]))  # Main Drop Curve
+        # plt.errorbar(Test1, Syll_DC,  yerr= Syll_StdERR, color= 'black', linestyle=' ') # Error Bars
+        patch_list[index] = mpatches.Patch(color=color, label=' {:d} - {:d} Hz'.format(Tops[index], Bottoms[index]))  # Set Patches
+
+    # Make Legend
+    plt.legend(handles=patch_list, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+
+    # Plot Chance
+    plt.plot(ch_range, chance_level * np.ones(ch_range.shape), '--k', linewidth=5)
+
+    # Axis Labels
+    plt.title(title, fontsize=title_font)
+    plt.xlabel('No. of Channels', fontsize=font)
+    plt.ylabel('Accuracy', fontsize=font)
+
+    # Format Annotatitng Ticks
+    plt.tick_params(axis='both', which='major', labelsize=font)
+    plt.tick_params(axis='both', which='minor', labelsize=font)
+    plt.ylim(0, 1.0)
+
