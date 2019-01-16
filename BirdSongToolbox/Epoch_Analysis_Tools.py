@@ -1528,6 +1528,9 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 
     Feature_Type: int
 
+    onsets: list
+        [[Epochs]->[Start TIme] , [Epochs]->[End Time]]
+
     Temps:
 
     re_break: bool (Optional)
@@ -3158,3 +3161,81 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     return droppingCurve, std_err
 
 
+def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj):
+    """ Modular code to create a single Feature Drop Curve
+
+    Parameters:
+    -----------
+    dataset: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    onsets: list
+        [[Epochs]->[Start TIme] , [Epochs]->[End Time]]
+    label_instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    Class_Obj: class
+        classifier object from the scikit-learn package
+
+    Returns:
+    --------
+    dropping_curve: list
+        list of accuracy values from the feature dropping code (values are floats)
+    err_bars: list
+        list of error values from the feature dropping code (values are floats)
+    """
+
+
+    ## 2. Split into [Template] / [Train/Test] Sets
+    num_clippings = np.ones(np.arange(labels))
+    train, test, _, _ = train_test_split(num_clippings, num_clippings, test_size=0.33, random_state=42)
+
+    print("train set:", train)
+    train_set, train_labels, train_starts = Convienient_Selector(Features=dataset,
+                                                                 Labels=labels,
+                                                                 Starts=onsets[0],
+                                                                 Sel_index=train)
+
+    print("test set", test)
+    test_set, test_labels, test_starts = Convienient_Selector(Features=dataset,
+                                                              Labels=labels,
+                                                              Starts=onsets[0],
+                                                              Sel_index=test)
+
+    ## 3. Create Pearson Template
+    _, hate, _, temps_int = Classification_Prep_Pipeline(train_set,
+                                                         train_labels,
+                                                         train_starts,
+                                                         label_instructions,
+                                                         Offset=0,
+                                                         Tr_Length=10,
+                                                         Feature_Type='Pearson',
+                                                         Temps=None)  # ,
+    #                                                       Slide=Slide,
+    #                                                       Step=Step)
+
+    ## 4. Extract Pearson FIlters
+    ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
+                                                                                      test_labels,
+                                                                                      test_starts,
+                                                                                      label_instructions,
+                                                                                      Offset=0,
+                                                                                      Tr_Length=10,
+                                                                                      Feature_Type='Pearson',
+                                                                                      Temps=temps_int)  # ,
+    #                                                                                   Slide=Slide,
+    #                                                                                   Step=Step)
+
+    ## 5. Run Feature Dropping
+    dropping_curve, err_bars = run_feature_dropping(Data_Set=ml_test_trials,
+                                                    Data_Labels=ml_test_labels,
+                                                    ordered_index=test_ordered_index,
+                                                    Class_Obj=Class_Obj,
+                                                    k_folds=2,
+                                                    verbose=True)
+    return dropping_curve, err_bars
