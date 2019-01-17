@@ -1,6 +1,14 @@
 Hello World!
 
 
+General Workflow of this Package:
+
+Import Class: Import data for use
+PreProcessClass.py: Pre-process Data as desired
+
+Third Do analysis on Data
+
+----------------------------------
 Dumping This Here as Test...
 
 # 1. Benefits for Annotations:
@@ -33,4 +41,7 @@ The Processing Functions all follow the same general Steps:
     - [3] Do User Specified Processing on Song Neural Data
     - [4] Do User Specified Processing on Silence Neural Data
     - [5] Update the Process Log with User Defined Steps (Done Last Incase of Error)
+
+## Contact
+debrown@ucsd.edu
 
