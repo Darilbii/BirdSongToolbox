@@ -103,3 +103,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Flex Path Handling Config
+BirdSongToolbox/config/
+
+# idea
+.idea/workspace.xml
+.idea
