@@ -554,7 +554,7 @@ class Pipeline():
     """
 
     def __init__(self, Imported_Data):
-        '''Initiallizes by hardcopying the input data for Pre-Processing'''
+        """Initiallizes by hardcopying the input data for Pre-Processing"""
         # [1] Transfer over Data's Instances using Hard Copies
         self.bird_id = copy.deepcopy(Imported_Data.bird_id)
         self.date = copy.deepcopy(Imported_Data.date)
