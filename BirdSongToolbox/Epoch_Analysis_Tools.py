@@ -1630,7 +1630,7 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 # [3] Store Results into dictionary(s) also store index of the Test Set Left Out
 
 
-def Clip_Classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Labels, verbose=False):
+def clip_classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Labels, verbose=False):
     """ This Function is a Flexible Machine Learning Function that Trains One Classifier and determines metrics for it
     The metrics it determines are:
                 [1] Accuracy & StdERR
@@ -1677,9 +1677,19 @@ def Clip_Classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Label
     return acc, classifier, confusion
 
 
-def Trial_Selector(Features, Sel_index):
+def trial_selector(Features, Sel_index):
     """This Function allows you to easily parse our specific Trials for K-Fold validation
     and Test Set Seperation
+
+    Parameters:
+    ----------
+    Features: list
+            List containing the Segments Designated by the Label_Instructions, Offset, and Tr_Length parameters
+        used in a prior processing step
+        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+
+    Returns:
+    --------
 
     """
     num_chans, num_freqs, Clip_len, _ = np.shape(Features)
@@ -1698,13 +1708,15 @@ def Trial_Selector(Features, Sel_index):
     return Sel_Trials
 
 
-def Label_Selector(labels, sel_index):
+def label_selector(labels, sel_index):
     """This Function allows you to easily parse out specific Trial's Labels for K-Fold validation
     and Test Set Seperation
 
     Parameters:
     ----------
-    labels:
+    labels: list
+        list of labels for all epochs for one day
+        [Epoch] -> [Labels]
 
     sel_index:
 
@@ -1720,13 +1732,22 @@ def Label_Selector(labels, sel_index):
     return sel_labels
 
 
-def Convienient_Selector(Features, Labels, Starts, Sel_index):
+def convienient_selector(features, labels, starts, sel_index):
     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
-    :param Features:
-    :param Labels:
-    :param Starts:
-    :param Sel_index:
+    Parameters:
+    ----------
+    features: list
+            List containing the Segments Designated by the Label_Instructions, Offset, and Tr_Length parameters
+        used in a prior processing step
+        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+    labels: list
+        list of labels for all epochs for one day
+        [Epoch] -> [Labels]
+    starts:list
+        list of start times ONLY for all labels for one day
+        [Epoch]->[Start Times]
+    :param sel_index:
     :return:
 
     # sel_set: list
@@ -1740,9 +1761,9 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     #         ( [Stars] , [Ends] )
     """
 
-    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    sel_labels = Label_Selector(Labels, sel_index=Sel_index)
-    sel_starts = Label_Selector(Starts, sel_index=Sel_index)
+    sel_set = trial_selector(Features=features, Sel_index=sel_index)
+    sel_labels = label_selector(labels, sel_index=sel_index)
+    sel_starts = label_selector(starts, sel_index=sel_index)
     return sel_set, sel_labels, sel_starts
 
     # def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
@@ -1766,10 +1787,10 @@ def Convienient_Selector(Features, Labels, Starts, Sel_index):
     #     """
     # starts = Onsets[0]
     # ends = Onsets[1]
-    # sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    # sel_labels = Label_Selector(Labels, sel_index=Sel_index)
-    # sel_starts = Label_Selector(starts, sel_index=Sel_index)
-    # sel_ends = Label_Selector(ends, sel_index=Sel_index)
+    # sel_set = trial_selector(Features=Features, Sel_index=Sel_index)
+    # sel_labels = label_selector(Labels, sel_index=Sel_index)
+    # sel_starts = label_selector(starts, sel_index=Sel_index)
+    # sel_ends = label_selector(ends, sel_index=Sel_index)
     # return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
@@ -1844,10 +1865,10 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
             # print "%s %s" % (train, test)
 
         print(train)
-        train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, train)
+        train_set, train_labels, train_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, train)
 
         print(test)
-        test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+        test_set, test_labels, test_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, test)
 
         if Feature_Type == 'Power':
             ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
@@ -1894,7 +1915,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
                                                                                               Slide=Slide,
                                                                                               Step=Step)
 
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
+        acc[foldNum], Trained_Classifiers[foldNum], conf = clip_classification(Class_Obj, ml_train_trials,
                                                                                ml_train_labels,
                                                                                ml_test_trials, ml_test_labels,
                                                                                verbose=False)
@@ -1961,10 +1982,10 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 #             # print "%s %s" % (train, test)
 #
 #         # print(train)
-#         # train_set, train_labels, train_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, )
+#         # train_set, train_labels, train_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, )
 #
 #         # print(test)
-#         # test_set, test_labels, test_starts = Convienient_Selector(Data_Set, Data_Labels, Data_Starts, test)
+#         # test_set, test_labels, test_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, test)
 #
 #         # if Feature_Type != 'Pearson':
 #         ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(Data_Set,
@@ -2011,7 +2032,7 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 #                                                                                               Slide=Slide,
 #                                                                                               Step=Step)
 #
-#         acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials, ml_train_labels,
+#         acc[foldNum], Trained_Classifiers[foldNum], conf = clip_classification(Class_Obj, ml_train_trials, ml_train_labels,
 #                                                                             ml_test_trials, ml_test_labels,
 #                                                                             verbose=False)
 #         Trained_Index[foldNum] = test
@@ -2061,7 +2082,7 @@ def series_ml_order_label(labels: list):
 #     :param Feature_Type:
 #     :return:
 #     """
-#     Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
+#     Trial_set = trial_selector(Features=Data_Set, Sel_index=Test_index)
 #
 #     series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
 #                                                        Feature_Type=Feature_Type, Temps=temps)
@@ -2091,10 +2112,10 @@ def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
 
     starts = Onsets[0]
     ends = Onsets[1]
-    sel_set = Trial_Selector(Features=Features, Sel_index=Sel_index)
-    sel_labels = Label_Selector(Labels, sel_index=Sel_index)
-    sel_starts = Label_Selector(starts, sel_index=Sel_index)
-    sel_ends = Label_Selector(ends, sel_index=Sel_index)
+    sel_set = trial_selector(Features=Features, Sel_index=Sel_index)
+    sel_labels = label_selector(Labels, sel_index=Sel_index)
+    sel_starts = label_selector(starts, sel_index=Sel_index)
+    sel_ends = label_selector(ends, sel_index=Sel_index)
     return sel_set, sel_labels, (sel_starts, sel_ends)
 
 
@@ -2203,7 +2224,7 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
                                                                                                  onsets=test_onsets,
                                                                                                  label_instructions=Label_Instructions)
 
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, ml_train_trials,
+        acc[foldNum], Trained_Classifiers[foldNum], conf = clip_classification(Class_Obj, ml_train_trials,
                                                                                ml_train_labels,
                                                                                ml_test_trials, ml_test_labels,
                                                                                verbose=False)
@@ -2443,7 +2464,7 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
 
     """
-    Trial_set = Trial_Selector(Features=Data_Set, Sel_index=Test_index)
+    Trial_set = trial_selector(Features=Data_Set, Sel_index=Test_index)
 
     ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset,
                                                                               Tr_Length=Tr_Length, labels=labels,
@@ -3039,7 +3060,7 @@ def kfold_wrapper(Data_Set, Data_Labels, k_folds, Class_Obj, verbose=False):
             print("test set: ", test)
         test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
 
-        acc[foldNum], Trained_Classifiers[foldNum], conf = Clip_Classification(Class_Obj, train_trials,
+        acc[foldNum], Trained_Classifiers[foldNum], conf = clip_classification(Class_Obj, train_trials,
                                                                                train_labels,
                                                                                test_trials, test_labels,
                                                                                verbose=False)
@@ -3209,16 +3230,16 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feat
 
     print("train set:", train)
 
-    train_set, train_labels, train_starts = Convienient_Selector(Features=dataset,
-                                                                 Labels=labels,
-                                                                 Starts=onsets[0],
-                                                                 Sel_index=train)
+    train_set, train_labels, train_starts = convienient_selector(features=dataset,
+                                                                 labels=labels,
+                                                                 starts=onsets[0],
+                                                                 sel_index=train)
 
     print("test set", test)
-    test_set, test_labels, test_starts = Convienient_Selector(Features=dataset,
-                                                              Labels=labels,
-                                                              Starts=onsets[0],
-                                                              Sel_index=test)
+    test_set, test_labels, test_starts = convienient_selector(features=dataset,
+                                                              labels=labels,
+                                                              starts=onsets[0],
+                                                              sel_index=test)
 
     ## 3. Create Pearson Template
     _, hate, _, temps_int = Classification_Prep_Pipeline(train_set,
