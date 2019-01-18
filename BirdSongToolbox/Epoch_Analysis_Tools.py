@@ -3165,7 +3165,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     return droppingCurve, std_err
 
 
-def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feature_type="Pearson", offset=0, tr_length=10, temp_set_size=0.50, seed = None)
+def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feature_type="Pearson", offset=0, tr_length=10, temp_set_size=0.50, seed = None):
     """Modular code to create a single Feature Drop Curve
 
     Parameters:
