@@ -1802,7 +1802,11 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
     Class_Obj: class
         classifier object from the scikit-learn package
+
+
     :param Data_Set:
+
+
     Data_Labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
         [Epochs]->[Labels]
