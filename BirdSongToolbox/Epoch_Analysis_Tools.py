@@ -1732,7 +1732,7 @@ def label_selector(labels, sel_index):
     return sel_labels
 
 
-def convienient_selector(features, labels, starts, sel_index):
+def convenient_selector(features, labels, starts, sel_index):
     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
     Parameters:
@@ -1766,7 +1766,7 @@ def convienient_selector(features, labels, starts, sel_index):
     sel_starts = label_selector(starts, sel_index=sel_index)
     return sel_set, sel_labels, sel_starts
 
-    # def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
+    # def series_convenient_selector(Features, Labels, Onsets, Sel_index):
     #     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
     #
     #     :param Onsets:
@@ -1869,10 +1869,10 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
             # print "%s %s" % (train, test)
 
         print(train)
-        train_set, train_labels, train_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, train)
+        train_set, train_labels, train_starts = convenient_selector(Data_Set, Data_Labels, Data_Starts, train)
 
         print(test)
-        test_set, test_labels, test_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, test)
+        test_set, test_labels, test_starts = convenient_selector(Data_Set, Data_Labels, Data_Starts, test)
 
         if Feature_Type == 'Power':
             ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(train_set,
@@ -1986,10 +1986,10 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 #             # print "%s %s" % (train, test)
 #
 #         # print(train)
-#         # train_set, train_labels, train_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, )
+#         # train_set, train_labels, train_starts = convenient_selector(Data_Set, Data_Labels, Data_Starts, )
 #
 #         # print(test)
-#         # test_set, test_labels, test_starts = convienient_selector(Data_Set, Data_Labels, Data_Starts, test)
+#         # test_set, test_labels, test_starts = convenient_selector(Data_Set, Data_Labels, Data_Starts, test)
 #
 #         # if Feature_Type != 'Pearson':
 #         ml_train_trials, ml_train_labels, train_ordered_index = Classification_Prep_Pipeline(Data_Set,
@@ -2094,7 +2094,7 @@ def series_ml_order_label(labels: list):
 #     return series_ready,
 
 
-def Series_Convienient_Selector(Features, Labels, Onsets, Sel_index):
+def series_convenient_selector(Features, Labels, Onsets, Sel_index):
     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
     :param Onsets:
@@ -2191,11 +2191,11 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
             # print "%s %s" % (train, test)
 
         print(train)
-        train_set, train_labels, train_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets,
-                                                                            train)
+        train_set, train_labels, train_onsets = series_convenient_selector(Data_Set, Data_Labels, Data_Onsets,
+                                                                           train)
 
         print(test)
-        test_set, test_labels, test_onsets = Series_Convienient_Selector(Data_Set, Data_Labels, Data_Onsets, test)
+        test_set, test_labels, test_onsets = series_convenient_selector(Data_Set, Data_Labels, Data_Onsets, test)
 
         # Features, Offset = int, Tr_Length = int, Feature_Type = str, Temps = None
 
@@ -3234,16 +3234,16 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feat
 
     print("train set:", train)
 
-    train_set, train_labels, train_starts = convienient_selector(features=dataset,
-                                                                 labels=labels,
-                                                                 starts=onsets[0],
-                                                                 sel_index=train)
+    train_set, train_labels, train_starts = convenient_selector(features=dataset,
+                                                                labels=labels,
+                                                                starts=onsets[0],
+                                                                sel_index=train)
 
     print("test set", test)
-    test_set, test_labels, test_starts = convienient_selector(features=dataset,
-                                                              labels=labels,
-                                                              starts=onsets[0],
-                                                              sel_index=test)
+    test_set, test_labels, test_starts = convenient_selector(features=dataset,
+                                                             labels=labels,
+                                                             starts=onsets[0],
+                                                             sel_index=test)
 
     ## 3. Create Pearson Template
     _, hate, _, temps_int = Classification_Prep_Pipeline(train_set,
