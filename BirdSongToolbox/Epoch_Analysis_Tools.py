@@ -252,6 +252,7 @@ def Full_Trial_LFP_Clipper(Neural, Sel_Motifs, Num_Freq, Num_Chan, Sn_Len, Gap_L
     Returns:
     --------
      Channel_Full_Freq_Trials: list
+        list of all of the full epochs dictated by sel_motifs
         [Ch]->[Freq]->(Time Samples x Trials)
 
     """
@@ -1451,9 +1452,9 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
 
     Parameters:
     -----------
-    :param Offset:
-    :param Tr_Length:
-    :param Full_Trials:
+    Full_Trials: list
+        list of all of the full epochs dictated by sel_motifs in full_trial_lfp_clipper()
+        [Ch]->[Freq]->(Time Samples x Trials)
     :param All_Labels:
     :param Time_Stamps:
     Label_Instructions: list
@@ -1677,53 +1678,59 @@ def clip_classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Label
     return acc, classifier, confusion
 
 
-def trial_selector(Features, Sel_index):
-    """This Function allows you to easily parse our specific Trials for K-Fold validation
+def trial_selector(full_trials, sel_index):
+    """This Function allows you to easily parse out specific Trials for K-Fold validation
     and Test Set Seperation
 
     Parameters:
     ----------
-    Features: list
-            List containing the Segments Designated by the Label_Instructions, Offset, and Tr_Length parameters
-        used in a prior processing step
-        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+    full_trials: list
+            list of all of the full epochs dictated by sel_motifs in full_trial_lfp_clipper()
+        [Ch]->[Freq]->(Time Samples x Trials)
+    Sel_index: list
+        list of indexs to be used to construct new set of epochs
 
     Returns:
     --------
+    sel_trials: list
+            list of all of the full epochs dictated by sel index parameter
+        [Ch]->[Freq]->(Time Samples x Selected Trials)
+
 
     """
-    num_chans, num_freqs, Clip_len, _ = np.shape(Features)
-    Num_trials = len(Sel_index)
+    num_chans, num_freqs, clip_len, _ = np.shape(full_trials)
+    num_trials = len(sel_index)
 
-    Sel_Trials = []
+    sel_trials = []
 
     for i in range(num_chans):
         freq_holder = []
         for j in range(num_freqs):
-            trial_holder = np.zeros([Clip_len, Num_trials])
-            for k in range(len(Sel_index)):
-                trial_holder[:, k] = Features[i][j][:, Sel_index[k]]
+            trial_holder = np.zeros([clip_len, num_trials])
+            for k in range(len(sel_index)):
+                trial_holder[:, k] = full_trials[i][j][:, sel_index[k]]
             freq_holder.append(trial_holder)
-        Sel_Trials.append(freq_holder)
-    return Sel_Trials
+        sel_trials.append(freq_holder)
+    return sel_trials
 
 
 def label_selector(labels, sel_index):
     """This Function allows you to easily parse out specific Trial's Labels for K-Fold validation
-    and Test Set Seperation
+    and Test Set Separation
 
     Parameters:
     ----------
     labels: list
         list of labels for all epochs for one day
         [Epoch] -> [Labels]
-
-    sel_index:
+    sel_index: list
+        list of indexs to be used to construct new set of epochs
 
     Returns:
     --------
-    sel_labels:
-
+    sel_labels: list
+        list of each Epoch/Samples labels
+        [Epoch] -> [labels]
     """
 
     sel_labels = []
@@ -1732,36 +1739,36 @@ def label_selector(labels, sel_index):
     return sel_labels
 
 
-def convenient_selector(features, labels, starts, sel_index):
+def convenient_selector(full_trials, labels, starts, sel_index):
     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
     Parameters:
     ----------
     features: list
-            List containing the Segments Designated by the Label_Instructions, Offset, and Tr_Length parameters
-        used in a prior processing step
-        [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
+        list of all of the full epochs dictated by sel_motifs in full_trial_lfp_clipper()
+        [Ch]->[Freq]->(Time Samples x Trials)
     labels: list
         list of labels for all epochs for one day
         [Epoch] -> [Labels]
-    starts:list
+    starts: list
         list of start times ONLY for all labels for one day
         [Epoch]->[Start Times]
-    :param sel_index:
-    :return:
+    sel_index: list
+        list of indexes to be used to construct new set of epochs
 
-    # sel_set: list
-    #     list of the selected K-Fold's Training set
-    #     [ch] -> [Freq] -> (Time x Num_Epoxhs)
-    # sel_labels: list
-    #     list of each Epoch/Samples labels
-    #     [Trial/EPoch] -> [labels]
-    # (sel_starts, sel_ends): tuple
-    #     Tuple of the Label Onsets
-    #         ( [Stars] , [Ends] )
+    Returns:
+    sel_set: list
+        list of all of the full epochs dictated by sel index parameter, for the selected K-Fold's Train/Test set
+        [Ch]->[Freq]->(Time Samples x Num of Selected Epochs)
+    sel_labels: list
+        list of each Epoch/Samples labels
+        [Epoch] -> [labels]
+    sel_starts: list
+        Tuple of the Label Onsets
+        [Epoch] ->[Stars]
     """
 
-    sel_set = trial_selector(Features=features, Sel_index=sel_index)
+    sel_set = trial_selector(full_trials=full_trials, sel_index=sel_index)
     sel_labels = label_selector(labels, sel_index=sel_index)
     sel_starts = label_selector(starts, sel_index=sel_index)
     return sel_set, sel_labels, sel_starts
@@ -1802,11 +1809,9 @@ def clip_kfold(Class_Obj, Data_Set, Data_Labels, Data_Starts, Label_Instructions
 
     Class_Obj: class
         classifier object from the scikit-learn package
-
-
-    :param Data_Set:
-
-
+    Data_Set: list
+        list of all of the full epochs dictated by sel_motifs in full_trial_lfp_clipper()
+        [Ch]->[Freq]->(Time Samples x Trials)
     Data_Labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
         [Epochs]->[Labels]
@@ -2094,11 +2099,11 @@ def series_ml_order_label(labels: list):
 #     return series_ready,
 
 
-def series_convenient_selector(Features, Labels, Onsets, Sel_index):
+def series_convenient_selector(full_trials, Labels, Onsets, Sel_index):
     """Abstractly reorganizes the list of Epochs and Labels to ndarray compatible with scikitlearn
 
     :param Onsets:
-    :param Features:
+    :param full_trials:
     :param Labels:
     :param Sel_index:
 
@@ -2116,7 +2121,7 @@ def series_convenient_selector(Features, Labels, Onsets, Sel_index):
 
     starts = Onsets[0]
     ends = Onsets[1]
-    sel_set = trial_selector(Features=Features, Sel_index=Sel_index)
+    sel_set = trial_selector(full_trials=full_trials, sel_index=Sel_index)
     sel_labels = label_selector(Labels, sel_index=Sel_index)
     sel_starts = label_selector(starts, sel_index=Sel_index)
     sel_ends = label_selector(ends, sel_index=Sel_index)
@@ -2468,7 +2473,7 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
 
     """
-    Trial_set = trial_selector(Features=Data_Set, Sel_index=Test_index)
+    Trial_set = trial_selector(full_trials=Data_Set, sel_index=Test_index)
 
     ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset,
                                                                               Tr_Length=Tr_Length, labels=labels,
@@ -3234,13 +3239,13 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feat
 
     print("train set:", train)
 
-    train_set, train_labels, train_starts = convenient_selector(features=dataset,
+    train_set, train_labels, train_starts = convenient_selector(full_trials=dataset,
                                                                 labels=labels,
                                                                 starts=onsets[0],
                                                                 sel_index=train)
 
     print("test set", test)
-    test_set, test_labels, test_starts = convenient_selector(features=dataset,
+    test_set, test_labels, test_starts = convenient_selector(full_trials=dataset,
                                                              labels=labels,
                                                              starts=onsets[0],
                                                              sel_index=test)
