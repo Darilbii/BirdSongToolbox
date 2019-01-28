@@ -1678,7 +1678,7 @@ def clip_classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Label
     return acc, classifier, confusion
 
 
-def trial_selector(full_trials, sel_index):
+def epoch_selector(full_trials, sel_index):
     """This Function allows you to easily parse out specific Trials for K-Fold validation
     and Test Set Seperation
 
@@ -1692,7 +1692,7 @@ def trial_selector(full_trials, sel_index):
 
     Returns:
     --------
-    sel_trials: list
+    sel_epochs: list
             list of all of the full epochs dictated by sel index parameter
         [Ch]->[Freq]->(Time Samples x Selected Trials)
 
@@ -1701,7 +1701,7 @@ def trial_selector(full_trials, sel_index):
     num_chans, num_freqs, clip_len, _ = np.shape(full_trials)
     num_trials = len(sel_index)
 
-    sel_trials = []
+    sel_epochs = []
 
     for i in range(num_chans):
         freq_holder = []
@@ -1710,8 +1710,8 @@ def trial_selector(full_trials, sel_index):
             for k in range(len(sel_index)):
                 trial_holder[:, k] = full_trials[i][j][:, sel_index[k]]
             freq_holder.append(trial_holder)
-        sel_trials.append(freq_holder)
-    return sel_trials
+        sel_epochs.append(freq_holder)
+    return sel_epochs
 
 
 def label_selector(labels, sel_index):
@@ -1768,7 +1768,7 @@ def convenient_selector(full_trials, labels, starts, sel_index):
         [Epoch] ->[Stars]
     """
 
-    sel_set = trial_selector(full_trials=full_trials, sel_index=sel_index)
+    sel_set = epoch_selector(full_trials=full_trials, sel_index=sel_index)
     sel_labels = label_selector(labels, sel_index=sel_index)
     sel_starts = label_selector(starts, sel_index=sel_index)
     return sel_set, sel_labels, sel_starts
@@ -1794,7 +1794,7 @@ def convenient_selector(full_trials, labels, starts, sel_index):
     #     """
     # starts = Onsets[0]
     # ends = Onsets[1]
-    # sel_set = trial_selector(Features=Features, Sel_index=Sel_index)
+    # sel_set = epoch_selector(Features=Features, Sel_index=Sel_index)
     # sel_labels = label_selector(Labels, sel_index=Sel_index)
     # sel_starts = label_selector(starts, sel_index=Sel_index)
     # sel_ends = label_selector(ends, sel_index=Sel_index)
@@ -2091,7 +2091,7 @@ def series_ml_order_label(labels: list):
 #     :param Feature_Type:
 #     :return:
 #     """
-#     Trial_set = trial_selector(Features=Data_Set, Sel_index=Test_index)
+#     Trial_set = epoch_selector(Features=Data_Set, Sel_index=Test_index)
 #
 #     series_ready = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset, Tr_Length=Tr_Length,
 #                                                        Feature_Type=Feature_Type, Temps=temps)
@@ -2121,7 +2121,7 @@ def series_convenient_selector(full_trials, Labels, Onsets, Sel_index):
 
     starts = Onsets[0]
     ends = Onsets[1]
-    sel_set = trial_selector(full_trials=full_trials, sel_index=Sel_index)
+    sel_set = epoch_selector(full_trials=full_trials, sel_index=Sel_index)
     sel_labels = label_selector(Labels, sel_index=Sel_index)
     sel_starts = label_selector(starts, sel_index=Sel_index)
     sel_ends = label_selector(ends, sel_index=Sel_index)
@@ -2473,7 +2473,7 @@ def series_performance_prep(Data_Set, Test_index, label_instructions, labels, on
         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
 
     """
-    Trial_set = trial_selector(full_trials=Data_Set, sel_index=Test_index)
+    Trial_set = epoch_selector(full_trials=Data_Set, sel_index=Test_index)
 
     ml_trials, ml_labels, ordered_index = Series_Classification_Prep_Pipeline(Trial_set, Offset=Offset,
                                                                               Tr_Length=Tr_Length, labels=labels,
