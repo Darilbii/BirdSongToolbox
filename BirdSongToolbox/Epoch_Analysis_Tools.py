@@ -643,12 +643,12 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
 
     Dynamic_Templates = []  # Index of all Channels
     Dynamic_Freq_Trials = []
-    for Channel in range(num_chan):  # Over all Channels
+    for channel in range(num_chan):  # Over all Channels
         Matches = []
         Freq_Trials = []
-        for l in range(0, freq_bands):  # For Range of All Frequency Bins
+        for freq in range(0, freq_bands):  # For Range of All Frequency Bins
             Chan_Holder = np.zeros((Tr_Length, num_examples))  # Initiate Holder for Trials (Motifs)
-            sel_freq_epochs = Features[Channel][l]
+            sel_freq_epochs = Features[channel][freq]
             Counter = 0  # For stacking all examples of label in full trial
             for epoch in range(num_trials):
                 for example in range(len(Starts[epoch])):
@@ -803,16 +803,18 @@ def find_pearson_coeff(Features, Templates, Slow=False):
     """
 
     # Create Variable for IndexingF
-    num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+    # num_trials = len(Features[0][0][0, :])  # Number of Trials of Dynam. Clipped Training Set
+
+    num_chan, num_freq, trial_length, num_trials = np.shape(Features)
     num_temps = len(Templates)
 
     # Create Lists
     corr_trials = []
 
     if Slow == True:
-        for channel in range(0, len(Features[:])):  # Over all Channels
+        for channel in range(num_chan):  # Over all Channels
             freq_trials = []
-            for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            for frequency in range(num_freq):  # For Range of All Frequency Bins
                 corr_holder = np.zeros([num_trials, num_temps])
 
                 for instance in range(num_trials):
@@ -823,9 +825,9 @@ def find_pearson_coeff(Features, Templates, Slow=False):
             corr_trials.append(freq_trials)  # Save all of the Trials for all Frequencies on each Channel
 
     else:
-        for channel in range(len(Features[:])):  # Over all Channels
+        for channel in range(num_chan):  # Over all Channels
             freq_trials = []
-            for frequency in range(len(Features[0][:])):  # For Range of All Frequency Bins
+            for frequency in range(num_freq):  # For Range of All Frequency Bins
                 corr_holder = np.zeros([num_trials, num_temps])
                 for temp in range(num_temps):
                     corr_holder[:, temp] = efficient_pearson_1d_v_2d(Templates[temp][channel][frequency][:, 0],
@@ -3337,4 +3339,6 @@ def plot_featdrop_multi(drop_curve_list, Tops, Bottoms, chance_level, font=20, t
     plt.tick_params(axis='both', which='major', labelsize=font)
     plt.tick_params(axis='both', which='minor', labelsize=font)
     plt.ylim(0, 1.0)
+
+
 
