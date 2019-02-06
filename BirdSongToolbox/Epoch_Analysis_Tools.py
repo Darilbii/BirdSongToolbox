@@ -1130,7 +1130,9 @@ def Key_Operator(Column_Key):
 
 def Drop_Features(Features, Keys, Desig_Drop):
     """Function for Selectively Removing Columns for Feature Dropping
-    Des_igDrop is short for Designated to be Dropped"""
+    Des_igDrop is short for Designated to be Dropped
+    #TODO: Document Drop_Features()
+    """
     Full_Drop = []
 
     for i in range(len(Desig_Drop)):
