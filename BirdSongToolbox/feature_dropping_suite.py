@@ -135,7 +135,6 @@ def ml_selector(clippings, identity_index, label_index, sel_instances, make_temp
                 for identity, label in zip(sel_instances, label_index):
                     # Verify that the current label index is the label class we want
                     if label_focus == label:
-                        print('instance counter: ', instance_counter, '\n identity: ', identity)
                         trials_holder[:, instance_counter] = clippings[label_focus][chan][freq][:, identity_index[identity]]
                         instance_counter += 1
                         if verbose:
