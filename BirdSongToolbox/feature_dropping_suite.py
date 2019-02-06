@@ -79,7 +79,7 @@ def create_discrete_index(clippings, verbose=True):
 # 3.) Use INDEX to Break into corresponding [template set| training/test set] : NOT(convenient_selector())
 
 
-def ml_selector(clippings, identity_index, label_index, make_template=False, verbose=False):
+def ml_selector(clippings, identity_index, label_index, sel_instances, make_template=False, verbose=False):
     """ Collects Instances of Interest from the full Clippings object
 
     Parameters:
@@ -92,6 +92,9 @@ def ml_selector(clippings, identity_index, label_index, make_template=False, ver
         (Number of Instances Total,)
     label_index: ndarray
         array of labels that indicates the class that instance is an example of, 1-dimensional
+        (Number of Instances Total,)
+    sel_instances: ndarray
+        array of indexes that represent the individual indexes of all instances across class labels, 1-dimensional
         (Number of Instances Total,)
     make_template: bool
         If True function will return the mean of all instances for each label's Channel/Frequency pair, defaults to False
@@ -116,8 +119,8 @@ def ml_selector(clippings, identity_index, label_index, make_template=False, ver
         chan_temp = []  # Create empty list for each channel
 
         if verbose:
-            print("Number of Channels: ", num_ch, "\n Number of Frequency Bands: ", num_freq, "\n Trial Length: ",
-                  trial_length)
+            print("Now grabbing instances from class ", label_focus, "\n Number of Channels: ", num_ch,
+                  "\n Number of Frequency Bands: ", num_freq, "\n Trial Length: ", trial_length)
 
         for chan in range(num_ch):
             freq_temp = []  # Create empty list for each frequency bin
@@ -129,11 +132,11 @@ def ml_selector(clippings, identity_index, label_index, make_template=False, ver
                 if verbose:
                     tracker = []
 
-                for identity, label in zip(identity_index, label_index):
+                for identity, label in zip(sel_instances, label_index):
                     # Verify that the current label index is the label class we want
                     if label_focus == label:
-                        print('instance countaer: ', instance_counter, '\n identity: ', identity)
-                        trials_holder[:, instance_counter] = clippings[label_focus][chan][freq][:, identity]
+                        print('instance counter: ', instance_counter, '\n identity: ', identity)
+                        trials_holder[:, instance_counter] = clippings[label_focus][chan][freq][:, identity_index[identity]]
                         instance_counter += 1
                         if verbose:
                             tracker.append(1)
@@ -344,7 +347,7 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
                                           Slide=slide, Step=step)
 
     # 2.) Create INDEX of all instances of interests : create_discrete_index()
-    identities, label_index = create_discrete_index(clippings, verbose=verbose)
+    label_identities, label_index = create_discrete_index(clippings, verbose=verbose)
     identity_index = np.arange(len(label_index))
     sss = StratifiedShuffleSplit(n_splits=k_folds, test_size=0.9, random_state=seed)
     sss.get_n_splits(identity_index, label_index)
@@ -361,11 +364,11 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         y_train, y_test = label_index[train_index], label_index[test_index]
 
         # 4.) Use INDEX to Break into corresponding [template set| training/test set] : ml_selector()
-        sel_clips = ml_selector(clippings=clippings, identity_index=X_test, label_index=y_test, make_template=False,
+        sel_clips = ml_selector(clippings=clippings, sel_instances=X_test, label_index=y_test, make_template=False,
                                 verbose=True)
 
         # 5.) Use template set to make template : ml_selector(make_template=True)
-        templates = ml_selector(clippings=clippings, identity_index=X_train, label_index=y_train, make_template=True,
+        templates = ml_selector(clippings=clippings, sel_instances=X_train, label_index=y_train, make_template=True,
                                 verbose=True)
 
         # 6.) Use training/test INDEX and template to create Pearson Features : pearson_extraction()
