@@ -123,16 +123,18 @@ def ml_selector(clippings, identity_index, label_index, make_template=False, ver
             freq_temp = []  # Create empty list for each frequency bin
 
             for freq in range(num_freq):
+                # create empty array
                 trials_holder = np.zeros((trial_length, len([x for x in label_index if x == label_focus])))
-                instance_index = 0
+                instance_counter = 0
                 if verbose:
                     tracker = []
 
                 for identity, label in zip(identity_index, label_index):
                     # Verify that the current label index is the label class we want
                     if label_focus == label:
-                        trials_holder[:, instance_index] = clippings[label_focus][chan][freq][:, identity]
-                        instance_index += 1
+                        print('instance countaer: ', instance_counter, '\n identity: ', identity)
+                        trials_holder[:, instance_counter] = clippings[label_focus][chan][freq][:, identity]
+                        instance_counter += 1
                         if verbose:
                             tracker.append(1)
                     else:
@@ -288,7 +290,7 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
 
 # Development for Randomized Feature Dropping Analysis Code
 
-def random_feat_drop_analysis(full_trials, all_labels, starts, label_instructions, Class_Obj, offset=int, tr_length=int, slide=None, step=False, seed=None, verbose=False):
+def random_feat_drop_analysis(full_trials, all_labels, starts, label_instructions, Class_Obj, offset=int, tr_length=int, k_folds=5, nk_folds=2,  slide=None, step=False, seed=None, verbose=False):
     """ ## This needs to be a modular code that will conduct the feature dropping for one feature set
     ## Return (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
 
@@ -312,6 +314,10 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
     tr_length=int
         Number of Samples to use for Features
+    k_folds: int
+        Number of Folds to Split between Template | Train/Test sets, defaults to 5,
+    nk_folds: int
+        Number of Nested Cross-validation folds for Train/Test set, defaults to 2
     slide: bool
         defaults to None
         #TODO: Explain and Validate the Slide Parameter
@@ -340,7 +346,7 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
     # 2.) Create INDEX of all instances of interests : create_discrete_index()
     identities, label_index = create_discrete_index(clippings, verbose=verbose)
     identity_index = np.arange(len(label_index))
-    sss = StratifiedShuffleSplit(n_splits=5, test_size=0.9, random_state=seed)
+    sss = StratifiedShuffleSplit(n_splits=k_folds, test_size=0.9, random_state=seed)
     sss.get_n_splits(identity_index, label_index)
 
     if verbose:
@@ -370,7 +376,8 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
 
         # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
         nested_drop_curve = random_feature_dropping(dataset=ml_trials, labels=ml_labels, ordered_index=ordered_index,
-                                                    Class_Obj=Class_Obj, k_folds=2, verbose=False, fold_verbose=False)
+                                                    Class_Obj=Class_Obj, k_folds=nk_folds, verbose=False,
+                                                    fold_verbose=False)
         nested_dropping_curves.append(nested_drop_curve)
 
     # 9.) Combine all curve arrays to one array
