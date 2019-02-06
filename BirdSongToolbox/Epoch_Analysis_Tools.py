@@ -412,7 +412,7 @@ def Label_Grouper(Focuses, Labels, Starts):
 # Function for grabing more examples from a onset
 
 
-def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, Offset=int, Tr_Length=int,
+def label_extract_pipeline(full_trials, all_labels, starts, label_instructions, offset=int, tr_length=int,
                            Slide=None, Step=False):
     """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
 
@@ -420,26 +420,26 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
 
     Parameters:
     -----------
-    Full_Trials: list
+    full_trials: list
         List of Full Epochs, this is typically output from Full_Trial_LFP_Clipper
         [Ch] -> [Freq] -> (Time Samples x Epochs)
-    All_Labels: list
+    all_labels: list
         List of all Labels corresponding to each Epoch in Full_Trials
         [Epochs]->[Labels]
-    Starts: list
+    starts: list
         List of all Start Times corresponding to each Epoch in Full_Trials
         [Epochs]->[Start Time]
-    Label_Instructions: list
+    label_instructions: list
         list of labels and how they should be treated. If you use a nested list in the instructions the labels in
         this nested list will be treated as if they are the same label
-    Offset = int
+    offset = int
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
-    Tr_Length=int
+    tr_length=int
         Number of Samples to use for Features
-    Slide: bool
+    slide: bool
         defaults to None
         #TODO: Explain and Validate the Slide Parameter
-    Step:
+    step:
         defaults to False
         #TODO: Explain and Validate the Step Parameter
 
@@ -457,16 +457,16 @@ def Label_Extract_Pipeline(Full_Trials, All_Labels, Starts, Label_Instructions, 
     clippings = []
     templates = []
 
-    for instruction in range(len(Label_Instructions)):
-        if type(Label_Instructions[instruction]) == int or type(Label_Instructions[instruction]) == str:
-            label_starts = Label_Focus(Label_Instructions[instruction], All_Labels, Starts)
+    for instruction in range(len(label_instructions)):
+        if type(label_instructions[instruction]) == int or type(label_instructions[instruction]) == str:
+            label_starts = Label_Focus(label_instructions[instruction], all_labels, starts)
         else:
-            label_starts = Label_Grouper(Label_Instructions[instruction], All_Labels, Starts)
+            label_starts = Label_Grouper(label_instructions[instruction], all_labels, starts)
 
         if type(Slide) == int:
-            label_starts = Slider(label_starts, len(Full_Trials[0][0][:, 0]), Slide=Slide, Step=Step)
+            label_starts = Slider(label_starts, len(full_trials[0][0][:, 0]), Slide=Slide, Step=Step)
 
-        clips, temps = Dyn_LFP_Clipper(Full_Trials, label_starts, Offset=Offset, Tr_Length=Tr_Length)
+        clips, temps = Dyn_LFP_Clipper(full_trials, label_starts, Offset=offset, Tr_Length=tr_length)
         clippings.append(clips)
         templates.append(temps)
     return clippings, templates
@@ -682,7 +682,7 @@ def find_power(Features, Pow_Method='Basic'):
     -----------
     Features: list
         List containing all the Segments Clipped  for one labels.
-        (As defined by Label_Instructions in Label_Extract_Pipeline)
+        (As defined by Label_Instructions in label_extract_pipeline)
         [ch] -> [freq] -> ( Samples x Label Instances)
     Pow_Method: str
         Method by which power is taken (Options: 'Basic': Mean , 'MS': Mean Squared, 'RMS': Root Mean Square)
@@ -786,7 +786,7 @@ def find_pearson_coeff(Features, Templates, Slow=False):
     -----------
     Features: list
         List containing all the Segments Clipped  for one labels.
-        (As defined by Label_Instructions in Label_Extract_Pipeline)
+        (As defined by Label_Instructions in label_extract_pipeline)
         [ch] -> [freq] -> ( Samples x Label Instances)
     Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
@@ -844,7 +844,7 @@ def pearson_extraction(Clipped_Trials, Templates):
     Parameters:
     -----------
     Clipped_Trials: list
-        List containing the Segments Clipped by Label_Extract_Pipeline
+        List containing the Segments Clipped by label_extract_pipeline
         [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
     Templates: list
         List of Stacked Template Neural Data that corresponds to the Label designated (Templates are the mean of trials)
@@ -947,7 +947,7 @@ def Power_Extraction(Clipped_Trials):
     Parameters:
     -----------
     Clipped_Trials: list
-        List containing the Segments Clipped by Label_Extract_Pipeline
+        List containing the Segments Clipped by label_extract_pipeline
         [labels] -> [ch] -> [freq] -> ( Samples x Label Instances)
 
     Return:
@@ -1443,7 +1443,7 @@ def Create_Label_Timeline(labels, clippings, sel_epoch, label_instructions, unde
     return time_series_labels.astype(int)
 
 
-# Clip_Test, Temp_Test = Label_Extract_Pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
+# Clip_Test, Temp_Test = label_extract_pipeline(Dataset,  Stereotype_Labels, Stereotype_Clippings[0],  [1,2,3,4], Offset = 10, Tr_Length= 20)
 # Power_List = Power_Extraction(Clip_Test)
 # ML_Trial_Test, ML_Labels_Test, Ordered_Index_TEST = ml_order_power(Power_List)
 
@@ -1490,14 +1490,8 @@ def Classification_Prep_Pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Ins
         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
     """
 
-    Clips, Temps_internal = Label_Extract_Pipeline(Full_Trials,
-                                                   All_Labels,
-                                                   Time_Stamps,
-                                                   Label_Instructions,
-                                                   Offset=Offset,
-                                                   Tr_Length=Tr_Length,
-                                                   Slide=Slide,
-                                                   Step=Step)
+    Clips, Temps_internal = label_extract_pipeline(Full_Trials, All_Labels, Time_Stamps, Label_Instructions,
+                                                   offset=Offset, tr_length=Tr_Length, Slide=Slide, Step=Step)
 
     if Feature_Type == 'Power':
         Power = Power_Extraction(Clips)
@@ -2207,13 +2201,9 @@ def series_clip_kFold(Class_Obj, Data_Set, Data_Labels, Data_Onsets, Label_Instr
         # Features, Offset = int, Tr_Length = int, Feature_Type = str, Temps = None
 
         if Feature_Type == 'Pearson' or Feature_Type == 'Both':
-            _, templates = Label_Extract_Pipeline(Full_Trials=train_set, All_Labels=train_labels,
-                                                  Starts=train_onsets[0],
-                                                  Label_Instructions=Label_Instructions,
-                                                  Offset=Offset,
-                                                  Tr_Length=Tr_Length,
-                                                  Slide=None,
-                                                  Step=False)
+            _, templates = label_extract_pipeline(full_trials=train_set, all_labels=train_labels,
+                                                  starts=train_onsets[0], label_instructions=Label_Instructions,
+                                                  offset=Offset, tr_length=Tr_Length, Slide=None, Step=False)
         else:
             templates = None
 
@@ -3137,7 +3127,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
 
     # 2.) Print Information about the Feature Set to be Dropped
-    print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+    print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns dropped per feature
     print("Number of Channels total:", len(feat_ids))  # Print number of Features
 
     Temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
@@ -3197,7 +3187,7 @@ def run_feature_dropping(Data_Set, Data_Labels, ordered_index, Class_Obj, k_fold
     return droppingCurve, std_err
 
 
-def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feature_type="Pearson", offset=0, tr_length=10, temp_set_size=0.50, seed = None):
+def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feature_type="Pearson", offset=0, tr_length=10, temp_set_size=0.50, seed=None):
     """Modular code to create a single Feature Drop Curve
 
     Parameters:
@@ -3241,35 +3231,23 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feat
 
     print("train set:", train)
 
-    train_set, train_labels, train_starts = convenient_selector(full_trials=dataset,
-                                                                labels=labels,
-                                                                starts=onsets[0],
+    train_set, train_labels, train_starts = convenient_selector(full_trials=dataset, labels=labels, starts=onsets[0],
                                                                 sel_index=train)
 
     print("test set", test)
-    test_set, test_labels, test_starts = convenient_selector(full_trials=dataset,
-                                                             labels=labels,
-                                                             starts=onsets[0],
+    test_set, test_labels, test_starts = convenient_selector(full_trials=dataset, labels=labels, starts=onsets[0],
                                                              sel_index=test)
 
     ## 3. Create Pearson Template
-    _, hate, _, temps_int = Classification_Prep_Pipeline(train_set,
-                                                         train_labels,
-                                                         train_starts,
-                                                         label_instructions,
-                                                         Offset=offset,
-                                                         Tr_Length=tr_length,
-                                                         Feature_Type=feature_type,
+    _, hate, _, temps_int = Classification_Prep_Pipeline(train_set, train_labels, train_starts, label_instructions,
+                                                         Offset=offset,Tr_Length=tr_length, Feature_Type=feature_type,
                                                          Temps=None)  # ,
     #                                                       Slide=Slide,
     #                                                       Step=Step)
 
     ## 4. Extract Pearson FIlters
-    ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set,
-                                                                                      test_labels,
-                                                                                      test_starts,
-                                                                                      label_instructions,
-                                                                                      Offset=offset,
+    ml_test_trials, ml_test_labels, test_ordered_index = Classification_Prep_Pipeline(test_set, test_labels, test_starts,
+                                                                                      label_instructions, Offset=offset,
                                                                                       Tr_Length=tr_length,
                                                                                       Feature_Type=feature_type,
                                                                                       Temps=temps_int)  # ,
@@ -3277,13 +3255,107 @@ def featdrop_module(dataset, labels, onsets, label_instructions, Class_Obj, feat
     #                                                                                   Step=Step)
 
     ## 5. Run Feature Dropping
-    dropping_curve, err_bars = run_feature_dropping(Data_Set=ml_test_trials,
-                                                    Data_Labels=ml_test_labels,
-                                                    ordered_index=test_ordered_index,
-                                                    Class_Obj=Class_Obj,
-                                                    k_folds=2,
+    dropping_curve, err_bars = run_feature_dropping(Data_Set=ml_test_trials, Data_Labels=ml_test_labels,
+                                                    ordered_index=test_ordered_index, Class_Obj=Class_Obj, k_folds=2,
                                                     verbose=True)
     return dropping_curve, err_bars
+
+
+def kfold_wrapper_rand(Data_Set, Data_Labels, k_folds, Class_Obj, nested = False, verbose=False):
+    """ Runs the Clip_Classifcation for Crossfold Validation. (Used for the feature Dropping Code)
+
+    ### This is a alteration of kfold_wrapper() ideally these alterations would just be incorporated into the original
+    code and gated using a boolean paramter, but I will hold off on implementing this until test functions are created
+    to ensure that I don't unintentionally introduce a bug into the code ###
+    #TODO: Create Test Scripts for kfold_wrapper()
+
+    Parameters:
+    -----------
+    Data_Set: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    Data_Labels: ndarray
+        1-d array of Labels of the Corresponding n_samples
+        ( n_samples   x   1 )
+    k_folds: int
+        Number of Folds for Cross-Validation
+    Class_Obj: class
+        classifier object from the scikit-learn package
+    verbose: bool
+        If True the function will print out useful print statements to inform the user of program's progress
+
+    Returns:
+    --------
+    mean_acc: int
+        the mean accuracy across the folds
+    std_err: int
+        the standard error across the folds
+    classifier_components: tuple
+        Tuples containing two Dictionaries with the fold number being the keys (using 0 indexing).
+        Their Values are:
+            1.) trained Classifier instances and the index of features for their models
+                The values are that fold's trained classifier instance of the the CLass_Object Parameter
+                (from scikit-learn)
+            2.) list of the Test set for the corresponding trained Classifier
+       shape =  ({ Fold_Num: Trained_Classifiers }, {Fold_Num: Test_Index})
+    confusion: list
+        list of each fold's Confusion matrix, shape = [n_classes, n_classes]
+    acc: ndarray, if nest is True
+        array with the accuracy values of the k-folds, only returned if nested is True
+    """
+
+    skf = StratifiedKFold(n_splits=k_folds)
+
+    acc = np.zeros(k_folds)
+    confusion = []  # Just Added
+    # ROC = []  # Just Added too 8/10
+    foldNum = 0
+
+    Trained_Classifiers = dict()
+    Trained_Index = dict()
+
+    # Num_Clippings = np.ones(len(Data_Labels))
+
+    for train, test in skf.split(Data_Set, Data_Labels):
+        if verbose:
+            print("Fold %s..." % foldNum)
+            # print "%s %s" % (train, test)
+
+        if verbose:
+            print("train set: ", train)
+        train_trials, train_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels,
+                                                               removal_index=test)
+        if verbose:
+            print("test set: ", test)
+        test_trials, test_labels = Feature_Dropping_Selector(features=Data_Set, labels=Data_Labels, removal_index=train)
+
+        acc[foldNum], Trained_Classifiers[foldNum], conf = clip_classification(Class_Obj, train_trials,
+                                                                               train_labels,
+                                                                               test_trials, test_labels,
+                                                                               verbose=False)
+        Trained_Index[foldNum] = test
+        foldNum += 1
+
+        if verbose:
+            print("Confusion: ", conf)
+        confusion.append(conf)
+
+    if nested:
+        return acc
+
+
+    meanacc = np.mean(acc)
+    stderr = np.std(acc) / np.sqrt(k_folds)
+    classifier_components = (Trained_Classifiers, Trained_Index)
+
+    if verbose:
+        print("cross-validated acc: %.2f +/- %.2f" % (np.mean(acc), np.std(acc)))
+
+    return meanacc, stderr, classifier_components, confusion
+
+
 
 
 
@@ -3339,6 +3411,9 @@ def plot_featdrop_multi(drop_curve_list, Tops, Bottoms, chance_level, font=20, t
     plt.tick_params(axis='both', which='major', labelsize=font)
     plt.tick_params(axis='both', which='minor', labelsize=font)
     plt.ylim(0, 1.0)
+
+
+
 
 
 
