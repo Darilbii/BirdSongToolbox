@@ -364,12 +364,12 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         y_train, y_test = label_index[train_index], label_index[test_index]
 
         # 4.) Use INDEX to Break into corresponding [template set| training/test set] : ml_selector()
-        sel_clips = ml_selector(clippings=clippings, sel_instances=X_test, label_index=y_test, make_template=False,
-                                verbose=True)
+        sel_clips = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_test,
+                                label_index=y_test, make_template=False, verbose=True)
 
         # 5.) Use template set to make template : ml_selector(make_template=True)
-        templates = ml_selector(clippings=clippings, sel_instances=X_train, label_index=y_train, make_template=True,
-                                verbose=True)
+        templates = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
+                                label_index=y_train, make_template=True,verbose=True)
 
         # 6.) Use training/test INDEX and template to create Pearson Features : pearson_extraction()
         pearson_features = pearson_extraction(Clipped_Trials=sel_clips, Templates=templates)
