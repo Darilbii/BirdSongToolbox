@@ -8,7 +8,7 @@ import numpy as np
 from numpy.core.multiarray import ndarray
 from sklearn.model_selection import StratifiedShuffleSplit
 from BirdSongToolbox.Epoch_Analysis_Tools import kfold_wrapper, make_channel_dict, Drop_Features, \
-    label_extract_pipeline, pearson_extraction, ml_order_pearson
+    label_extract_pipeline, pearson_extraction, ml_order_pearson, kfold_wrapper_rand
 
 
 # Changes for new Feature Dropping Prep
@@ -156,6 +156,97 @@ def ml_selector(clippings, identity_index, label_index, sel_instances, make_temp
     return sel_trials
 
 
+# def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2, verbose=False, fold_verbose=False):
+#     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
+#
+#     Parameters:
+#     -----------
+#     Data_Set: ndarray
+#         Array that is structured to work with the SciKit-learn Package
+#         (n_samples, n_features)
+#             n_samples = Num of Instances Total
+#             n_features = Num_Ch * Num_Freq)
+#     Data_Labels: ndarray
+#         1-d array of Labels of the Corresponding n_samples
+#         ( n_samples   x   1 )
+#     ordered_index: list
+#         Index of Features for Feature Dropping
+#                             [list] -> (Tuple)
+#         Power:   [Num of Features] -> (Chan Num , Freq Num)
+#         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
+#     Class_Obj: class
+#         classifier object from the scikit-learn package
+#     k_folds: int (optional)
+#         Number of Cross-validation folds to use, defaults to 2
+#     verbose: bool
+#         If True the funtion will print out useful information for user as it runs, defaults to False.
+#     fold_verbose: bool
+#         If True the Function will print out information about every Cross-Validation fold, defaults to False.
+#
+#     Returns:
+#     --------
+#     droppingCurve: ndarray
+#         ndarray of accuracy values from the feature dropping code (values are floats)
+#
+#     """
+#
+#     # 1.) Initiate Lists for Curve Components
+#     num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
+#     dropping_curve = np.zeros([num_channels, 1])
+#     features_list = list(np.arange(num_channels))
+#     drop_list = []
+#
+#     feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
+#
+#     # 2.) Print Information about the Feature Set to be Dropped
+#     print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+#     print("Number of Channels total:", len(feat_ids))  # Print number of Features
+#
+#     temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
+#
+#     # 3.) Begin Feature Dropping steps
+#     # Find the first k-Fold Acc.
+#     first_acc, _, _, _ = kfold_wrapper(Data_Set=dataset, Data_Labels=labels, k_folds=k_folds, Class_Obj=Class_Obj,
+#                                        verbose=fold_verbose)
+#
+#     if verbose:
+#         print("First acc: %s..." % first_acc)
+#         # print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
+#
+#     dropping_curve[0] = first_acc  # Append BDF's Accuracy to Curve List
+#     index = 1
+#
+#     # 3.) Iterate over the Number of Channels randomly removing 1 until there is only one left
+#     while num_channels > 1:  # Decrease once done with development
+#         IDs = list(temp.keys())  # Make List of the Keys(Features)
+#         print("List of Channels Left: ", IDs)
+#
+#         num_channels = len(IDs)  # keep track of the number of Features
+#         print("Number of Channels Left:", num_channels)
+#
+#         # Determine Feature to be dropped (using Random.choice())
+#         drop_feat_id = random.choice(features_list)  # Select the Designated Feature to be Dropped
+#         del features_list[drop_feat_id]  # Remove the Designated Drop Feature from feature array
+#         drop_list.append(drop_feat_id)  # Add Designated Drop Feature to Drop list
+#         remaining_features, _ = Drop_Features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
+#         acc, _, _, _ = kfold_wrapper(Data_Set=remaining_features, Data_Labels=labels, k_folds=k_folds,
+#                                      Class_Obj=Class_Obj, verbose=fold_verbose)  # Record Prediction Accuracy
+#
+#         dropping_curve[index] = acc  # Append Resulting Accuracy to Curve List
+#
+#         if verbose:
+#             print("Drop acc: %s..." % (acc))
+#             print("Dropping Feature %s..." % drop_feat_id)
+#
+#         del temp[drop_feat_id]  # Delete key for BDF from Temp Dict
+#         index += 1
+#
+#     return dropping_curve
+
+
+## This needs to be a modular code that will conduct the feature dropping for one feature set
+## Return (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
+
 def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2, verbose=False, fold_verbose=False):
     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
 
@@ -185,14 +276,15 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
 
     Returns:
     --------
-    droppingCurve: ndarray
+    dropping_curve: ndarray
         ndarray of accuracy values from the feature dropping code (values are floats)
+        (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
 
     """
 
     # 1.) Initiate Lists for Curve Components
     num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
-    dropping_curve = np.zeros([num_channels, 1])
+    dropping_curve = np.zeros([num_channels + 1, k_folds])  # Create Empty array for Dropping Curves
     features_list = list(np.arange(num_channels))
     drop_list = []
 
@@ -206,39 +298,43 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
 
     # 3.) Begin Feature Dropping steps
     # Find the first k-Fold Acc.
-    first_acc, _, _, _ = kfold_wrapper(Data_Set=dataset, Data_Labels=labels, k_folds=k_folds, Class_Obj=Class_Obj,
-                                       verbose=fold_verbose)
+    print(np.shape(dataset), '\n', np.shape(labels))
+
+    first_acc = kfold_wrapper_rand(Data_Set=dataset, Data_Labels=labels.ravel(), k_folds=k_folds, Class_Obj=Class_Obj,
+                                   nested=True, verbose=fold_verbose)
 
     if verbose:
         print("First acc: %s..." % first_acc)
         # print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
 
-    dropping_curve[0] = first_acc  # Append BDF's Accuracy to Curve List
+    dropping_curve[0, :] = first_acc  # Append BDF's Accuracy to Curve List
     index = 1
 
-    # 3.) Iterate over the Number of Channels randomly removing 1 until there is only one left
-    while num_channels > 1:  # Decrease once done with development
-        IDs = list(temp.keys())  # Make List of the Keys(Features)
-        print("List of Channels Left: ", IDs)
-
-        num_channels = len(IDs)  # keep track of the number of Features
-        print("Number of Channels Left:", num_channels)
-
-        # Determine Feature to be dropped (using Random.choice())
-        drop_feat_id = random.choice(features_list)  # Select the Designated Feature to be Dropped
-        del features_list[drop_feat_id]  # Remove the Designated Drop Feature from feature array
-        drop_list.append(drop_feat_id)  # Add Designated Drop Feature to Drop list
-        remaining_features, _ = Drop_Features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
-        acc, _, _, _ = kfold_wrapper(Data_Set=remaining_features, Data_Labels=labels, k_folds=k_folds,
-                                     Class_Obj=Class_Obj, verbose=fold_verbose)  # Record Prediction Accuracy
-
-        dropping_curve[index] = acc  # Append Resulting Accuracy to Curve List
+    while num_channels > 2:  # Decrease once done with development
+        ids_remaining = list(temp.keys())  # Make List of the Keys(Features) from those that remain
+        num_channels = len(ids_remaining)  # keep track of the number of Features
+        # Select the index for Feature to be Dropped from list of keys those remaining (using random.choice())
+        drop_feat_ids = random.choice(ids_remaining)
 
         if verbose:
-            print("Drop acc: %s..." % (acc))
-            print("Dropping Feature %s..." % drop_feat_id)
+            print("List of Channels Left: ", ids_remaining)
+            print("Number of Channels Left:", num_channels)
+            print("Channel to be Dropped:", drop_feat_ids)
 
-        del temp[drop_feat_id]  # Delete key for BDF from Temp Dict
+        # Remove Key and Index for Designated Feature
+        del temp[drop_feat_ids]  # Delete key for Feature Designated to be Dropped from overall list
+
+        drop_list.append(drop_feat_ids)  # Add Designated Drop Feature to Drop list
+        remaining_features, _ = Drop_Features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
+        acc = kfold_wrapper_rand(Data_Set=remaining_features, Data_Labels=labels.ravel(), k_folds=k_folds,
+                                 Class_Obj=Class_Obj, nested=True, verbose=fold_verbose)  # Record Prediction Accuracy
+
+        dropping_curve[index, :] = acc  # Append Resulting Accuracy to Curve List
+
+        if verbose:
+            print("Drop accuracies: ", acc)
+            print("Dropping Feature was %s..." % drop_feat_ids)
+
         index += 1
 
     return dropping_curve
