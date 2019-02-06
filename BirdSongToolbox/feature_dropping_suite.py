@@ -481,7 +481,7 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
     # 9.) Combine all curve arrays to one array
     all_drop_curves = nested_dropping_curves.pop(0)
     for curve in nested_dropping_curves:
-        all_drop_curves = np.concatenate(all_drop_curves, curve, axis=1)
+        all_drop_curves = np.concatenate((all_drop_curves, curve), axis=1)
 
     # 10.) Calculate curve metrics
     mean_curve = np.mean(all_drop_curves, axis=1)
