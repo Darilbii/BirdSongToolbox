@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import random
+from scipy.signal import hilbert
 from functools import wraps
 
 import numpy as np
@@ -443,6 +444,106 @@ def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_M
     return Z_Scored_Data_Song, Z_Scored_Data_Silence, Means, StdDevs
 
 
+# Development of amplitude module
+def hilbert_amplitude_module(Frequencies):
+    """ Find the amplitude of the Input Data using scipy.signal.hilbert()
+
+
+    Parameters:
+    -----------
+    Frequencies: list
+        Input Neural Activity during all Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+    Returns:
+    --------
+    amplitudes: list
+        Envelopes of the Input Neural Activity during all Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+    Notes
+    -----
+    The analytic signal ``x_a(t)`` of signal ``x(t)`` is:
+
+    .. math:: x_a = F^{-1}(F(x) 2U) = x + i y
+
+    where `F` is the Fourier transform, `U` the unit step function,
+    and `y` the Hilbert transform of `x`. [1]_
+
+    In other words, the negative half of the frequency spectrum is zeroed
+    out, turning the real-valued signal into a complex signal.  The Hilbert
+    transformed signal can be obtained from ``np.imag(hilbert(x))``, and the
+    original signal from ``np.real(hilbert(x))``.
+
+    """
+
+    # TODO: Verify that the axis parameter allows for hilbert of the frequencies seperately not as a single channel
+
+    amplitudes = []
+    for trial in Frequencies:
+        amplitude = []
+        for chan in trial:
+            amplitude.append(np.abs(hilbert(chan, axis=0)))
+        amplitudes.append(amplitude)
+
+    return amplitudes
+
+
+def hilbert_amplitude_master(Frequencies_Song, Frequencies_Silence):
+    """ Returns the Amplitude Envelope of Neural Activity during Both Song and Silence
+
+    Steps:
+    ------
+    [1] Take Hilbert Transform
+    [2] Find Absolute Value of Analytical Signal
+
+
+    Parameters:
+    -----------
+    Frequencies_Song: list
+        Neural Activity during Song Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+    Frequencies_Silence: list
+        Neural Activity during all Silence Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+
+    Returns:
+    --------
+    song_amplitudes: list
+        Envelopes of Neural Activity during all Song
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+    silence_amplitudes: list
+        Envelopes of Neural Activity during all Silence
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+
+    Notes
+    -----
+    The analytic signal ``x_a(t)`` of signal ``x(t)`` is:
+
+    .. math:: x_a = F^{-1}(F(x) 2U) = x + i y
+
+    where `F` is the Fourier transform, `U` the unit step function,
+    and `y` the Hilbert transform of `x`. [1]_
+
+    In other words, the negative half of the frequency spectrum is zeroed
+    out, turning the real-valued signal into a complex signal.  The Hilbert
+    transformed signal can be obtained from ``np.imag(hilbert(x))``, and the
+    original signal from ``np.real(hilbert(x))``.
+
+    """
+
+    # FInd the Amplitude Envelope of Song Trials
+    song_amplitudes = hilbert_amplitude_module(Frequencies_Song)
+    # Z-Score Silence Trials
+    silence_amplitudes = hilbert_amplitude_module(Frequencies_Silence)
+    return song_amplitudes, silence_amplitudes
+
+
+
+
+
 # Pre-Processing Class Function 1/30/2018
 
 
@@ -769,4 +870,12 @@ class Pipeline():
             Numb_Motifs=self.Num_Motifs, Numb_Silence=self.Num_Silence)
         self.Log_String = 'Z-Scored Data [Eqn: z = (x – μ) / σ]'  # Construct Log String
 
-################### LAST WORKING HERE: Clean Up Documentation, Unit Test, Back-up on Github, and Work on Analysis
+    @_StandardStep
+    def hilbert_amplitude(self):
+        """ Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials
+        """
+        self.Song_Neural, self.Silence_Neural = hilbert_amplitude_master(Frequencies_Song=self.Song_Neural,
+                                                                         Frequencies_Silence=self.Silence_Neural)
+        self.Log_String = 'Amplitude (Absolute Value of Analytical Signal using Hilbert)'  # Construct Log String
+
+#TODO: LAST WORKING HERE: Clean Up Documentation, Unit Test, Back-up on Github, and Work on Analysis
