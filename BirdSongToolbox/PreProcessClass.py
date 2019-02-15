@@ -445,8 +445,8 @@ def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_M
 
 
 # Development of amplitude module
-def hilbert_amplitude_module(Frequencies):
-    """ Find the amplitude of the Input Data using scipy.signal.hilbert()
+def hilbert_module(Frequencies, output:str):
+    """ Use the Hilbert Transform to get either the AMmlitude or Phase of the Input Neural Data
 
 
     Parameters:
@@ -454,11 +454,16 @@ def hilbert_amplitude_module(Frequencies):
     Frequencies: list
         Input Neural Activity during all Trials
         [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+    output: str
+        String that instructs what information to extract from the analytical signal, options: 'phase', 'amplitude'
+
 
     Returns:
     --------
-    amplitudes: list
-        Envelopes of the Input Neural Activity during all Trials
+    hilbert_results: list
+        Depending on the output parameter:
+            'phase': Instantaneous Phase of  the Input Neural Activity during all Trials
+            'amplitude': Envelope (Amplitude) of the Input Neural Activity during all Trials
         [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
 
     Notes
@@ -478,15 +483,21 @@ def hilbert_amplitude_module(Frequencies):
     """
 
     # TODO: Verify that the axis parameter allows for hilbert of the frequencies seperately not as a single channel
+    assert output == 'amplitude' or output == 'phase', "output parameter can only be 'amplitude' or 'phase' not {output}"
 
-    amplitudes = []
+    hilbert_results = []
     for trial in Frequencies:
-        amplitude = []
+        hilbert_result = []
         for chan in trial:
-            amplitude.append(np.abs(hilbert(chan, axis=0)))
-        amplitudes.append(amplitude)
+            if output == 'phase':
+                # The amplitude envelope is given by magnitude of the analytic signal
+                hilbert_result.append(np.angle(hilbert(chan, axis=0), deg=False))
+            if output == 'amplitude':
+                # The amplitude envelope is given by magnitude of the analytic signal
+                hilbert_result.append(np.abs(hilbert(chan, axis=0)))
+        hilbert_results.append(hilbert_result)
 
-    return amplitudes
+    return hilbert_results
 
 
 def hilbert_amplitude_master(Frequencies_Song, Frequencies_Silence):
@@ -535,12 +546,62 @@ def hilbert_amplitude_master(Frequencies_Song, Frequencies_Silence):
     """
 
     # FInd the Amplitude Envelope of Song Trials
-    song_amplitudes = hilbert_amplitude_module(Frequencies_Song)
-    # Z-Score Silence Trials
-    silence_amplitudes = hilbert_amplitude_module(Frequencies_Silence)
+    song_amplitudes = hilbert_module(Frequencies_Song, output='amplitude')
+    # Find the Amplitude Envelope of Silence Trials
+    silence_amplitudes = hilbert_module(Frequencies_Silence, output='amplitude')
     return song_amplitudes, silence_amplitudes
 
 
+def hilbert_phase_master(Frequencies_Song, Frequencies_Silence):
+    """ Returns the Instantaneous Phase of Neural Activity during Both Song and Silence
+
+    Steps:
+    ------
+    [1] Take Hilbert Transform
+    [2] Find Absolute Value of Analytical Signal
+
+
+    Parameters:
+    -----------
+    Frequencies_Song: list
+        Neural Activity during Song Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+    Frequencies_Silence: list
+        Neural Activity during all Silence Trials
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+
+    Returns:
+    --------
+    song_phase: list
+        Envelopes of Neural Activity during all Song
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+    silence_phase: list
+        Envelopes of Neural Activity during all Silence
+        [Trial]->[Ch]->[Frequency Bands x Time (Samples)]
+
+
+    Notes
+    -----
+    The analytic signal ``x_a(t)`` of signal ``x(t)`` is:
+
+    .. math:: x_a = F^{-1}(F(x) 2U) = x + i y
+
+    where `F` is the Fourier transform, `U` the unit step function,
+    and `y` the Hilbert transform of `x`. [1]_
+
+    In other words, the negative half of the frequency spectrum is zeroed
+    out, turning the real-valued signal into a complex signal.  The Hilbert
+    transformed signal can be obtained from ``np.imag(hilbert(x))``, and the
+    original signal from ``np.real(hilbert(x))``.
+
+    """
+
+    # Find the Instantaneous Phase of Song Trials
+    song_phase = hilbert_module(Frequencies_Song, output='phase')
+    # Find the Instantaneous Phase of Silence Trials
+    silence_phase = hilbert_module(Frequencies_Silence, output='phase')
+    return song_phase, silence_phase
 
 
 
@@ -877,5 +938,13 @@ class Pipeline():
         self.Song_Neural, self.Silence_Neural = hilbert_amplitude_master(Frequencies_Song=self.Song_Neural,
                                                                          Frequencies_Silence=self.Silence_Neural)
         self.Log_String = 'Amplitude (Absolute Value of Analytical Signal using Hilbert)'  # Construct Log String
+
+    @_StandardStep
+    def hilbert_phase(self):
+        """ Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials
+        """
+        self.Song_Neural, self.Silence_Neural = hilbert_phase_master(Frequencies_Song=self.Song_Neural,
+                                                                         Frequencies_Silence=self.Silence_Neural)
+        self.Log_String = 'Phase (Instantaneous Phase of Analytical Signal using Hilbert)'  # Construct Log String
 
 #TODO: LAST WORKING HERE: Clean Up Documentation, Unit Test, Back-up on Github, and Work on Analysis
