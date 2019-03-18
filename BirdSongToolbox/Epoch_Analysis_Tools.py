@@ -412,7 +412,7 @@ def Label_Grouper(Focuses, Labels, Starts):
 # Function for grabing more examples from a onset
 
 
-def label_extract_pipeline(full_trials, all_labels, starts, label_instructions, offset=int, tr_length=int,
+def label_extract_pipeline(full_trials, all_labels, starts, label_instructions, offset: int, tr_length: int,
                            Slide=None, Step=False):
     """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
 
@@ -432,9 +432,9 @@ def label_extract_pipeline(full_trials, all_labels, starts, label_instructions, 
     label_instructions: list
         list of labels and how they should be treated. If you use a nested list in the instructions the labels in
         this nested list will be treated as if they are the same label
-    offset = int
+    offset: int
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
-    tr_length=int
+    tr_length: int
         Number of Samples to use for Features
     slide: bool
         defaults to None
@@ -876,11 +876,14 @@ def pearson_ml_module(Features):
 
     Returns:
     --------
-    ordered_trials:
-        [
-
-    column_index:
-
+    ordered_trials: ndarray
+        Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq * Num_Temps
+    column_index: list
+        Index of Features for Feature Dropping
+            [Num of Features] -> (Chan Num , Freq Num, Template Num)     * Note: list -> Tuple
     """
     # Create Variable for Indexing
     # NT = len(Features[0][0][:, 0])  # Number of Trials
@@ -893,7 +896,7 @@ def pearson_ml_module(Features):
             ordered_trials = np.concatenate((ordered_trials, frequency), axis=1)
             for temps in range(len(frequency[0, :])):
                 # TODO: Refactor pearson_ml_module to run faster
-                universal_index = (chan_index, freq_index, temps)  # Tuple contains (Channel #, Freq Band #)
+                universal_index = (chan_index, freq_index, temps)  # Tuple contains (Channel #, Freq Band #, Template #)
                 column_index.append(universal_index)  # Append Index Tuple in Column Order
     ordered_trials = np.delete(ordered_trials, 0, 1)  # Delete the First Row (Initialized Row)
     return ordered_trials, column_index

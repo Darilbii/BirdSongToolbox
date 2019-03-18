@@ -91,6 +91,10 @@ class Import_PrePd_Data():
     .Good_Mid_Motifs: list
         Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
         Analysis
+
+    Example:
+    --------
+    >>>
     """
 
     def __init__(self, bird_id, sess_name, data_type='LPF_DS'):
