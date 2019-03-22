@@ -278,7 +278,7 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
     --------
     dropping_curve: ndarray
         ndarray of accuracy values from the feature dropping code (values are floats)
-        (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
+        (Number of Features (Decreasing), Number of Nested Folds)
 
     """
 
@@ -291,8 +291,9 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
     feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
 
     # 2.) Print Information about the Feature Set to be Dropped
-    print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
-    print("Number of Channels total:", len(feat_ids))  # Print number of Features
+    if verbose:
+        print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+        print("Number of Channels total:", len(feat_ids))  # Print number of Features
 
     temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
 
@@ -389,7 +390,8 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
 # Development for Randomized Feature Dropping Analysis Code
 
 def random_feat_drop_analysis(full_trials, all_labels, starts, label_instructions, Class_Obj, offset=int, tr_length=int, k_folds=5, nk_folds=2,  slide=None, step=False, seed=None, verbose=False):
-    """ ## This needs to be a modular code that will conduct the feature dropping for one feature set
+    """
+    ## This needs to be a modular code that will conduct the feature dropping for one feature set
     ## Return (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
 
     Parameters:
@@ -460,11 +462,11 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
 
         # 4.) Use INDEX to Break into corresponding [template set| training/test set] : ml_selector()
         sel_clips = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_test,
-                                label_index=y_test, make_template=False, verbose=True)
+                                label_index=y_test, make_template=False, verbose=verbose)
 
         # 5.) Use template set to make template : ml_selector(make_template=True)
         templates = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
-                                label_index=y_train, make_template=True,verbose=True)
+                                label_index=y_train, make_template=True, verbose=verbose)
 
         # 6.) Use training/test INDEX and template to create Pearson Features : pearson_extraction()
         pearson_features = pearson_extraction(Clipped_Trials=sel_clips, Templates=templates)
