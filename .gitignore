@@ -104,8 +104,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Flex Path Handling Config
-BirdSongToolbox/config/
-
-#idea
+# Pycharm idea
 .idea
+
+# local Flex Path Handling Config files
+/BirdSongToolbox/config/local_config.pckl
+
