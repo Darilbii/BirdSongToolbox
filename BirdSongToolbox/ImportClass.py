@@ -77,21 +77,21 @@ class Import_PrePd_Data():
         Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
         [Number of Trials x 1 (numpy.unicode_)]
         *** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility***
-    .Good_Motifs: list
+    .Good_Motifs: np.ndarray
         Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
-    .First_Motifs: list
+    .First_Motifs: np.ndarray
         Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
-    .Last_Motifs: list
+    .Last_Motifs: np.ndarray
         Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as 'Good'
-    .Bad_Motifs: list
+    .Bad_Motifs: np.ndarray
         Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise
-    .LS_Drop: list
+    .LS_Drop: np.ndarray
         Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
-    .All_First_Motifs: list
+    .All_First_Motifs: np.ndarray
         Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .All_Last_Motifs: list
+    .All_Last_Motifs: np.ndarray
         Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .Good_Mid_Motifs: list
+    .Good_Mid_Motifs: np.ndarray
         Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
         Analysis
 

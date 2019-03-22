@@ -12,7 +12,7 @@ def test_ImportClass():
     PreP_Data = Import_PrePd_Data(bird_id, date)
 
     assert PreP_Data.bird_id == bird_id
-    assert PreP_Data.data == date
+    assert PreP_Data.date == date
     assert isinstance(PreP_Data.data_type, str)
     assert isinstance(PreP_Data.Sn_Len, int)
     assert isinstance(PreP_Data.Gap_Len, int)
@@ -45,14 +45,14 @@ def test_ImportClass():
     assert len(PreP_Data.Song_Syl_Drop) == PreP_Data.Num_Motifs
 
     # Test Index (Pass 1)
-    assert isinstance(PreP_Data.Good_Motifs, list)
-    assert isinstance(PreP_Data.First_Motifs, list)
-    assert isinstance(PreP_Data.Last_Motifs, list)
-    assert isinstance(PreP_Data.Bad_Motifs, list)
-    assert isinstance(PreP_Data.LS_Drop, list)
-    assert isinstance(PreP_Data.All_First_Motifs, list)
-    assert isinstance(PreP_Data.All_Last_Motifs, list)
-    assert isinstance(PreP_Data.Good_Mid_Motifs, list)
+    assert isinstance(PreP_Data.Good_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.First_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.Last_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.Bad_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.LS_Drop, np.ndarray)
+    assert isinstance(PreP_Data.All_First_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.All_Last_Motifs, np.ndarray)
+    assert isinstance(PreP_Data.Good_Mid_Motifs, np.ndarray)
 
 
 
