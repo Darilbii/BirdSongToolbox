@@ -445,7 +445,7 @@ def Z_Score_data_Master(Frequencies_Song, Frequencies_Silence, Numb_Freq, Numb_M
 
 
 # Development of amplitude module
-def hilbert_module(Frequencies, output:str):
+def hilbert_module(Frequencies, output: str):
     """ Use the Hilbert Transform to get either the AMmlitude or Phase of the Input Neural Data
 
 
