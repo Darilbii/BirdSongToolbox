@@ -1,7 +1,7 @@
 """Test functions for the ImportClass """
 
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
-from BirdSongToolbox.PreProcessClass import BPF_Master, BPF_Module, Skip_BPF_Module, RR_Neural_Module, RR_Neural_Master
+from BirdSongToolbox.PreProcessClass import BPF_Master, BPF_Module, Skip_BPF_Module, skip_bpf_master, RR_Neural_Module, RR_Neural_Master
 from BirdSongToolbox.config.settings import TEST_DATA_DIR
 import numpy as np
 import pytest
@@ -89,6 +89,7 @@ def test_skip_bpf_module():
     Num_Chan = PreP_Data.Num_Chan
 
 
+
     song_length, number_channels = np.shape(Channels)
     assert number_channels == Num_Chan
 
@@ -99,14 +100,57 @@ def test_skip_bpf_module():
     assert isinstance(skip_bpf_motifs, list)
     assert isinstance(skip_bpf_motifs[0], np.ndarray)
     assert len(skip_bpf_motifs) == number_channels
-    assert (song_length, 1) == np.shape(skip_bpf_motifs[0])
-    assert len(skip_bpf_motifs[0]) == len(Channels[:, 0])
+    assert np.shape(skip_bpf_motifs[0]) == (song_length, 1)
+
 
     # Unit Test
-    assert Channels[0, 0] == skip_bpf_motifs[0][0, 0]
-    assert Channels[-1, 0] == skip_bpf_motifs[0][-1, 0]
-    assert Channels[0, -1] == skip_bpf_motifs[-1][0, 0]
-    assert Channels[-1, -1] == skip_bpf_motifs[-1][-1, 0]
+    assert skip_bpf_motifs[0][0, 0] == Channels[0, 0]
+    assert skip_bpf_motifs[0][-1, 0] == Channels[-1, 0]
+    assert skip_bpf_motifs[-1][0, 0] == Channels[0, -1]
+    assert skip_bpf_motifs[-1][-1, 0] == Channels[-1, -1]
+
+
+def test_skip_bpf_master():
+    """ test the skip_bpf_module"""
+    # TODO: Make this more than a smoke test
+
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+
+    Channels = PreP_Data.Song_Neural
+    SN_L = PreP_Data.Sn_Len
+    Gp_L = PreP_Data.Gap_Len
+    Num_Chan = PreP_Data.Num_Chan
+    Num_Trials = PreP_Data.Num_Motifs
+
+    song_length, number_channels = np.shape(Channels[0])
+    assert number_channels == Num_Chan
+
+    skip_bpf_motifs = skip_bpf_master(Channels, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan)
+
+    # Smoke Tests
+
+    assert isinstance(skip_bpf_motifs, list)
+    assert isinstance(skip_bpf_motifs[0], list)
+    assert isinstance(skip_bpf_motifs[0][0], np.ndarray)
+    assert len(skip_bpf_motifs) == Num_Trials
+    assert len(skip_bpf_motifs[0]) == Num_Chan
+    assert np.shape(skip_bpf_motifs[0][0]) == (song_length, 1)
+
+
+    # Unit Test
+    assert skip_bpf_motifs[0][0][0, 0] == Channels[0][0, 0]
+    assert skip_bpf_motifs[0][0][-1, 0] == Channels[0][-1, 0]
+    assert skip_bpf_motifs[0][-1][0, 0] == Channels[0][0, -1]
+    assert skip_bpf_motifs[0][-1][-1, 0] == Channels[0][-1, -1]
+
+    assert skip_bpf_motifs[-1][0][0, 0] == Channels[-1][0, 0]
+    assert skip_bpf_motifs[-1][0][-1, 0] == Channels[-1][-1, 0]
+    assert skip_bpf_motifs[-1][-1][0, 0] == Channels[-1][0, -1]
+    assert skip_bpf_motifs[-1][-1][-1, 0] == Channels[-1][-1, -1]
+
+    assert np.all(skip_bpf_motifs[-1][0][:, 0] == Channels[-1][:, 0])
+
+
 
 
 # @pytest.mark.run(order=1)

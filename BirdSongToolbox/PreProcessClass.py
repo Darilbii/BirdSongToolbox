@@ -24,8 +24,9 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
 
     Parameters:
     -----------
-    Channels: list [Song Length (Samples) x Channel #]
+    Channels: list
         Input Neural Data
+        [Song Length (Samples) x Channel #]
     Freq_Bands: tuple
         Cuttoff Frequencies of Passband for Band Pass Filters, Components of Tuple are Tops and Bottoms which are lists
         of the High Frequency and Low Frequency Cutoffs, respectively, of the Pass Bands
@@ -44,8 +45,9 @@ def BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num
 
     Returns:
     --------
-    Freq_Bins: list [ch]->[Song Length (Samples) x Freq. Bin]
+    Freq_Bins: list
         List of Resulting Bandpass Filtered Neural Data per channel
+        [ch]->[Song Length (Samples) x Freq. Bin]
     """
     Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
 
@@ -86,8 +88,9 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
 
     Parameters:
     -----------
-    Channels: list [Song Length (Samples) x Channel #]
+    Channels: list
         Input Neural Data
+        [Trial]->[Song Length (Samples) x Channel #]
     Num_Trials: int
         Number of Trials for Behavior
     Freq_Bands: tuple
@@ -141,8 +144,9 @@ def Skip_BPF_Module(Channels, SN_L=int, Gp_L=int, Num_Chan=int):
 
     Parameters:
     -----------
-    Channels: list [Song Length (Samples) x Channel #]
+    Channels: list
         Input Neural Data
+        [Trial]->[Song Length (Samples) x Channel #]
     Freq_Bands: tuple
         Cuttoff Frequencies of Passband for Band Pass Filters, Components of Tuple are Tops and Bottoms which are lists
         of the High Frequency and Low Frequency Cutoffs, respectively, of the Pass Bands
@@ -151,30 +155,60 @@ def Skip_BPF_Module(Channels, SN_L=int, Gp_L=int, Num_Chan=int):
         Stereotyped Length (In Samples) of Motif
     Gp_L: int
         Length of Time Buffer Before and After Motif
-    Order: int (Optional)
-            Order of the Filter used, defaults to 175. [If FiltFilt = True then 350]
-    fs: int (Optional)
-        Sample Frequency of Neural Data, defaults to 1 KHz
-    FiltFilt: bool (Optional)
-        Controls whether to Filter Twice to Remove Phase Distortion, defaults to True
-        [FiltFIlt performs zero-phase digital filtering by processing the input data, Channels, in both the forward and reverse directions.]
 
     Returns:
     --------
-    Freq_Bins: list
+    processed_trial: list
         List of Resulting Bandpass Filtered Neural Data per channel
         [ch]->[Song Length (Samples) x 1]
     """
     # Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
-    Freq_Bins = []  # For holding the Bandpass Filtered Data
+    processed_trial = []  # For holding the Bandpass Filtered Data
 
     ## Band Pass and Isolate each Frequency Band
     for i in range(Num_Chan):
         Test = Channels[:, i]  # Grab Raw Signal of Select Channel
         Freq_Bins_Holder = np.zeros([SN_L + Gp_L, 1])  # Initiate a Dynamic Sized Memory Space for Frequency Bins
         Freq_Bins_Holder[:, 0] = Test
-        Freq_Bins.append(Freq_Bins_Holder[:, :])
-    return Freq_Bins
+        processed_trial.append(Freq_Bins_Holder[:, :])
+    return processed_trial
+
+
+def skip_bpf_master(Channels, SN_L: int, Gp_L: int, Num_Chan: int, verbose=False):
+    """
+
+    Strategy:
+    ---------
+        The Following code Bandpass Filters User Defined Frequency Bands of the neural data and outputs a
+    List of each Channel with each element corresponding to a np array of Time(row) vs. Frequencies(column)
+
+    Parameters:
+    -----------
+    Channels: list
+        Input Neural Data
+        [Trial]->[Song Length (Samples) x Channel #]
+    Freq_Bands: tuple
+        Cuttoff Frequencies of Passband for Band Pass Filters, Components of Tuple are Tops and Bottoms which are lists
+        of the High Frequency and Low Frequency Cutoffs, respectively, of the Pass Bands
+        ([Tops], [Bottoms])
+    SN_L: int
+        Stereotyped Length (In Samples) of Motif
+    Gp_L: int
+        Length of Time Buffer Before and After Motif
+
+    Returns:
+    --------
+    processed_trials: list
+        List of Resulting Bandpass Filtered Neural Data per channel
+        [Trial]->[ch]->[Song Length (Samples) x 1]
+    """
+
+    processed_trials = []
+    for trial_num, Trial in enumerate(Channels):
+        processed_trials.append(Skip_BPF_Module(Trial, SN_L=SN_L, Gp_L=Gp_L, Num_Chan=Num_Chan ))
+        if verbose:
+            print('Finished Trial: ', trial_num)
+    return processed_trials
 
 
 def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
