@@ -77,6 +77,7 @@ def test_bpf_master():
     assert np.shape(bpf_motifs[0][0]) == (song_length, len(tops))
 
 
+@pytest.mark.run(order=1)
 def test_skip_bpf_module():
     """ test the skip_bpf_module"""
     # TODO: Make this more than a smoke test
@@ -110,6 +111,7 @@ def test_skip_bpf_module():
     assert skip_bpf_motifs[-1][-1, 0] == Channels[-1, -1]
 
 
+@pytest.mark.run(order=1)
 def test_skip_bpf_master():
     """ test the skip_bpf_module"""
     # TODO: Make this more than a smoke test
