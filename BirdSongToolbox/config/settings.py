@@ -12,6 +12,13 @@ DEFAULT_PATH = Path(__file__)
 DEFAULT_PATH = DEFAULT_PATH.parent / 'local_config.pckl'
 DATA_PATH = ''
 
+# Test Data Paths
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_DIR / "data"
+TEST_DATA_ZIP = DATA_DIR / "PrePd_Data.zip"
+TEST_DATA_DIR = DATA_DIR / "PrePd_Data"
+
+
 
 def using_lab_server():
     """ Check if using one of the lab servers """

@@ -2,7 +2,10 @@
 
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 import numpy as np
+import pytest
 
+
+@pytest.mark.run(order=1)
 def test_ImportClass():
     """ Test ImportClass"""
 
