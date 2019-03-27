@@ -131,8 +131,7 @@ def BPF_Master(Channels, Num_Trials, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_C
 
 
 # TODO: Verify this will work as intended then make sure to integrate it into the class function
-def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int, Num_Freq=int, order_num=175, fs=1000,
-                    FiltFilt=True):
+def Skip_BPF_Module(Channels, SN_L=int, Gp_L=int, Num_Chan=int):
     """Bandpass Filter Neural data using User Defined Frequency Bands for ONE Trials
 
     Strategy:
@@ -162,10 +161,11 @@ def Skip_BPF_Module(Channels, Freq_Bands=tuple, SN_L=int, Gp_L=int, Num_Chan=int
 
     Returns:
     --------
-    Freq_Bins: list [ch]->[Song Length (Samples) x 1]
+    Freq_Bins: list
         List of Resulting Bandpass Filtered Neural Data per channel
+        [ch]->[Song Length (Samples) x 1]
     """
-    Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
+    # Top, Bottom = Freq_Bands  # Create Variable for Pass Band Boundaries
     Freq_Bins = []  # For holding the Bandpass Filtered Data
 
     ## Band Pass and Isolate each Frequency Band
