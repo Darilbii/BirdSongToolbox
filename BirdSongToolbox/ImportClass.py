@@ -2,8 +2,7 @@ import numpy as np
 import os
 import scipy.io as sio
 # import BirdSongToolbox.config.settings as settings
-from .config.settings import *
-
+from .config.settings import DATA_PATH
 
 
 # Class function for Importing PrePd Data
@@ -100,7 +99,7 @@ class Import_PrePd_Data():
     >>>
     """
 
-    def __init__(self, bird_id, sess_name, data_type='LPF_DS'):
+    def __init__(self, bird_id, sess_name, data_type='LPF_DS', location=None):
         """Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug
 
         Parameters:
@@ -111,6 +110,8 @@ class Import_PrePd_Data():
                 Experiment Day to Locate it's Folder
             data_type: string
                 String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
+            location: str or Path object, (Optional)
+                Location to search for the data other than default DATA_PATH (Optional)
         """
         assert type(bird_id) == str
         assert type(sess_name) == str
@@ -123,13 +124,17 @@ class Import_PrePd_Data():
         # Basic Setup for path Creation
         # experiment_folder = '/net/expData/birdSong/'
         # experiment_folder = settings.DATA_PATH
-        experiment_folder = DATA_PATH
+        if location is None:
+            experiment_folder = DATA_PATH
+        else:
+            experiment_folder = location
+
         Prepd_ss_data_folder = os.path.join(experiment_folder, 'ss_data_Processed')
 
         # Modularized Data Import Steps
         self.Identify_Bird()  ## Determine Data's Metadata (Predefined Options based on Annotation)
 
-        self._ImportSwitch(Prepd_ss_data_folder) ## Import User Designated Neural Data for Song and Silence
+        self._ImportSwitch(Prepd_ss_data_folder)  ## Import User Designated Neural Data for Song and Silence
         self.Get_Song_Audio(Prepd_ss_data_folder)  ## Song: Store the Filtered Audio Data
         self.Get_Silence_Audio(Prepd_ss_data_folder)  ## Silence: Store the Filtered Audio Data
         self.Get_Hand_Labels(Prepd_ss_data_folder)  ## Store the Different Types of Hand Labels into Seperate Lists
@@ -160,17 +165,18 @@ class Import_PrePd_Data():
         Bad_Channels = {'z020': [2], 'z007': []}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
         Sample_Frequency = {'Raw': 30000, 'LPF': 30000,
                             'LPF_DS': 1000, }  # Dictionary of Possible Sample Frequencies (Samples per Second)
-        print('* Must Create a Table of Birds and Relevant Information on them *')  # To Make Sure I Return to This Idea in the Future
+        print(
+            '* Must Create a Table of Birds and Relevant Information on them *')  # To Make Sure I Return to This Idea in the Future
 
         # Validate Input is correct
         assert (self.bird_id in Song_Length.keys()) == True, 'The Bird: %s is not valid for Song_Length' % self.bird_id
         assert (self.bird_id in Gap_Length.keys()) == True, 'The Bird: %s is not valid for Gap_Length' % self.bird_id
         assert (
-                           self.bird_id in Channel_Count.keys()) == True, 'The Bird: %s is not valid for Channel_Count' % self.bird_id
+                       self.bird_id in Channel_Count.keys()) == True, 'The Bird: %s is not valid for Channel_Count' % self.bird_id
         assert (
-                           self.bird_id in Bad_Channels.keys()) == True, 'The Bird: %s is not valid for Bad_Channels' % self.bird_id
+                       self.bird_id in Bad_Channels.keys()) == True, 'The Bird: %s is not valid for Bad_Channels' % self.bird_id
         assert (
-                           self.data_type in Sample_Frequency.keys()) == True, 'That Name: %s is not valid for Data type' % self.data_type
+                       self.data_type in Sample_Frequency.keys()) == True, 'That Name: %s is not valid for Data type' % self.data_type
 
         # Actual Action Step: Store Recording's Metadata
         self.Sn_Len = int(Song_Length[self.bird_id] * Sample_Frequency[self.data_type])  # Determine Length in Samples
@@ -252,7 +258,6 @@ class Import_PrePd_Data():
         self.Num_Motifs = Numb_Motifs
 
         return Song_Raw_Data
-
 
     def Get_Song_Audio(self, Prepd_ss_data_folder):
         """Song: Store the Filtered Audio Data"""
@@ -435,7 +440,7 @@ class Import_PrePd_Data():
         Last_Motifz = np.where(Last_Holder == 1)  # Create Index of Selected Label
         Last_Motifz = Last_Motifz[0]  # Weird Needed Step
         self.Last_Motifs = Last_Motifz
-        
+
     def Locate_All_Last_Motifs(self):
         """Create Index for All Good Motifs
         Parameters:
@@ -461,8 +466,7 @@ class Import_PrePd_Data():
         All_Last_Motifz = np.where(All_Last_Holder == 1)  # Create Index of Selected Label
         All_Last_Motifz = All_Last_Motifz[0]  # Weird Needed Step
         self.All_Last_Motifs = All_Last_Motifz
-        
-        
+
     def Locate_Good_Mid_Motifs(self):
         """Create Index for All Good Motifs
         Parameters:
@@ -484,14 +488,12 @@ class Import_PrePd_Data():
         # 3.2 Fill Logical for Good First Motifs
         for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':
-                if self.Song_Locations[i][0] != 'Ending' and self.Song_Locations[i][0] != 'Beginning':  # Locate Desired Label Combination
+                if self.Song_Locations[i][0] != 'Ending' and self.Song_Locations[i][
+                    0] != 'Beginning':  # Locate Desired Label Combination
                     Good_Mid_Holder[i] = 1  # Mark them
         Good_Mid_Motifz = np.where(Good_Mid_Holder == 1)  # Create Index of Selected Label
         Good_Mid_Motifz = Good_Mid_Motifz[0]  # Weird Needed Step
-        self.Good_Mid_Motifs = Good_Mid_Motifz 
-        
-        
-    
+        self.Good_Mid_Motifs = Good_Mid_Motifz
 
     def Locate_Bad_Full_Motifs(self):
         """Create Index for All Good Motifs
