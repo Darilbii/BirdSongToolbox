@@ -237,6 +237,7 @@ def RR_Neural_Module(Frequencies, Good_Channels, Num_Freq, SN_L=int, Gp_L=int):
         Stereotyped Length (In Samples) of Motif
     Gp_L: int
         Length of Time Buffer Before and After Motif
+
     Returns:
     --------
     Freq_Bins_rr: list
