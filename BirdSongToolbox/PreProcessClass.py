@@ -533,7 +533,7 @@ def hilbert_module(Frequencies, output: str):
 
     return hilbert_results
 
-
+# TODO: Remove the Redundant master functionsn for hilbert
 # def hilbert_amplitude_master(Frequencies_Song, Frequencies_Silence):
 #     """ Returns the Amplitude Envelope of Neural Activity during Both Song and Silence
 #
