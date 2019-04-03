@@ -525,7 +525,8 @@ def hilbert_module(Frequencies, output: str):
         for chan in trial:
             if output == 'phase':
                 # The amplitude envelope is given by magnitude of the analytic signal
-                hilbert_result.append(np.angle(hilbert(chan, axis=0), deg=False))
+                hilbert_result.append(np.sin(np.angle(hilbert(chan, axis=0), deg=False)))
+                # TODO: Investigate if this should switch between sin or cos depending on the starting slope
             if output == 'amplitude':
                 # The amplitude envelope is given by magnitude of the analytic signal
                 hilbert_result.append(np.abs(hilbert(chan, axis=0)))
