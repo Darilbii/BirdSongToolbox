@@ -12,7 +12,7 @@ This documents is a set of guidelines for contributing to BirdSongToolbox on Git
 
 ## Participation guidelines
 
-Please note that this project adheres to a [code of conduct](https://github.com/voytekresearch/fooof/CODE_OF_CONDUCT.md), that you are expected to uphold when participating in this project. 
+Please note that this project adheres to a [code of conduct](https://github.com/Darilbii/BirdSongToolbox/blob/master/CODE_OF_CONDUCT.md), that you are expected to uphold when participating in this project. 
 
 ## How to report bugs
 
@@ -26,8 +26,6 @@ If you are reporting a bug, please submit it to our [issue tracker](https://gith
 ## How to suggest changes or updates
 
 If there is a feature you would like to see, please submit it as an [issue](https://github.com/Darilbii/BirdSongToolbox/issues), with a brief description of what you would like to see added / changed, and why. If it is feature that you would be willing to implement, please indicate that and, and follow the guidelines below for making a contribution. 
-
-Note that, in terms of scope, BirdSongToolbox is quite specifically focused on it's core functionality of parameterizing neural power spectra, and helper utilities to visualize and work with model results, as well as tools to create synthetic power spectra. Procedures and utilities that do not deal with operating upon power spectra or FOOOF outputs directly will most likely be considered out of scope, and won't be added into FOOOF.
 
 ## How to submit code
 
