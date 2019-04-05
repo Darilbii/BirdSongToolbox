@@ -394,7 +394,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
 
 # Development for Randomized Feature Dropping Analysis Code
 
-def random_feat_drop_analysis(full_trials, all_labels, starts, label_instructions, Class_Obj, offset=int, tr_length=int, k_folds=5, nk_folds=2,  slide=None, step=False, seed=None, verbose=False):
+def random_feat_drop_analysis(full_trials, all_labels, starts, label_instructions, Class_Obj, offset=int, tr_length=int, k_folds=5,  slide=None, step=False, seed=None, verbose=False):
     """
     ## This needs to be a modular code that will conduct the feature dropping for one feature set
     ## Return (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
