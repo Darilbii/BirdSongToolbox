@@ -304,7 +304,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
     # 3.) Begin Feature Dropping steps
     # Find the first Accuracy
 
-    first_acc = clip_classification(Class_Obj=Class_Obj, Train_Set=train_set, Train_Labels=train_labels,
+    first_acc, _, _ = clip_classification(Class_Obj=Class_Obj, Train_Set=train_set, Train_Labels=train_labels,
                                     Test_Set=test_set, Test_Labels=test_labels, verbose=verbose)
 
     if verbose:
@@ -332,7 +332,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
         train_remaining_features, _ = Drop_Features(train_set, feat_ids, drop_list)  # Remove sel feature from train feature array
         test_remaining_features, _ = Drop_Features(test_set, feat_ids, drop_list)  # Remove sel feature from test feature array
 
-        acc = clip_classification(Class_Obj=Class_Obj, Train_Set=train_remaining_features, Train_Labels=train_labels,
+        acc, _, _ = clip_classification(Class_Obj=Class_Obj, Train_Set=train_remaining_features, Train_Labels=train_labels,
                                   Test_Set=test_remaining_features, Test_Labels=test_labels, verbose=verbose)
 
         dropping_curve[index, :] = acc  # Append Resulting Accuracy to Curve List
