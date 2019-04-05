@@ -289,7 +289,6 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
     # 1.) Initiate Lists for Curve Components
     num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
     dropping_curve = np.zeros([num_channels + 1, 1])  # Create Empty array for Dropping Curves
-    # features_list = list(np.arange(num_channels)) TODO: Remove this line
     drop_list = []
 
     feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
@@ -381,6 +380,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
 #     return base
 
 
+#TODO: Update the Below Algorithm description to reflect the new method recommended by Vikash
 # Nested Algorithm Development
 
 # 1.) Break into all instances of interest : Label_Extract_Pipeline()
