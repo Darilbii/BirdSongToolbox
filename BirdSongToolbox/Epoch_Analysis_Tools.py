@@ -598,6 +598,70 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
     return Dynamic_Freq_Trials, Dynamic_Templates
 
 
+#TODO: Write Test Functions for the extracted_labels_counter (Need to add handlabels and their functions to tests folder)
+#TODO: Move extracted_labels_counter() to a Epoch Tools utility module
+def extracted_labels_counter(full_trials, all_labels, starts, label_instructions, offset: int, tr_length: int,
+                             Slide=None, Step=False):
+    """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
+
+    Label_Instructions = tells the Function what labels to extract and whether to group them together
+
+    Parameters:
+    -----------
+    full_trials: list
+        List of Full Epochs, this is typically output from Full_Trial_LFP_Clipper
+        [Ch] -> [Freq] -> (Time Samples x Epochs)
+    all_labels: list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    starts: list
+        List of all Start Times corresponding to each Epoch in Full_Trials
+        [Epochs]->[Start Time]
+    label_instructions: list
+        list of labels and how they should be treated. If you use a nested list in the instructions the labels in
+        this nested list will be treated as if they are the same label
+    offset: int
+        The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
+    tr_length: int
+        Number of Samples to use for Features
+    slide: bool
+        defaults to None
+        #TODO: Explain and Validate the Slide Parameter
+    step:
+        defaults to False
+        #TODO: Explain and Validate the Step Parameter
+
+    Returns:
+    -------
+    counter: int
+        The number of valid samples as directed by Label_Instructions
+
+    """
+
+    # TODO: Check if this would be better if the epoch_length was a input parameter
+    epoch_length = len(full_trials[0][0][:, 0]) # Quick way to determine the Duration of the Epoch in Samples
+
+    counter = 0  # For stacking all examples of label in full trial
+    for instruction in range(len(label_instructions)):
+        if type(label_instructions[instruction]) == int or type(label_instructions[instruction]) == str:
+            label_starts = Label_Focus(label_instructions[instruction], all_labels, starts)
+        else:
+            label_starts = Label_Grouper(label_instructions[instruction], all_labels, starts)
+
+        if type(Slide) == int:
+            label_starts = Slider(label_starts, len(full_trials[0][0][:, 0]), Slide=Slide, Step=Step)
+
+        # Loop over every epoch
+        for epoch in label_starts:
+            # Loop over every label instance (example) in each epoch
+            for example in epoch:
+                # Check that each instance fits within time available
+                if example - offset - tr_length >= 0 and example - offset < len(epoch_length):
+                    counter = counter + 1
+    return counter
+
+
+# TODO: Move Dyn_LFP_Clipper() to a Epoch Tools utility module
 def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
     """This Function Dynamically clips Neural data prior to a selected label and re-organizes them for future use.
 
@@ -650,8 +714,11 @@ def Dyn_LFP_Clipper(Features: list, Starts, Offset=int, Tr_Length=int):
             Chan_Holder = np.zeros((Tr_Length, num_examples))  # Initiate Holder for Trials (Motifs)
             sel_freq_epochs = Features[channel][freq]
             Counter = 0  # For stacking all examples of label in full trial
+            # Loop over every epoch
             for epoch in range(num_trials):
+                # Loop over every label instance (example) in each epoch
                 for example in range(len(Starts[epoch])):
+                    # Check that each instance fits within time available
                     if Starts[epoch][example] - Offset - Tr_Length >= 0 and Starts[epoch][example] - Offset < len(
                             sel_freq_epochs):
                         # if len(sel_freq_epochs[Starts[epoch][example] - Offset - Tr_Length:Starts[epoch][example] - Offset, epoch]) == 9:
