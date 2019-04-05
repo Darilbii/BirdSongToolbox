@@ -1631,6 +1631,9 @@ def Series_Classification_Prep_Pipeline(Features, Offset: int, Tr_Length: int, F
 # [2.6] Return: Confusion Matrix, Accuracy, Std, Trained Model
 # [3] Store Results into dictionary(s) also store index of the Test Set Left Out
 
+#TODO: change parameters to follow PEP8
+# TODO: Get Rid of Verbose parameter
+# TODO: write test function for clip_classification
 
 def clip_classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Labels, verbose=False):
     """ This Function is a Flexible Machine Learning Function that Trains One Classifier and determines metrics for it
@@ -1645,14 +1648,22 @@ def clip_classification(Class_Obj, Train_Set, Train_Labels, Test_Set, Test_Label
     -----------
     Class_Obj: class
         classifier object from the scikit-learn package
-    Train_Set:
-
-    Train_LabelsL
-
-    Test_Set:
-
-    Test_Labels:
-
+    train_set: ndarray
+        Training data array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    train_labels: ndarray
+        1-d array of Labels of the Corresponding n_training_samples
+        ( n_training_samples   x   1 )
+    test_set: ndarray
+        Testing data Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    test_labels: ndarray
+        1-d array of Labels of the Corresponding n_test_samples
+        ( n_test_samples   x   1 )
     verbose: bool
         If True it prints useful characteristics of the trained model, defaults to False
 

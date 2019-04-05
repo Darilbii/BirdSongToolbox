@@ -7,7 +7,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 import numpy as np
 from numpy.core.multiarray import ndarray
 from sklearn.model_selection import StratifiedShuffleSplit
-from BirdSongToolbox.Epoch_Analysis_Tools import kfold_wrapper, make_channel_dict, Drop_Features, \
+from BirdSongToolbox.Epoch_Analysis_Tools import clip_classification, make_channel_dict, Drop_Features, \
     label_extract_pipeline, pearson_extraction, ml_order_pearson, kfold_wrapper_rand
 
 
@@ -247,19 +247,27 @@ def ml_selector(clippings, identity_index, label_index, sel_instances, make_temp
 ## This needs to be a modular code that will conduct the feature dropping for one feature set
 ## Return (Number of Features (Decreasing or Increasing ?), Number of Nested Folds)
 
-def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2, verbose=False, fold_verbose=False):
+def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, test_set: np.ndarray, test_labels: np.ndarray, ordered_index, Class_Obj, verbose=False):
     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
 
     Parameters:
     -----------
-    Data_Set: ndarray
-        Array that is structured to work with the SciKit-learn Package
+    train_set: ndarray
+        Training data array that is structured to work with the SciKit-learn Package
         (n_samples, n_features)
             n_samples = Num of Instances Total
             n_features = Num_Ch * Num_Freq)
-    Data_Labels: ndarray
-        1-d array of Labels of the Corresponding n_samples
-        ( n_samples   x   1 )
+    train_labels: ndarray
+        1-d array of Labels of the Corresponding n_training_samples
+        ( n_training_samples   x   1 )
+    test_set: ndarray
+        Testing data Array that is structured to work with the SciKit-learn Package
+        (n_samples, n_features)
+            n_samples = Num of Instances Total
+            n_features = Num_Ch * Num_Freq)
+    test_labels: ndarray
+        1-d array of Labels of the Corresponding n_test_samples
+        ( n_test_samples   x   1 )
     ordered_index: list
         Index of Features for Feature Dropping
                             [list] -> (Tuple)
@@ -267,12 +275,8 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
         Pearson: [Num of Features] -> (Chan Num , Freq Num, Temp Num)
     Class_Obj: class
         classifier object from the scikit-learn package
-    k_folds: int (optional)
-        Number of Cross-validation folds to use, defaults to 2
     verbose: bool
         If True the funtion will print out useful information for user as it runs, defaults to False.
-    fold_verbose: bool
-        If True the Function will print out information about every Cross-Validation fold, defaults to False.
 
     Returns:
     --------
@@ -284,8 +288,8 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
 
     # 1.) Initiate Lists for Curve Components
     num_channels = ordered_index[-1][0] + 1  # Determine the Number of Channels (Assumes the ordered_index is in order)
-    dropping_curve = np.zeros([num_channels + 1, k_folds])  # Create Empty array for Dropping Curves
-    features_list = list(np.arange(num_channels))
+    dropping_curve = np.zeros([num_channels + 1, 1])  # Create Empty array for Dropping Curves
+    # features_list = list(np.arange(num_channels)) TODO: Remove this line
     drop_list = []
 
     feat_ids = make_channel_dict(ordered_index=ordered_index)  # Convert ordered_index to a dict to index feature drops
@@ -298,11 +302,10 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
     temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
 
     # 3.) Begin Feature Dropping steps
-    # Find the first k-Fold Acc.
-    print(np.shape(dataset), '\n', np.shape(labels))
+    # Find the first Accuracy
 
-    first_acc = kfold_wrapper_rand(Data_Set=dataset, Data_Labels=labels.ravel(), k_folds=k_folds, Class_Obj=Class_Obj,
-                                   nested=True, verbose=fold_verbose)
+    first_acc = clip_classification(Class_Obj=Class_Obj, Train_Set=train_set, Train_Labels=train_labels,
+                                    Test_Set=test_set, Test_Labels=test_labels, verbose=verbose)
 
     if verbose:
         print("First acc: %s..." % first_acc)
@@ -326,9 +329,11 @@ def random_feature_dropping(dataset, labels, ordered_index, Class_Obj, k_folds=2
         del temp[drop_feat_ids]  # Delete key for Feature Designated to be Dropped from overall list
 
         drop_list.append(drop_feat_ids)  # Add Designated Drop Feature to Drop list
-        remaining_features, _ = Drop_Features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
-        acc = kfold_wrapper_rand(Data_Set=remaining_features, Data_Labels=labels.ravel(), k_folds=k_folds,
-                                 Class_Obj=Class_Obj, nested=True, verbose=fold_verbose)  # Record Prediction Accuracy
+        train_remaining_features, _ = Drop_Features(train_set, feat_ids, drop_list)  # Remove sel feature from train feature array
+        test_remaining_features, _ = Drop_Features(test_set, feat_ids, drop_list)  # Remove sel feature from test feature array
+
+        acc = clip_classification(Class_Obj=Class_Obj, Train_Set=train_remaining_features, Train_Labels=train_labels,
+                                  Test_Set=test_remaining_features, Test_Labels=test_labels, verbose=verbose)
 
         dropping_curve[index, :] = acc  # Append Resulting Accuracy to Curve List
 
@@ -416,8 +421,6 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         Number of Samples to use for Features
     k_folds: int
         Number of Folds to Split between Template | Train/Test sets, defaults to 5,
-    nk_folds: int
-        Number of Nested Cross-validation folds for Train/Test set, defaults to 2
     slide: bool
         defaults to None
         #TODO: Explain and Validate the Slide Parameter
@@ -461,23 +464,30 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         y_train, y_test = label_index[train_index], label_index[test_index]
 
         # 4.) Use INDEX to Break into corresponding [template set| training/test set] : ml_selector()
-        sel_clips = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_test,
+        sel_train = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
+                                    label_index=y_train, make_template=False, verbose=verbose)
+
+        sel_test = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_test,
                                 label_index=y_test, make_template=False, verbose=verbose)
+
 
         # 5.) Use template set to make template : ml_selector(make_template=True)
         templates = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
                                 label_index=y_train, make_template=True, verbose=verbose)
 
         # 6.) Use training/test INDEX and template to create Pearson Features : pearson_extraction()
-        pearson_features = pearson_extraction(Clipped_Trials=sel_clips, Templates=templates)
+        train_pearson_features = pearson_extraction(Clipped_Trials=sel_train, Templates=templates)
+        test_pearson_features = pearson_extraction(Clipped_Trials=sel_test, Templates=templates)
 
         # 7.) Reorganize into Machine Learning Format : ml_order_pearson()
-        ml_trials, ml_labels, ordered_index = ml_order_pearson(pearson_features)
+        ml_trials_train, ml_labels_train, ordered_index = ml_order_pearson(train_pearson_features)
+        ml_trials_test, ml_labels_test, _ = ml_order_pearson(test_pearson_features)
 
         # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
-        nested_drop_curve = random_feature_dropping(dataset=ml_trials, labels=ml_labels, ordered_index=ordered_index,
-                                                    Class_Obj=Class_Obj, k_folds=nk_folds, verbose=False,
-                                                    fold_verbose=False)
+        nested_drop_curve = random_feature_dropping(train_set=ml_trials_train, train_labels=ml_labels_train,
+                                                    test_set=ml_trials_test, test_labels=ml_labels_test,
+                                                    ordered_index=ordered_index, Class_Obj=Class_Obj, verbose=False)
+
         nested_dropping_curves.append(nested_drop_curve)
 
     # 9.) Combine all curve arrays to one array
