@@ -449,7 +449,7 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
     # 2.) Create INDEX of all instances of interests : create_discrete_index()
     label_identities, label_index = create_discrete_index(clippings, verbose=verbose)
     identity_index = np.arange(len(label_index))
-    sss = StratifiedShuffleSplit(n_splits=k_folds, test_size=0.9, random_state=seed)
+    sss = StratifiedShuffleSplit(n_splits=k_folds, random_state=seed)
     sss.get_n_splits(identity_index, label_index)
 
     if verbose:
@@ -463,29 +463,34 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
         X_train, X_test = identity_index[train_index], identity_index[test_index]
         y_train, y_test = label_index[train_index], label_index[test_index]
 
-        # 4.) Use INDEX to Break into corresponding [template set| training/test set] : ml_selector()
+        # 4.) Use INDEX to Break into corresponding [template/training set| test set] : ml_selector()
+        # 4.1) Get template set/training : ml_selector()
         sel_train = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
-                                    label_index=y_train, make_template=False, verbose=verbose)
+                                label_index=y_train, make_template=False, verbose=verbose)
 
+        # 4.1) Get test set : ml_selector()
         sel_test = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_test,
-                                label_index=y_test, make_template=False, verbose=verbose)
+                               label_index=y_test, make_template=False, verbose=verbose)
 
-
-        # 5.) Use template set to make template : ml_selector(make_template=True)
+        # 5.) Use template/training set to make template : ml_selector(make_template=True)
         templates = ml_selector(clippings=clippings, identity_index=label_identities, sel_instances=X_train,
                                 label_index=y_train, make_template=True, verbose=verbose)
 
-        # 6.) Use training/test INDEX and template to create Pearson Features : pearson_extraction()
+        # 6.1) Use template/training INDEX and template to create Training Pearson Features : pearson_extraction()
         train_pearson_features = pearson_extraction(Clipped_Trials=sel_train, Templates=templates)
+
+        # 6.2) Use test INDEX and template to create Test Pearson Features : pearson_extraction()
         test_pearson_features = pearson_extraction(Clipped_Trials=sel_test, Templates=templates)
 
-        # 7.) Reorganize into Machine Learning Format : ml_order_pearson()
+        # 7.1) Reorganize Test Set into Machine Learning Format : ml_order_pearson()
         ml_trials_train, ml_labels_train, ordered_index = ml_order_pearson(train_pearson_features)
+
+        # 7.2) Reorganize Training Set into Machine Learning Format : ml_order_pearson()
         ml_trials_test, ml_labels_test, _ = ml_order_pearson(test_pearson_features)
 
         # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
-        nested_drop_curve = random_feature_dropping(train_set=ml_trials_train, train_labels=ml_labels_train,
-                                                    test_set=ml_trials_test, test_labels=ml_labels_test,
+        nested_drop_curve = random_feature_dropping(train_set=ml_trials_train, train_labels=ml_labels_train.ravel(),
+                                                    test_set=ml_trials_test, test_labels=ml_labels_test.ravel(),
                                                     ordered_index=ordered_index, Class_Obj=Class_Obj, verbose=False)
 
         nested_dropping_curves.append(nested_drop_curve)
