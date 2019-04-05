@@ -656,7 +656,7 @@ def extracted_labels_counter(full_trials, all_labels, starts, label_instructions
             # Loop over every label instance (example) in each epoch
             for example in epoch:
                 # Check that each instance fits within time available
-                if example - offset - tr_length >= 0 and example - offset < len(epoch_length):
+                if example - offset - tr_length >= 0 and example - offset < epoch_length:
                     counter = counter + 1
     return counter
 
