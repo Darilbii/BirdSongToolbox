@@ -600,7 +600,7 @@ def Dyn_LFP_Clipper_Old(Features, Starts, Offset=int, Tr_Length=int):
 
 #TODO: Write Test Functions for the extracted_labels_counter (Need to add handlabels and their functions to tests folder)
 #TODO: Move extracted_labels_counter() to a Epoch Tools utility module
-def extracted_labels_counter(full_trials, all_labels, starts, label_instructions, offset: int, tr_length: int,
+def extracted_labels_counter(all_labels, starts, label_instructions: list, epoch_length: int,  offset: int, tr_length: int,
                              Slide=None, Step=False):
     """Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.
 
@@ -620,6 +620,8 @@ def extracted_labels_counter(full_trials, all_labels, starts, label_instructions
     label_instructions: list
         list of labels and how they should be treated. If you use a nested list in the instructions the labels in
         this nested list will be treated as if they are the same label
+    epoch_length: int
+        Duration (Length) of Epochs in samples
     offset: int
         The number of samples away from the true onset to Grab for ML Trials (Can be Before or After)
     tr_length: int
@@ -637,9 +639,6 @@ def extracted_labels_counter(full_trials, all_labels, starts, label_instructions
         The number of valid samples as directed by Label_Instructions
 
     """
-
-    # TODO: Check if this would be better if the epoch_length was a input parameter
-    epoch_length = len(full_trials[0][0][:, 0]) # Quick way to determine the Duration of the Epoch in Samples
 
     counter = 0  # For stacking all examples of label in full trial
     for instruction in range(len(label_instructions)):
