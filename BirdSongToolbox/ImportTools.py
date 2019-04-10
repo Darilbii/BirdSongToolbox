@@ -9,6 +9,8 @@ import os
 import scipy.io as sio
 import random
 
+#TODO: Deprecate and Remove this entire file
+
 # Command for Importing Process Birdsong Data (Significantly More Flexible)
 def Import_Birds_PrePd_Data(bird_id='z020', sess_name='day-2016-06-02'):
     '''Import Pre-prepared (PrePd) Data and its accomponying meta-data into the workspace for analysis
