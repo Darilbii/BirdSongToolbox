@@ -1,5 +1,6 @@
 """Test functions for the ImportClass """
 
+from BirdSongToolbox.config.settings import TEST_DATA_DIR
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 import numpy as np
 import pytest
@@ -12,7 +13,7 @@ def test_ImportClass():
     bird_id = 'z020'
     date = 'day-2016-06-02'
 
-    PreP_Data = Import_PrePd_Data(bird_id, date)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
 
     assert PreP_Data.bird_id == bird_id
     assert PreP_Data.date == date
