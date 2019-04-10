@@ -362,16 +362,24 @@ class Import_PrePd_Data():
 
     def Locate_All_Good_Motifs(self):
         """Create Index for All Good Motifs
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
-
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
         Returns:
         --------
-        .Good_Motifs:
+        .Good_Motifs: list
+            Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
         """
 
         # 1. All Good Motifs
@@ -388,17 +396,26 @@ class Import_PrePd_Data():
         self.Good_Motifs = Good_Motifz
 
     def Locate_Good_First_Motifs(self):
-        """Create Index for All Good Motifs
+        """Create Index for All Good First Motifs
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .First_Motifs:
+        .First_Motifs: list
+            Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
         """
         # 2. Good First Motifs
         # 2.1 Initialize Variables and Memory
@@ -415,18 +432,28 @@ class Import_PrePd_Data():
         self.First_Motifs = First_Motifz
 
     def Locate_Good_Last_Motifs(self):
-        """Create Index for All Good Motifs
+        """Create Index for All Good Last Motifs
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .Last_Motifs:
+        .Last_Motifs: list
+            Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as 'Good'
         """
+
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -441,18 +468,28 @@ class Import_PrePd_Data():
         Last_Motifz = Last_Motifz[0]  # Weird Needed Step
         self.Last_Motifs = Last_Motifz
 
+
     def Locate_All_Last_Motifs(self):
         """Create Index for All Good Motifs
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .Last_Motifs:
+        .Last_Motifs: list
+            Index of All Last Motifs, this motif is the last motif in a bout they can be classified 'Good' or 'Bad'
+
         """
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
@@ -468,18 +505,28 @@ class Import_PrePd_Data():
         self.All_Last_Motifs = All_Last_Motifz
 
     def Locate_Good_Mid_Motifs(self):
-        """Create Index for All Good Motifs
+        """Create Index for All Good Middle Motifs
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .Last_Motifs:
+        .Good_Mid_Motifs: list
+            Motifs that are classified as good and are 'Beginning' or 'End'
         """
+
         # 3. Good Last Motifs
         # 3.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
@@ -488,8 +535,7 @@ class Import_PrePd_Data():
         # 3.2 Fill Logical for Good First Motifs
         for i in range(len(self.Song_Quality)):
             if self.Song_Quality[i][0] == 'Good':
-                if self.Song_Locations[i][0] != 'Ending' and self.Song_Locations[i][
-                    0] != 'Beginning':  # Locate Desired Label Combination
+                if self.Song_Locations[i][0] != 'Ending' and self.Song_Locations[i][0] != 'Beginning':  # Locate Desired Label Combination
                     Good_Mid_Holder[i] = 1  # Mark them
         Good_Mid_Motifz = np.where(Good_Mid_Holder == 1)  # Create Index of Selected Label
         Good_Mid_Motifz = Good_Mid_Motifz[0]  # Weird Needed Step
@@ -499,14 +545,22 @@ class Import_PrePd_Data():
         """Create Index for All Good Motifs
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .Bad_Motifs:
+        .Bad_Motifs: list
+        Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise
         """
 
         # 4. Bad Motifs w/ NO Dropped Syllables
@@ -524,18 +578,28 @@ class Import_PrePd_Data():
         self.Bad_Motifs = Bad_Motifz
 
     def Locate_Last_Syll_Dropped(self):
-        """ Create Index for All Good Motifs
+        """ Create Index for All Motifs with the last Syllable Dropped
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
         Returns:
         --------
-        .LS_Drop:
+        .LS_Drop: list
+            Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
         """
+
         # 5. Bad Motifs w/ LAST Syllable Dropped
         # 5.1 Initialize Variables and Memory
         LS_Drop_Holder = np.zeros(len(self.Song_Syl_Drop))  # Allocate Memory for Indexing
@@ -550,18 +614,27 @@ class Import_PrePd_Data():
         self.LS_Drop = LS_Dropz
 
     def Locate_Bouts(self):
-        """ Create Index for All Good Motifs
+        """ Create Index for All First Motifs
+
         Parameters:
         -----------
-        .Song_Quality
-        .Song_Locations
-        .Song_Syl_Drop
-
+        .Song_Quality: list
+            Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Locations: list
+            Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
+            [Number of Trials x 1 (numpy.unicode_)]
+        .Song_Syl_Droplist
+            Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
+            [Number of Trials x 1 (numpy.unicode_)]
+            ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
         Returns:
         --------
-        .All_First_Motifs:
+        .All_First_Motifs: list
+            Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
         """
+
         # 6. All First Motifs
         # 6.1 Initialize Variables and Memory
         assert len(self.Song_Locations) == len(self.Song_Quality)
