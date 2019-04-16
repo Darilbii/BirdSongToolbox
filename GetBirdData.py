@@ -3,7 +3,7 @@ import os
 import h5py
 
 
-def inquire_data_path(start_path, focus: str):
+def ask_data_path(start_path, focus: str):
     """ Asks the User to select data they wish to select for adding to a file path
 
     Parameters:
@@ -15,7 +15,7 @@ def inquire_data_path(start_path, focus: str):
     Returns:
     -------
     selection: str
-
+        the selected path addition the user selected to be returned
     """
 
     escape_words = ['quit', 'exit', 'stop']
@@ -41,99 +41,168 @@ def inquire_data_path(start_path, focus: str):
     return selection
 
 
+def get_data_path(day_folder, file_type: str):
+    """ Asks the User to select the data file the user wishes to add to the file path
+
+    Parameter
+    ---------
+    day_folder:
+        path to the day's folder the user selects
+    file_type: str
+        file type the user wants to focus on for selection
+
+    Returns:
+    --------
+    sel_file: str
+        the selected path addition the user selected to be returned
+    """
+
+    files_found = [f for f in os.listdir(day_folder) if f.endswith(file_type)]
+    if len(files_found) > 1:
+        incorrect_data = True
+        while incorrect_data:
+            print(*files_found, sep='\n')
+            sel_file = str(input(f'There are multiple {file_type[1:].capitalize()} Files Please Select One from Above: '))
+            if sel_file in files_found:
+                incorrect_data = False
+            else:
+                print(f'Not valid {file_type[1:].capitalize()} file')
+    else:
+        sel_file = files_found[0]
+    return sel_file
+
+
+def read_kwik_data(kwik_path, verbose=False):
+    """ Read Spike Related information from the Kwik File
+
+    Parameters:
+    -----------
+    kwik_path: file path #TODO: Switch to Pathlib
+        path to the Kwik file
+    verbose: bool
+        if True prints status statement
+
+    Returns:
+    --------
+    Spikedata: dict
+        data needed to render spiking activity fromm the Kwik file
+
+    Notes:
+    ------
+    Relevent Structure of KWIK Files (As I understand them 4/11/2018)
+    Kwik:
+        ├──*.kwik
+        |    ├──'channel_groups'
+        |    |    ├──[#] Relative channel index from 0 to shanksize-1 (May not be True with Zeke's Early Data z020, z007)
+        |    |    |    ├──'spikes'
+        |    |    |    |    ├──'time_samples': [N-long EArray of UInt64]
+        |    |    |    |    |
+        |    |    |    |    ├──'clusters'
+        |    |    |    |    |   └──'main': [N-long EArray of UInt64]
+        |    |
+        |    ├──'recordings'
+        |    |    ├──[#] # Recording index from 0 to Nrecordings-1
+        |    |    |    └──'start_sample': Start time of the Recording
+
+    Source: https://github.com/klusta-team/kwiklib/wiki/Kwik-format
+
+    """
+
+    # Create Dictionary for Data
+    Spikedata = {}
+
+    # Read in Kwik File
+    kwik_file = h5py.File(kwik_path, 'r')
+
+    # Get Recording Starts (Multiple are taken in a day)
+    RC = np.zeros((len(kwik_file['recordings'].keys()), 1))     # Initialize Empty array of the size of the data
+
+    for rec_num in range(len(kwik_file['recordings'].keys())):
+        RC[rec_num, 0] = kwik_file['recordings'][str(rec_num)].attrs['start_sample']
+    Spikedata['recordingStarts'] = RC  # Pass recording Starts to Spikedata
+
+    # Get the Spike Times and Cluster Identity
+    ChGroup = kwik_file['channel_groups']
+    for ch in ChGroup.keys():
+        Spikedata['time_samples'] = ChGroup[ch]['spikes']['time_samples']  # Spike Times
+        Spikedata['clusters'] = ChGroup[ch]['spikes']['clusters']['main']  # Cluster Identity
+
+    # Kwik file data completion statement
+    if verbose:
+        print('Kwik File has ', np.unique(Spikedata['clusters']).shape[0], ' Neurons and ',
+              len(Spikedata['recordings'].keys()), ' Recordings')
+
+    return Spikedata
+
+def read_kwe_file(kwe_path, verbose=False):
+    """ Iterates through the kwe file and gets the Motif Starts and which Recording they come from
+
+    Parameters:
+    -----------
+    kwe_path:
+        path to the KWE File
+    verbose: bool
+        If True, it prints status of function
+
+    Returns:
+    --------
+    kwe_data: dict
+        dictionary of the events in the KWE file
+        Keys: #TODO: Update this and fix it in the Code
+
+    """
+
+    # Initialize Empty Dict
+    kwe_data = {}
+
+    if verbose:
+        print('Getting KWE Data from ', kwe_path)
+
+    # Read the KWE File
+    kwe_file = h5py.File(kwe_path, 'r')
+
+    # Get the Start Times and Recording Number
+    kwe_data['MotifTS'] = kwe_file['event_types']['singing']['motiff_1']['time_samples']  # Start Time
+    kwe_data['MotifRec'] = kwe_file['event_types']['singing']['motiff_1']['recording']    # Recording Number
+
+    return kwe_data
+
+
+
 def main():
-    # This script writes LFP,Spike or Song data to numpy array and saves it in current directory
+    # This script writes LFP, Spike or Song data to numpy array and saves it in current directory
 
     # Folder where birds are
-    EFolder = '/net/expData/birdSong/ss_data'
+    expiriment_folder = '/net/expData/birdSong/ss_data'
 
     # [1] Select Bird
-    # Ask User to Select Bird
-    BirdId = inquire_data_path(start_path=EFolder, focus="Bird")
-
-    # Folder for the bird
-    birdFolder = os.path.join(EFolder,BirdId)
+    bird_id = ask_data_path(start_path=expiriment_folder, focus="Bird")  # Ask User to Select Bird
+    birdFolder = os.path.join(expiriment_folder, bird_id)                # Folder for the bird
 
     # [2] Select Session
-    # Ask User to Select Session
-    Session = inquire_data_path(start_path=birdFolder, focus="Session")
+    session = ask_data_path(start_path=birdFolder, focus="Session")  # Ask User to Select Session
+    dayFolder = os.path.join(birdFolder, session)                    # Folder for Session
 
-    # Folder for Session
-    dayFolder = os.path.join(birdFolder, Session)
-################### Last HERE ######################################
-    Spikedata = {}
+    #TODO: Move these initializations somewhere that makes more sense
     kweD = {}
-    kwik_files = [f for f in os.listdir(dayFolder) if f.endswith('.kwik')]
-    if len(kwik_files) > 1:
-        incorrectData = True
-        while incorrectData:
-            print(kwik_files)
-            kwik_file = str(input('There are multiple Kwik Files Please Select One from Above: '))
-            if kwik_file in kwik_files:
-                incorrectData = False
-            else:
-                print('Not valid kwik file')
-    else:
-        kwik_file = kwik_files[0]
-                
-    # Read in Kwik File
-    BirdFile = h5py.File(os.path.join(dayFolder, kwik_file), 'r')
+
+    # [3] Select Kwik File and get its Data
+    kwik_file = get_data_path(day_folder=dayFolder, file_type='.kwik')  # Ask User to select Kwik File
+    kwik_file_path = os.path.join(dayFolder, kwik_file)                 # Get Path to Seleted Kwik File
+    Spikedata = read_kwik_data(kwik_path=kwik_file_path, verbose=True)  # Make Dict of Data from Kwik File
     
-    # Get Recording Starts
-    RC = np.zeros((len(BirdFile['recordings'].keys()),1))
-    for r in range(len(BirdFile['recordings'].keys())):
-        RC[r,0] = BirdFile['recordings'][str(r)].attrs['start_sample']
-    # Pass recording Starts to Spikedata
-    Spikedata['recordingStarts'] = RC
-    
-    # Go through all channels and get time samples of spikes and the cluster ID
-    ChGroup = BirdFile['channel_groups']
-    for ch in ChGroup.keys():
-        temp = ChGroup[ch]
-        temp2 = temp['spikes']
-        Spikedata['time_samples'] = temp2['time_samples']
-        Spikedata['clusters'] = temp2['clusters']['main']
-    
-    # Kwik file data completion statement
-    print('Kwik File has ',np.unique(Spikedata['clusters']).shape[0], ' Neurons and ', len(BirdFile['recordings'].keys()), ' Recordings')
-    
-    # Go through all the kwe files and get Motif Starts and what recording they come from
-    kwe_files = [f for f in os.listdir(dayFolder) if f.endswith('.kwe')]
-    if len(kwe_files) > 1:
-        incorrectData = True
-        while incorrectData:
-            print(kwe_files)
-            kwe = str(input('There are multiple Kwe Files Please Select One from Above: '))
-            if kwe in kwe_files:
-                incorrectData = False
-            else:
-                print('Not valid kwe file')
-    else:
-        kwe = kwe_files[0]
-   
-    kweFile = h5py.File(os.path.join(dayFolder,kwe),'r')
-    print('Getting KWE Data from ',kwe)
-    kweD['MotifTS'] = kweFile['event_types']['singing']['motiff_1']['time_samples']
-    kweD['MotifRec'] = kweFile['event_types']['singing']['motiff_1']['recording']
+    # [4] Select the Kwe file
+    kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')     # Select KWE File
+    kwe_file_path = os.path.join(dayFolder, kwe)                    # Get Path to Selected KWE File
+    kweD = read_kwe_file(kwe_path= kwe_file_path, verbose=False)   # Read KWE Data into Dict
     
 
-    kwd_files = [k for k in os.listdir(dayFolder) if k.endswith('.kwd')]
-    if len(kwd_files) > 1:
-        incorrectData = True
-        while incorrectData:
-            print(kwd_files)
-            kwd = str(input('There are multiple Kwd Files Please Select One from Above: '))
-            if kwd in kwd_files:
-                incorrectData = False
-            else:
-                print('Not valid kwd file')
-    else:
-        kwd = kwd_files[0]
-    kwdFile = h5py.File(os.path.join(dayFolder,kwd),'r')
+    # [5] Select the Kwd file
+    kwd = get_data_path(day_folder=dayFolder, file_type='.kwd')
+    kwdFile = h5py.File(os.path.join(dayFolder, kwd), 'r')
 
-        
     # Showing where data is coming from
-    print('Getting Data from ',kwik_file)
+    print('Getting Data from ', kwik_file) #TODO: Is this supposed to print the KWD File?
 
 
     incorrectData = True
@@ -220,14 +289,14 @@ def main():
         
         
     if dataType == 'Spike':
-        print('Saving Spike Data to','SpikeData'+BirdId+Session+'.npy')
-        np.save('SpikeData'+BirdId+Session,MsSpikes)
+        print('Saving Spike Data to','SpikeData'+bird_id+session+'.npy')
+        np.save('SpikeData'+bird_id+session,MsSpikes)
     elif dataType == 'Song':
-        print('Saving Song Data to','SongData'+BirdId+Session+'.npy')
-        np.save('SongData'+BirdId+Session,Song)
+        print('Saving Song Data to','SongData'+bird_id+session+'.npy')
+        np.save('SongData'+bird_id+session,Song)
     else:
-        print('Saving LFP Data to','LFPData'+BirdId+Session+'.npy')
-        np.save('LFPData'+BirdId+Session,LFP)
+        print('Saving LFP Data to','LFPData'+bird_id+session+'.npy')
+        np.save('LFPData'+bird_id+session,LFP)
 
 
 if __name__ == "__main__":
