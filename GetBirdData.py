@@ -173,28 +173,25 @@ def main():
     # This script writes LFP, Spike or Song data to numpy array and saves it in current directory
 
     # Folder where birds are
-    expiriment_folder = '/net/expData/birdSong/ss_data'
+    experiment_folder_path = '/net/expData/birdSong/ss_data'
 
     # [1] Select Bird
-    bird_id = ask_data_path(start_path=expiriment_folder, focus="Bird")  # Ask User to Select Bird
-    birdFolder = os.path.join(expiriment_folder, bird_id)                # Folder for the bird
+    bird_id = ask_data_path(start_path=experiment_folder_path, focus="Bird")  # Ask User to Select Bird
+    bird_folder_path = os.path.join(experiment_folder_path, bird_id)                # Folder for the bird
 
     # [2] Select Session
-    session = ask_data_path(start_path=birdFolder, focus="Session")  # Ask User to Select Session
-    dayFolder = os.path.join(birdFolder, session)                    # Folder for Session
-
-    #TODO: Move these initializations somewhere that makes more sense
-    kweD = {}
+    session = ask_data_path(start_path=bird_folder_path, focus="Session")  # Ask User to Select Session
+    dayFolder = os.path.join(bird_folder_path, session)                    # Folder for Session
 
     # [3] Select Kwik File and get its Data
     kwik_file = get_data_path(day_folder=dayFolder, file_type='.kwik')  # Ask User to select Kwik File
     kwik_file_path = os.path.join(dayFolder, kwik_file)                 # Get Path to Seleted Kwik File
-    Spikedata = read_kwik_data(kwik_path=kwik_file_path, verbose=True)  # Make Dict of Data from Kwik File
+    kwik_data = read_kwik_data(kwik_path=kwik_file_path, verbose=True)  # Make Dict of Data from Kwik File
     
     # [4] Select the Kwe file
     kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')     # Select KWE File
     kwe_file_path = os.path.join(dayFolder, kwe)                    # Get Path to Selected KWE File
-    kweD = read_kwe_file(kwe_path= kwe_file_path, verbose=False)   # Read KWE Data into Dict
+    kwe_data = read_kwe_file(kwe_path= kwe_file_path, verbose=False)   # Read KWE Data into Dict
     
 
     # [5] Select the Kwd file
@@ -205,34 +202,35 @@ def main():
     print('Getting Data from ', kwik_file) #TODO: Is this supposed to print the KWD File?
 
 
-    incorrectData = True
-    while incorrectData:
+    incorrect_data = True
+    while incorrect_data:
         print('Datasets: LFP, Spike, Song')
-        dataType = str(input('Please Choose Dataset From Above: '))
-        if dataType == 'LFP' or dataType == 'Song' or dataType == 'Spike':
-            incorrectData = False
+        data_type = str(input('Please Choose Dataset From Above: '))
+        if data_type == 'LFP' or data_type == 'Song' or data_type == 'Spike':
+            incorrect_data = False
         else:
             print('Not valid dataset')
             print('Datasets: LFP, Spike, Song')
-            dataType = str(input('Please Choose Dataset From Above: '))
+            data_type = str(input('Please Choose Dataset From Above: '))
     # Set song parameters
-    BeforeT = int(input('How much time before a motif do you want?(integer) '))
-    AfterT = int(input('How much time after a motif do you want?(integer) '))
-    SongLengthMS = 500 + BeforeT+AfterT
+    before_t = int(input('How much time before a motif do you want?(integer) '))
+    after_t = int(input('How much time after a motif do you want?(integer) '))
+    SongLengthMS = 500 + before_t+after_t
     SamplingRate = 30000 
     index = 0
     # Loop through all Motif time starts
-    for Motif in range(kweD['MotifTS'].shape[0]):
+
+    for Motif in range(kwe_data['MotifTS'].shape[0]):
          
         # Get start time for motif and recording start
-        MotifStartTime = kweD['MotifTS'][Motif]
-        Recording = kweD['MotifRec'][Motif]
+        MotifStartTime = kwe_data['MotifTS'][Motif]
+        Recording = kwe_data['MotifRec'][Motif]
         LFPaA = kwdFile['recordings'][str(Recording)]['data']
-        MotifRecordingStart = Spikedata['recordingStarts'][kweD['MotifRec'][Motif]]
+        MotifRecordingStart = kwik_data['recordingStarts'][kwe_data['MotifRec'][Motif]]
         
         # Copy over time samples and clusters
-        SpikeDataTS = np.array(Spikedata['time_samples'])
-        SpikeDataCI = np.array(Spikedata['clusters'])
+        SpikeDataTS = np.array(kwik_data['time_samples'])
+        SpikeDataCI = np.array(kwik_data['clusters'])
         
         #Create spike data holder with neurons by song length size
         BinnedSpikes = np.zeros((np.unique(SpikeDataCI).shape[0],SongLengthMS))
@@ -241,13 +239,13 @@ def main():
         ClusterUL = np.unique(SpikeDataCI)
         
         # Get Start Time and End Time in samples for the motif
-        StartTime = int(MotifStartTime+MotifRecordingStart-BeforeT*30)
+        StartTime = int(MotifStartTime+MotifRecordingStart-before_t*30)
         EndTime = int(StartTime + SongLengthMS*30)
-        StartTimeLFP = int(MotifStartTime-BeforeT*30)
+        StartTimeLFP = int(MotifStartTime-before_t*30)
         EndTimeLFP = int(StartTimeLFP + SongLengthMS*30)
         
         #Print out info about motif
-        print('On Motif ', (Motif+1),'/',kweD['MotifTS'].shape[0], ' With Sample Start ',StartTime)
+        print('On Motif ', (Motif+1),'/',kwe_data['MotifTS'].shape[0], ' With Sample Start ',StartTime)
         
         # Get spikes that are between the start and end sample time stamps
         tempSpikes = SpikeDataTS[np.where(np.logical_and(StartTime<SpikeDataTS,SpikeDataTS<EndTime))]
@@ -266,32 +264,32 @@ def main():
             # Add 1 to the spike count for that bin and cluster
             BinnedSpikes[tempClusterID,tempBinID] = BinnedSpikes[tempClusterID,tempBinID] + 1 
         if index == 0:
-            if dataType == 'Spike':
-                MsSpikes = np.zeros((BinnedSpikes.shape[0],BinnedSpikes.shape[1],kweD['MotifTS'].shape[0]))
+            if data_type == 'Spike':
+                MsSpikes = np.zeros((BinnedSpikes.shape[0],BinnedSpikes.shape[1],kwe_data['MotifTS'].shape[0]))
                 MsSpikes[:,:,index] = BinnedSpikes
-            elif dataType == 'Song':
-                Song = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh].shape[0],LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh].shape[1],kweD['MotifTS'].shape[0]))
+            elif data_type == 'Song':
+                Song = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh].shape[0],LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh].shape[1],kwe_data['MotifTS'].shape[0]))
                 Song[:,:,index] = LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh]
             else:
-                LFP = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1].shape[0],LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1].shape[1],kweD['MotifTS'].shape[0]))
+                LFP = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1].shape[0],LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1].shape[1],kwe_data['MotifTS'].shape[0]))
                 LFP[:,:,index] = LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1]
         else:
-            if dataType == 'Spike':
+            if data_type == 'Spike':
                 
-                MsSpikes[:,:,index] = BinnedSpikes
-            elif dataType == 'Song':
+                MsSpikes[:, :, index] = BinnedSpikes
+            elif data_type == 'Song':
                 
-                Song[:,:,index] = LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh]
+                Song[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP,NumKWDCh-1:NumKWDCh]
             else:
 
-                LFP[:,:,index] = LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1]
+                LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP,0:NumKWDCh-1]
         index = index + 1
         
         
-    if dataType == 'Spike':
+    if data_type == 'Spike':
         print('Saving Spike Data to','SpikeData'+bird_id+session+'.npy')
         np.save('SpikeData'+bird_id+session,MsSpikes)
-    elif dataType == 'Song':
+    elif data_type == 'Song':
         print('Saving Song Data to','SongData'+bird_id+session+'.npy')
         np.save('SongData'+bird_id+session,Song)
     else:
