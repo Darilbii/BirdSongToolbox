@@ -21,6 +21,7 @@ def ask_data_path(start_path, focus: str):
     escape_words = ['quit', 'exit', 'stop']
 
     options = os.listdir(start_path)
+    print('\n')
     print(*options, sep='\n')
     selection = str(input(f'Please Select a {focus}:'))
 
@@ -30,13 +31,12 @@ def ask_data_path(start_path, focus: str):
         if selection.lower() in escape_words:
             return None
         elif selection not in options:
-            print(f'{focus} not available')
+            print(f'\n {focus} not available \n')
             print(*options, sep='\n')
-            selection = str(input(f'Now Please Select a {focus}: '))
+            selection = str(input(f'\n Now Please Select a {focus}: '))
         else:
             print(f'{focus} Selected')
             incorrect_data = False
-    # Folder for the bird
 
     return selection
 
@@ -131,7 +131,7 @@ def read_kwik_data(kwik_path, verbose=False):
     # Kwik file data completion statement
     if verbose:
         print('Kwik File has ', np.unique(Spikedata['clusters']).shape[0], ' Neurons and ',
-              len(Spikedata['recordings'].keys()), ' Recordings')
+              len(kwik_file['recordings'].keys()), ' Recordings')
 
     return Spikedata
 
@@ -170,37 +170,68 @@ def read_kwe_file(kwe_path, verbose=False):
     return kwe_data
 
 ########################## WAS LAST WORKING HERE##################################
-def get_lfp_data():
 
+
+def get_song_data(kwdFile, kwe_data, kwik_data, SongLengthMS, before_t):
+    index = 0
     for Motif in range(kwe_data['motif_st'].shape[0]):
 
         # Get start time for motif and recording start
-        MotifStartTime = kwe_data['motif_st'][Motif]
-        Recording = kwe_data['motif_rec_num'][Motif]
-        LFPaA = kwdFile['recordings'][str(Recording)]['data']
-        MotifRecordingStart = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]
-
-        # TODO: Check this as I don't think the MotifStartTIme should be dependent on the Kwik
+        motif_start_time = kwe_data['motif_st'][Motif]    # Start Time of Motif in its Specific Recording
+        motif_rec_num = kwe_data['motif_rec_num'][Motif]  # Recording Number Motif Occurs During
+        # motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]  # Start Sample of Recording
+        kwd_rec_raw_data = kwdFile['recordings'][str(motif_rec_num)]['data']  # Raw Data for this Recording Number
 
         # Get Start Time and End Time in samples for the motif
-        StartTime = int(MotifStartTime + MotifRecordingStart - before_t * 30)
-        EndTime = int(StartTime + SongLengthMS * 30)
-        StartTimeLFP = int(MotifStartTime - before_t * 30)
+        StartTimeLFP = int(motif_start_time - before_t * 30)
         EndTimeLFP = int(StartTimeLFP + SongLengthMS * 30)
 
         # Print out info about motif
-        print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0], ' With Sample Start ', StartTime)
+        print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0])
 
-        # Set that binned motif into larger data structure with key the motif number/name
-        NumKWDCh = LFPaA.shape[1]
+        num_kwd_ch = kwd_rec_raw_data.shape[1]
 
         if index == 0:
-            LFP = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[0],
-                            LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[1], kwe_data['motif_st'].shape[0]))
-            LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
+            Song = np.zeros((kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, num_kwd_ch - 1:num_kwd_ch].shape[0],
+                             kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, num_kwd_ch - 1:num_kwd_ch].shape[1],
+                             kwe_data['motif_st'].shape[0]))
+            Song[:, :, index] = kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, num_kwd_ch - 1:num_kwd_ch]
         else:
-            LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
+            Song[:, :, index] = kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, num_kwd_ch - 1:num_kwd_ch]
         index = index + 1
+    return Song
+
+# def get_lfp_data(kwe_data, ):
+#
+#     for Motif in range(kwe_data['motif_st'].shape[0]):
+#
+#         # Get start time for motif and recording start
+#         MotifStartTime = kwe_data['motif_st'][Motif]
+#         Recording = kwe_data['motif_rec_num'][Motif]
+#         LFPaA = kwdFile['recordings'][str(Recording)]['data']
+#         MotifRecordingStart = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]
+#
+#         # TODO: Check this as I don't think the MotifStartTIme should be dependent on the Kwik
+#
+#         # Get Start Time and End Time in samples for the motif
+#         StartTime = int(MotifStartTime + MotifRecordingStart - before_t * 30)
+#         EndTime = int(StartTime + SongLengthMS * 30)
+#         StartTimeLFP = int(MotifStartTime - before_t * 30)
+#         EndTimeLFP = int(StartTimeLFP + SongLengthMS * 30)
+#
+#         # Print out info about motif
+#         print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0], ' With Sample Start ', StartTime)
+#
+#         # Set that binned motif into larger data structure with key the motif number/name
+#         NumKWDCh = LFPaA.shape[1]
+#
+#         if index == 0:
+#             LFP = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[0],
+#                             LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[1], kwe_data['motif_st'].shape[0]))
+#             LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
+#         else:
+#             LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
+#         index = index + 1
 
 
 def main():
@@ -215,24 +246,24 @@ def main():
 
     # [2] Select Session
     session = ask_data_path(start_path=bird_folder_path, focus="Session")  # Ask User to Select Session
-    dayFolder = os.path.join(bird_folder_path, session)  # Folder for Session
+    dayFolder = os.path.join(bird_folder_path, session)                    # Folder for Session
 
     # [3] Select Kwik File and get its Data
     kwik_file = get_data_path(day_folder=dayFolder, file_type='.kwik')  # Ask User to select Kwik File
-    kwik_file_path = os.path.join(dayFolder, kwik_file)  # Get Path to Seleted Kwik File
+    kwik_file_path = os.path.join(dayFolder, kwik_file)                 # Get Path to Selected Kwik File
     kwik_data = read_kwik_data(kwik_path=kwik_file_path, verbose=True)  # Make Dict of Data from Kwik File
 
     # [4] Select the Kwe file
-    kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')  # Select KWE File
-    kwe_file_path = os.path.join(dayFolder, kwe)  # Get Path to Selected KWE File
+    kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')      # Select KWE File
+    kwe_file_path = os.path.join(dayFolder, kwe)                     # Get Path to Selected KWE File
     kwe_data = read_kwe_file(kwe_path=kwe_file_path, verbose=False)  # Read KWE Data into Dict
 
     # [5] Select the Kwd file
-    kwd = get_data_path(day_folder=dayFolder, file_type='.kwd')
-    kwdFile = h5py.File(os.path.join(dayFolder, kwd), 'r')
+    kwd = get_data_path(day_folder=dayFolder, file_type='.kwd')   # Select Kwd File
+    kwdFile = h5py.File(os.path.join(dayFolder, kwd), 'r')        # Read Kwd Data into Dict
 
     # Showing where data is coming from
-    print('Getting Data from ', kwik_file)  # TODO: Is this supposed to print the KWD File?
+    print('Getting Data from ', kwd)
 
     incorrect_data = True
     while incorrect_data:
