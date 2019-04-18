@@ -170,6 +170,10 @@ def read_kwe_file(kwe_path, verbose=False):
     return kwe_data
 
 ########################## WAS LAST WORKING HERE##################################
+# TODO: I need to save the absolute start times for reference against the hand labels
+# TODO: I need to refactor the song, lfp, spike, functions to have better iters
+# TODO: I need to Incorporate the new get_data functions into the Main()
+# TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
 
 
 def get_song_data(kwdFile, kwe_data, kwik_data, SongLengthMS, before_t):
@@ -201,37 +205,102 @@ def get_song_data(kwdFile, kwe_data, kwik_data, SongLengthMS, before_t):
         index = index + 1
     return Song
 
-# def get_lfp_data(kwe_data, ):
-#
-#     for Motif in range(kwe_data['motif_st'].shape[0]):
-#
-#         # Get start time for motif and recording start
-#         MotifStartTime = kwe_data['motif_st'][Motif]
-#         Recording = kwe_data['motif_rec_num'][Motif]
-#         LFPaA = kwdFile['recordings'][str(Recording)]['data']
-#         MotifRecordingStart = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]
-#
-#         # TODO: Check this as I don't think the MotifStartTIme should be dependent on the Kwik
-#
-#         # Get Start Time and End Time in samples for the motif
-#         StartTime = int(MotifStartTime + MotifRecordingStart - before_t * 30)
-#         EndTime = int(StartTime + SongLengthMS * 30)
-#         StartTimeLFP = int(MotifStartTime - before_t * 30)
-#         EndTimeLFP = int(StartTimeLFP + SongLengthMS * 30)
-#
-#         # Print out info about motif
-#         print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0], ' With Sample Start ', StartTime)
-#
-#         # Set that binned motif into larger data structure with key the motif number/name
-#         NumKWDCh = LFPaA.shape[1]
-#
-#         if index == 0:
-#             LFP = np.zeros((LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[0],
-#                             LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1].shape[1], kwe_data['motif_st'].shape[0]))
-#             LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
-#         else:
-#             LFP[:, :, index] = LFPaA[StartTimeLFP:EndTimeLFP, 0:NumKWDCh - 1]
-#         index = index + 1
+
+def get_lfp_data(kwdFile, kwe_data, kwik_data, SongLengthMS, before_t):
+    index = 0
+    for Motif in range(kwe_data['motif_st'].shape[0]):
+
+        # Get start time for motif and recording start
+        motif_start_time = kwe_data['motif_st'][Motif]    # Start Time of Motif in its Specific Recording
+        motif_rec_num = kwe_data['motif_rec_num'][Motif]  # Recording Number Motif Occurs During
+        # motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]  # Start Sample of Recording
+        kwd_rec_raw_data = kwdFile['recordings'][str(motif_rec_num)]['data']  # Raw Data for this Recording Number
+
+        # Get Start Time and End Time in samples for the motif
+        StartTimeLFP = int(motif_start_time - before_t * 30)
+        EndTimeLFP = int(StartTimeLFP + SongLengthMS * 30)
+
+        # Print out info about motif
+        print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0])
+
+        num_kwd_ch = kwd_rec_raw_data.shape[1]
+
+        if index == 0:
+            LFP = np.zeros((kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, 0:num_kwd_ch - 1].shape[0],
+                            kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, 0:num_kwd_ch - 1].shape[1],
+                            kwe_data['motif_st'].shape[0]))
+            LFP[:, :, index] = kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, 0:num_kwd_ch - 1]
+        else:
+            LFP[:, :, index] = kwd_rec_raw_data[StartTimeLFP:EndTimeLFP, 0:num_kwd_ch - 1]
+
+        index = index + 1
+    return LFP
+
+########################## WAS LAST WORKING HERE##################################
+def get_spike_data(kwe_data, kwik_data, SongLengthMS, before_t):
+
+    spike_time_data = []
+
+    index = 0
+    # Loop through all Motif time starts
+
+    for Motif in range(kwe_data['motif_st'].shape[0]):
+
+        # Get start time for motif and recording start
+        motif_start_time = kwe_data['motif_st'][Motif]  # Start Time of Motif in its Specific Recording
+        motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]  # Start Sample of Recording
+
+        # Copy over time samples and clusters
+        spike_data_ts = np.array(kwik_data['time_samples'])  # Copy Array of Spike Times
+        spike_data_cid = np.array(kwik_data['clusters'])     # Copy Array of Cluster ID
+
+        # Create spike data holder (Num Neurons x Song Length size)
+        binned_spikes = np.zeros((np.unique(spike_data_cid).shape[0], SongLengthMS))
+
+        # Get all the unique cluster ID's, Some values are skipped
+        cluster_ids = np.unique(spike_data_cid)
+
+        # Get Start Time and End Time in samples for the motif
+        start_time = int(motif_start_time + motif_rec_start - before_t * 30)
+        end_time = int(start_time + SongLengthMS * 30)
+
+        # Print out info about motif
+        print('On Motif ', (Motif + 1), '/', kwe_data['motif_st'].shape[0], ' With Sample Start ', start_time)
+
+        # Get spikes that are between the start and end sample time stamps
+        spike_times_temp = spike_data_ts[np.where(np.logical_and(start_time < spike_data_ts, spike_data_ts < end_time))]
+
+        # Get cluster ID's for spikes between start and end time
+        cid_temp = spike_data_cid[np.where(np.logical_and(start_time < spike_data_ts, spike_data_ts < end_time))]
+
+        # Make Dictionary of Empty List with the Cluster IDs as Keys
+        spike_dict = {}
+        for key in cluster_ids:
+            spike_dict[key] = []
+
+        # Loop through all the spikes that were between start and end time
+        for spike_time, cluster_identity in zip(spike_times_temp, cid_temp):
+            # Get the unique cluster ID
+            temp_cluster_id = np.where(cluster_identity == cluster_ids)
+            # Get what time bin the spike belongs to
+            temp_time_bin_id = int(np.floor((spike_time- start_time) / 30))
+            # Add 1 to the spike count for that bin and cluster
+            binned_spikes[temp_cluster_id, temp_time_bin_id] = binned_spikes[temp_cluster_id, temp_time_bin_id] + 1
+            # Add the Spike Time to its List in the Dictionary of Unit's Activity
+            spike_dict[cluster_identity].append(spike_time - start_time)
+
+        spike_time_data.append(spike_dict)  # Save the Spike Time Dictionary to the List for All Motifs
+
+        # Add the Binned Spikes to the Array of Spikes for all Motifs
+        if index == 0:
+            spike_data = np.zeros((binned_spikes.shape[0], binned_spikes.shape[1], kwe_data['motif_st'].shape[0]))
+            spike_data[:, :, index] = binned_spikes
+        else:
+            spike_data[:, :, index] = binned_spikes
+
+        index = index + 1
+
+    return spike_data, spike_time_data
 
 
 def main():
