@@ -11,7 +11,7 @@ def ask_data_path(start_path, focus: str):
     start_path:
         path to look for data selection options
     focus: str
-
+        Identifier type the User needs to focus on for selection
     Returns:
     -------
     selection: str
@@ -170,11 +170,6 @@ def read_kwe_file(kwe_path, verbose=False):
     kwe_data['motif_rec_num'] = kwe_file['event_types']['singing']['motiff_1']['recording']  # Recording Number
 
     return kwe_data
-
-########################## WAS LAST WORKING HERE##################################
-# TODO: I need to save the absolute start times for reference against the hand labels
-# TODO: Refactor the core part of Main() to work better when actually choosing which data to import and where to save
-# TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
 
 
 def get_song_data(kwd_file, kwe_data, song_len_ms, before_t):
@@ -388,6 +383,11 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
     return spike_data, spike_time_data
 
 
+########################## WAS LAST WORKING HERE##################################
+# TODO: I need to save the absolute start times for reference against the hand labels
+# TODO: Refactor the core part of Main() to work better when actually choosing which data to import and where to save
+# TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
+
 def main():
     # This script writes LFP, Spike or Song data to numpy array and saves it in current directory
 
@@ -426,13 +426,13 @@ def main():
         if data_type == 'LFP' or data_type == 'Song' or data_type == 'Spike' or data_type == 'All':
             incorrect_data = False
         else:
-            print('Not valid dataset')
-            print('Datasets: LFP, Spike, Song')
+            print('Not a valid Dataset')
+            print('Datasets: LFP, Spike, Song, All')
             data_type = str(input('Please Choose Dataset From Above: '))
     # Set song parameters
     before_t = int(input('How much time (ms) before a motif do you want?(integer) '))
     after_t = int(input('How much time (ms) after a motif do you want?(integer) '))
-    # TODO: Make the Function ask for the duration of the Song
+    # TODO: Make the Function ask for the duration of the Motif
     song_len_ms = 500 + before_t + after_t
     SamplingRate = 30000
 
