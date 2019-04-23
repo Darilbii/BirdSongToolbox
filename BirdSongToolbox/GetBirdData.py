@@ -398,7 +398,7 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
 
     file_name = data_name + '_' + bird_id + '_' + session
     data_file_path = INTERMEDIATE_DATA_PATH / file_name
-    print(f"Saving {data_name} Data to", data_file_path + '.npy')
+    print(f"Saving {data_name} Data to", data_file_path.name + '.npy')
     np.save(data_file_path, data)
 
 
