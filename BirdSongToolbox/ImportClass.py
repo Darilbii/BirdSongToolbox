@@ -4,6 +4,7 @@ import scipy.io as sio
 # import BirdSongToolbox.config.settings as settings
 from .config.settings import DATA_PATH
 
+# TODO: Convert Pathing to be through Pathlib and Centralized like Songbird-Repository
 
 # Class function for Importing PrePd Data
 ### Confirm this works as intended
