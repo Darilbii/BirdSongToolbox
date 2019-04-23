@@ -1,11 +1,12 @@
-import pickle
+from BirdSongToolbox.config.settings import INTERMEDIATE_DATA_PATH
 
 import numpy as np
 import os
 import h5py
+import pickle
 
-# from BirdSongToolbox.config.settings import DATA_PATH
-# TODO: Switch File Pathing to Pathlib
+
+# TODO: Switch modular functions to Pathlib
 # TODO: Write Test Scripts for these Functions
 
 
@@ -212,7 +213,7 @@ def get_song_data(kwd_file, kwe_data, song_len_ms, before_t):
     for motif in range(kwe_data['motif_st'].shape[0]):
 
         # Get start time for motif and recording start
-        motif_start_time = kwe_data['motif_st'][motif]    # Start Time of Motif in its Specific Recording
+        motif_start_time = kwe_data['motif_st'][motif]  # Start Time of Motif in its Specific Recording
         motif_rec_num = kwe_data['motif_rec_num'][motif]  # Recording Number Motif Occurs During
         # motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]  # Start Sample of Recording
         kwd_rec_raw_data = kwd_file['recordings'][str(motif_rec_num)]['data']  # Raw Data for this Recording Number
@@ -272,7 +273,7 @@ def get_lfp_data(kwd_file, kwe_data, song_len_ms, before_t):
     for motif in range(kwe_data['motif_st'].shape[0]):
 
         # Get start time for motif and recording start
-        motif_start_time = kwe_data['motif_st'][motif]    # Start Time of Motif in its Specific Recording
+        motif_start_time = kwe_data['motif_st'][motif]  # Start Time of Motif in its Specific Recording
         motif_rec_num = kwe_data['motif_rec_num'][motif]  # Recording Number Motif Occurs During
         # motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][Motif]]  # Start Sample of Recording
         kwd_rec_raw_data = kwd_file['recordings'][str(motif_rec_num)]['data']  # Raw Data for this Recording Number
@@ -338,7 +339,7 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
 
         # [2] Copy over time samples and clusters
         spike_data_ts = np.array(kwik_data['time_samples'])  # Copy Array of Spike Times
-        spike_data_cid = np.array(kwik_data['clusters'])     # Copy Array of Cluster ID
+        spike_data_cid = np.array(kwik_data['clusters'])  # Copy Array of Cluster ID
 
         # [3] Create spike data holder (Num Neurons x Song Length size)
         binned_spikes = np.zeros((np.unique(spike_data_cid).shape[0], song_len_ms))
@@ -368,9 +369,8 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
 
         # Loop through all the spikes that were between start and end time
         for spike_time, cluster_identity in zip(spike_times_temp, cid_temp):
-
-            temp_cluster_id = np.where(cluster_identity == cluster_ids)      # Get the unique cluster ID
-            temp_time_bin_id = int(np.floor((spike_time- start_time) / 30))  # Get what time bin the spike belongs to
+            temp_cluster_id = np.where(cluster_identity == cluster_ids)  # Get the unique cluster ID
+            temp_time_bin_id = int(np.floor((spike_time - start_time) / 30))  # Get what time bin the spike belongs to
 
             # Add 1 to the spike count for that bin and cluster
             binned_spikes[temp_cluster_id, temp_time_bin_id] = binned_spikes[temp_cluster_id, temp_time_bin_id] + 1
@@ -388,6 +388,18 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
             spike_data[:, :, motif] = binned_spikes
 
     return spike_data, spike_time_data
+
+
+def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str):
+    # TODO: Add *Args to allow for identifier information to be appended to the name of the file
+    # Save Song Data
+    if not INTERMEDIATE_DATA_PATH.exists():
+        INTERMEDIATE_DATA_PATH.mkdir(parents=False, exist_ok=True)
+
+    file_name = data_name + '_' + bird_id + '_' + session
+    data_file_path = INTERMEDIATE_DATA_PATH / file_name
+    print(f"Saving {data_name} Data to", data_file_path + '.npy')
+    np.save(data_file_path, data)
 
 
 ########################## WAS LAST WORKING HERE##################################
@@ -420,21 +432,21 @@ def main():
 
     # [2] Select Session
     session = ask_data_path(start_path=bird_folder_path, focus="Session")  # Ask User to Select Session
-    dayFolder = os.path.join(bird_folder_path, session)                    # Folder for Session
+    dayFolder = os.path.join(bird_folder_path, session)  # Folder for Session
 
     # [3] Select Kwik File and get its Data
     kwik_file = get_data_path(day_folder=dayFolder, file_type='.kwik')  # Ask User to select Kwik File
-    kwik_file_path = os.path.join(dayFolder, kwik_file)                 # Get Path to Selected Kwik File
+    kwik_file_path = os.path.join(dayFolder, kwik_file)  # Get Path to Selected Kwik File
     kwik_data = read_kwik_data(kwik_path=kwik_file_path, verbose=True)  # Make Dict of Data from Kwik File
 
     # [4] Select the Kwe file
-    kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')      # Select KWE File
-    kwe_file_path = os.path.join(dayFolder, kwe)                     # Get Path to Selected KWE File
+    kwe = get_data_path(day_folder=dayFolder, file_type='.kwe')  # Select KWE File
+    kwe_file_path = os.path.join(dayFolder, kwe)  # Get Path to Selected KWE File
     kwe_data = read_kwe_file(kwe_path=kwe_file_path, verbose=False)  # Read KWE Data into Dict
 
     # [5] Select the Kwd file
-    kwd = get_data_path(day_folder=dayFolder, file_type='.kwd')   # Select Kwd File
-    kwd_file = h5py.File(os.path.join(dayFolder, kwd), 'r')        # Read Kwd Data into Dict
+    kwd = get_data_path(day_folder=dayFolder, file_type='.kwd')  # Select Kwd File
+    kwd_file = h5py.File(os.path.join(dayFolder, kwd), 'r')  # Read Kwd Data into Dict
 
     # Showing where data is coming from
     print('Getting Data from ', kwd)
@@ -461,42 +473,46 @@ def main():
     song_len_ms = motif_dur + before_t + after_t  # Calculate the Duration of the Grabbed Data
     SamplingRate = 30000
 
-    # TODO: Work Out where I will Save these intermediate data
-    temp_destination = '/home/debrown/data/'
-
     # [7] Get Song Data
     if data_type == 'Song' or data_type == 'All':
         # Get Song Data
         song_data = get_song_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
+        _save_numpy_data(data=song_data, data_name="SongData", bird_id=bird_id, session=session)
         # Save Song Data
-        song_data_file = temp_destination + 'SongData' + '_' + bird_id + '_' + session
-        print('Saving Song Data to', song_data_file + '.npy')
-        np.save(song_data_file, song_data)
+        # song_file_name = 'SongData' + '_' + bird_id + '_' + session
+        # song_data_file = INTERMEDIATE_DATA_PATH / song_file_name
+        # print('Saving Song Data to', song_data_file + '.npy')
+        # np.save(song_data_file, song_data)
 
     # [8] Get LFP Data
     if data_type == 'LFP' or data_type == 'All':
         # Get LFP Data
         lfp_data = get_lfp_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
+        _save_numpy_data(data=lfp_data, data_name="LFPData", bird_id=bird_id, session=session)
         # Save LFP Data
-        lfp_data_file = temp_destination + 'LFPData' + '_' + bird_id + '_' + session
-        print('Saving LFP Data to', lfp_data_file + '.npy')
-        np.save(lfp_data_file, lfp_data)
+        # lfp_file_name = + 'LFPData' + '_' + bird_id + '_' + session
+        # lfp_data_file = INTERMEDIATE_DATA_PATH / lfp_file_name
+        # print('Saving LFP Data to', lfp_data_file + '.npy')
+        # np.save(lfp_data_file, lfp_data)
 
     # [9] Get Spike Data
     if data_type == 'Spike' or data_type == 'All':
         # Get Spike Data
         binned_spikes, spike_time_data = get_spike_data(kwe_data=kwe_data, kwik_data=kwik_data, song_len_ms=song_len_ms,
                                                         before_t=before_t)
+
+        _save_numpy_data(data=binned_spikes, data_name="SpikeData", bird_id=bird_id, session=session)
         # Save Binned Spike Data
-        bin_spike_data_file = temp_destination + 'SpikeData' + '_' + bird_id + '_' + session
-        print('Saving Binned Spike Data to', bin_spike_data_file + '.npy')
-        np.save(bin_spike_data_file, binned_spikes)
+        # bin_spike_file_name = + 'SpikeData' + '_' + bird_id + '_' + session
+        # bin_spike_data_file = INTERMEDIATE_DATA_PATH / bin_spike_file_name
+        # print('Saving Binned Spike Data to', bin_spike_data_file + '.npy')
+        # np.save(bin_spike_data_file, binned_spikes)
 
         # Save Spike Time Data
         file_name = 'SpikeTimeData' + '_' + bird_id + '_' + session + '.pckl'
-        destination = temp_destination + file_name
+        destination = INTERMEDIATE_DATA_PATH / file_name
         file_object = open(destination, 'wb')
         pickle.dump(spike_time_data, file_object)
         file_object.close()

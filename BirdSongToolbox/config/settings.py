@@ -18,6 +18,10 @@ DATA_DIR = PROJECT_DIR / "data"
 TEST_DATA_ZIP = DATA_DIR / "PrePd_Data.zip"
 TEST_DATA_DIR = DATA_DIR / "PrePd_Data"
 
+# Intermediate Data Path
+USER_HOME = Path.home()
+INTERMEDIATE_DATA_PATH = USER_HOME / "data"
+
 
 
 def using_lab_server():
