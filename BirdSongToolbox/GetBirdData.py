@@ -323,6 +323,7 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
         (Number of Clusters  x  Length of Motif in ms  x  Num. of Motifs)
     spike_time_data: list
         Spike timing data related to each motif as directed based on the song_len_ms and before_t parameters
+        [Num. of Motifs]-> {'Cluster Number'  :  [Spike Time (Variable Length)]}
 
     """
     spike_time_data = []
