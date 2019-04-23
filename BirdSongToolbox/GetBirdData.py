@@ -394,6 +394,20 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
 # TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
 
 def main():
+    """
+    Algorithm Steps:
+    [1] Select the Bird
+    [2] Select the Recording Day
+    [3] Select the Kwik File and get its Data
+    [4] Select the Kwe File and get its Data
+    [5] Select the Kwd File
+    [6] Define Parameters for Grabbing Data
+    [7] Get Song Data
+    [8] Get LFP Data
+    [9] Get Spike Data
+
+    """
+
     # This script writes LFP, Spike or Song data to numpy array and saves it in current directory
 
     # Folder where birds are
