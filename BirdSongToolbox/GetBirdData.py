@@ -42,7 +42,7 @@ def ask_data_path(start_path, focus: str):
             print(*options, sep='\n')
             selection = str(input(f'\n Now Please Select a {focus}: '))
         else:
-            print(f'{focus} Selected')
+            print(f'{focus} Selected \n')
             incorrect_data = False
 
     return selection
@@ -478,37 +478,26 @@ def main():
         # Get Song Data
         song_data = get_song_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
-        _save_numpy_data(data=song_data, data_name="SongData", bird_id=bird_id, session=session)
         # Save Song Data
-        # song_file_name = 'SongData' + '_' + bird_id + '_' + session
-        # song_data_file = INTERMEDIATE_DATA_PATH / song_file_name
-        # print('Saving Song Data to', song_data_file + '.npy')
-        # np.save(song_data_file, song_data)
+        _save_numpy_data(data=song_data, data_name="SongData", bird_id=bird_id, session=session)
+
 
     # [8] Get LFP Data
     if data_type == 'LFP' or data_type == 'All':
         # Get LFP Data
         lfp_data = get_lfp_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
-        _save_numpy_data(data=lfp_data, data_name="LFPData", bird_id=bird_id, session=session)
         # Save LFP Data
-        # lfp_file_name = + 'LFPData' + '_' + bird_id + '_' + session
-        # lfp_data_file = INTERMEDIATE_DATA_PATH / lfp_file_name
-        # print('Saving LFP Data to', lfp_data_file + '.npy')
-        # np.save(lfp_data_file, lfp_data)
+        _save_numpy_data(data=lfp_data, data_name="LFPData", bird_id=bird_id, session=session)
+
 
     # [9] Get Spike Data
     if data_type == 'Spike' or data_type == 'All':
         # Get Spike Data
         binned_spikes, spike_time_data = get_spike_data(kwe_data=kwe_data, kwik_data=kwik_data, song_len_ms=song_len_ms,
                                                         before_t=before_t)
-
-        _save_numpy_data(data=binned_spikes, data_name="SpikeData", bird_id=bird_id, session=session)
         # Save Binned Spike Data
-        # bin_spike_file_name = + 'SpikeData' + '_' + bird_id + '_' + session
-        # bin_spike_data_file = INTERMEDIATE_DATA_PATH / bin_spike_file_name
-        # print('Saving Binned Spike Data to', bin_spike_data_file + '.npy')
-        # np.save(bin_spike_data_file, binned_spikes)
+        _save_numpy_data(data=binned_spikes, data_name="SpikeData", bird_id=bird_id, session=session)
 
         # Save Spike Time Data
         file_name = 'SpikeTimeData' + '_' + bird_id + '_' + session + '.pckl'
