@@ -1,6 +1,12 @@
+import pickle
+
 import numpy as np
 import os
 import h5py
+
+# from BirdSongToolbox.config.settings import DATA_PATH
+# TODO: Switch File Pathing to Pathlib
+# TODO: Write Test Scripts for these Functions
 
 
 def ask_data_path(start_path, focus: str):
@@ -385,7 +391,6 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
 
 ########################## WAS LAST WORKING HERE##################################
 # TODO: I need to save the absolute start times for reference against the hand labels
-# TODO: Refactor the core part of Main() to work better when actually choosing which data to import and where to save
 # TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
 
 def main():
@@ -419,59 +424,68 @@ def main():
     # Showing where data is coming from
     print('Getting Data from ', kwd)
 
+    # [6] Define Parameters for Grabbing Data
+    # Select What Data type(s) to Get
     incorrect_data = True
+    data_types = ['Datasets:', 'All', 'LFP', 'Spike', 'Song']  # Lists of Data Types available
+    # print(*data_types, sep='\n')
+    print('Datasets: LFP, Spike, Song, All')
+    data_type = str(input('Please Choose Dataset From Above: '))
     while incorrect_data:
-        print('Datasets: LFP, Spike, Song', 'All')
-        data_type = str(input('Please Choose Dataset From Above: '))
-        if data_type == 'LFP' or data_type == 'Song' or data_type == 'Spike' or data_type == 'All':
+        if data_type in data_types:
             incorrect_data = False
         else:
-            print('Not a valid Dataset')
-            print('Datasets: LFP, Spike, Song, All')
+            print('\n Not a valid Dataset')
+            print(*data_types, sep='\n')
             data_type = str(input('Please Choose Dataset From Above: '))
-    # Set song parameters
-    before_t = int(input('How much time (ms) before a motif do you want?(integer) '))
-    after_t = int(input('How much time (ms) after a motif do you want?(integer) '))
-    # TODO: Make the Function ask for the duration of the Motif
-    song_len_ms = 500 + before_t + after_t
+
+    # Set Parameters for Grabbed Data
+    before_t = int(input('How much time (ms) Before a motif do you want? (integer): '))
+    after_t = int(input('How much time (ms) After a motif do you want? (integer): '))
+    motif_dur = int(input("How long does this Bird's Motif last in milliseconds? (integer): "))
+    song_len_ms = motif_dur + before_t + after_t  # Calculate the Duration of the Grabbed Data
     SamplingRate = 30000
 
+    # TODO: Work Out where I will Save these intermediate data
+    temp_destination = '/home/debrown/data/'
+
+    # [7] Get Song Data
     if data_type == 'Song' or data_type == 'All':
         # Get Song Data
         song_data = get_song_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
         # Save Song Data
-        print('Saving Song Data to', 'SongData' + bird_id + session + '.npy')
-        np.save('SongData' + bird_id + session, song_data)
+        song_data_file = temp_destination + 'SongData' + '_' + bird_id + '_' + session
+        print('Saving Song Data to', song_data_file + '.npy')
+        np.save(song_data_file, song_data)
 
+    # [8] Get LFP Data
     if data_type == 'LFP' or data_type == 'All':
         # Get LFP Data
         lfp_data = get_lfp_data(kwd_file=kwd_file, kwe_data=kwe_data, song_len_ms=song_len_ms, before_t=before_t)
 
         # Save LFP Data
-        print('Saving LFP Data to', 'LFPData' + bird_id + session + '.npy')
-        np.save('LFPData' + bird_id + session, lfp_data)
+        lfp_data_file = temp_destination + 'LFPData' + '_' + bird_id + '_' + session
+        print('Saving LFP Data to', lfp_data_file + '.npy')
+        np.save(lfp_data_file, lfp_data)
 
+    # [9] Get Spike Data
     if data_type == 'Spike' or data_type == 'All':
         # Get Spike Data
         binned_spikes, spike_time_data = get_spike_data(kwe_data=kwe_data, kwik_data=kwik_data, song_len_ms=song_len_ms,
                                                         before_t=before_t)
-        # Save Spike Data
-        print('Saving Spike Data to', 'SpikeData' + bird_id + session + '.npy')
-        np.save('SpikeData' + bird_id + session, binned_spikes)
+        # Save Binned Spike Data
+        bin_spike_data_file = temp_destination + 'SpikeData' + '_' + bird_id + '_' + session
+        print('Saving Binned Spike Data to', bin_spike_data_file + '.npy')
+        np.save(bin_spike_data_file, binned_spikes)
 
-        # TODO: Add Pickle line to save the spike_time_data object
-
-
-    # if data_type == 'Spike':
-    #     print('Saving Spike Data to', 'SpikeData' + bird_id + session + '.npy')
-    #     np.save('SpikeData' + bird_id + session, binned_spikes)
-    # elif data_type == 'Song':
-    #     print('Saving Song Data to', 'SongData' + bird_id + session + '.npy')
-    #     np.save('SongData' + bird_id + session, Song)
-    # else:
-    #     print('Saving LFP Data to', 'LFPData' + bird_id + session + '.npy')
-    #     np.save('LFPData' + bird_id + session, LFP)
+        # Save Spike Time Data
+        file_name = 'SpikeTimeData' + '_' + bird_id + '_' + session + '.pckl'
+        destination = temp_destination + file_name
+        file_object = open(destination, 'wb')
+        pickle.dump(spike_time_data, file_object)
+        file_object.close()
+        print('Saving Spike Time Data to', destination)
 
 
 if __name__ == "__main__":
