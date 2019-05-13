@@ -1,9 +1,9 @@
 from BirdSongToolbox.config.settings import INTERMEDIATE_DATA_PATH
+from BirdSongToolbox.file_utility_functions import _save_numpy_data, _save_pckl_data
 
 import numpy as np
 import os
 import h5py
-import pickle
 
 
 # TODO: Switch modular functions to Pathlib
@@ -390,17 +390,6 @@ def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
     return spike_data, spike_time_data
 
 
-def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str):
-    # TODO: Add *Args to allow for identifier information to be appended to the name of the file
-    # Save Song Data
-    if not INTERMEDIATE_DATA_PATH.exists():
-        INTERMEDIATE_DATA_PATH.mkdir(parents=False, exist_ok=True)
-
-    file_name = data_name + '_' + bird_id + '_' + session
-    data_file_path = INTERMEDIATE_DATA_PATH / file_name
-    print(f"Saving {data_name} Data to", data_file_path.name + '.npy')
-    np.save(data_file_path, data)
-
 
 def get_epoch_times(kwe_data, kwik_data, song_len_ms, before_t, verbose=False):
     """Get the Start and End Times of the Epochs
@@ -598,12 +587,13 @@ def main():
         _save_numpy_data(data=binned_spikes, data_name="SpikeData", bird_id=bird_id, session=session)
 
         # Save Spike Time Data
-        file_name = 'SpikeTimeData' + '_' + bird_id + '_' + session + '.pckl'
-        destination = INTERMEDIATE_DATA_PATH / file_name
-        file_object = open(destination, 'wb')
-        pickle.dump(spike_time_data, file_object)
-        file_object.close()
-        print('Saving Spike Time Data to', destination)
+        # file_name = 'SpikeTimeData' + '_' + bird_id + '_' + session + '.pckl'
+        # destination = INTERMEDIATE_DATA_PATH / file_name
+        # file_object = open(destination, 'wb')
+        # pickle.dump(spike_time_data, file_object)
+        # file_object.close()
+        # print('Saving Spike Time Data to', destination)
+        _save_pckl_data(data=spike_time_data, data_name="SpikeTimeData", bird_id=bird_id, session=session)
 
 
 if __name__ == "__main__":
