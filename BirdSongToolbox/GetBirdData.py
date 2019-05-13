@@ -302,23 +302,23 @@ def get_lfp_data(kwd_file, kwe_data, song_len_ms, before_t):
 def get_spike_data(kwe_data, kwik_data, song_len_ms, before_t):
     """ Gets Spiking Information from the KWIK file and organize it into useful forms
 
-    Parameters:
-    -----------
-    kwe_data: dict
+    Parameters
+    ----------
+    kwe_data : dict
         dictionary of the events in the KWE file
         Keys:
             'motif_st': [# of Motifs]
             'motif_rec_num': [# of Motifs]
-    kwik_data: dict
+    kwik_data : dict
         data needed to render spiking activity fromm the Kwik file
         keys: 'recordingStarts', 'time_samples', 'clusters'
-    song_len_ms: int
+    song_len_ms : int
         Length of Time desired to be Grabbed for the Motif in ms
-    before_t: int
+    before_t : int
         The amount of time (ms) before the  motif to start the data collection
 
-    Returns:
-    --------
+    Returns
+    -------
     spike_data: ndarray
         Binned Spike information for all Motifs
         (Number of Clusters  x  Length of Motif in ms  x  Num. of Motifs)
@@ -402,6 +402,106 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
     np.save(data_file_path, data)
 
 
+def get_epoch_times(kwe_data, kwik_data, song_len_ms, before_t, verbose=False):
+    """Get the Start and End Times of the Epochs
+
+    Parameters
+    ----------
+    kwe_data : dict
+        dictionary of the events in the KWE file
+        Keys:
+            'motif_st': [# of Motifs]
+            'motif_rec_num': [# of Motifs]
+    kwik_data : dict
+        data needed to render spiking activity fromm the Kwik file
+        keys: 'recordingStarts', 'time_samples', 'clusters'
+    song_len_ms : int
+        Length of Time desired to be Grabbed for the Motif in ms
+    before_t : int
+        The amount of time (ms) before the  motif to start the data collection
+    verbose : bool
+        If True it prints status messages
+
+    Returns
+    -------
+    epoch_times : array
+        (Motifs, 2) # For Kai and Also for Neural Networks
+        [Start Sample, End Sample]
+    """
+
+    epoch_times = np.zeros((kwe_data['motif_st'].shape[0], 2))
+
+    for motif in range(kwe_data['motif_st'].shape[0]):
+        # Get start time for motif and recording start
+        motif_start_time = kwe_data['motif_st'][motif]  # Start Time of Motif in its Specific Recording
+
+        motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][motif]]  # Start Sample of Recording
+
+        # [5] Get Start Time and End Time in samples for the motif
+        start_time = int(motif_start_time + motif_rec_start - before_t * 30)
+        end_time = int(start_time + song_len_ms * 30)
+
+        epoch_times[motif, 0] = start_time
+        epoch_times[motif, 1] = end_time
+
+        if verbose:
+            # Print out info about motif
+            print('On Motif ', (motif + 1), '/', kwe_data['motif_st'].shape[0])
+
+    return epoch_times
+
+
+def _get_true_starts(kwe_data, kwik_data, verbose=False):
+    """ Get the start times of the automated Motif labels within the entire recording
+
+    Parameters
+    ----------
+    kwe_data : dict
+        dictionary of the events in the KWE file
+        Keys:
+            'motif_st': [# of Motifs]
+            'motif_rec_num': [# of Motifs]
+    kwik_data : dict
+        data needed to render spiking activity fromm the Kwik file
+        keys: 'recordingStarts', 'time_samples', 'clusters
+
+    '"""
+
+    times = np.zeros((kwe_data['motif_st'].shape[0]))
+
+    for motif in range(kwe_data['motif_st'].shape[0]):
+
+        # Get start time for motif and recording start
+        motif_start_time = kwe_data['motif_st'][motif]  # Start Time of Motif in its Specific Recording
+        motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][motif]]  # Start Sample of Recording
+        start_time = int(motif_start_time + motif_rec_start)  # The True Start time within the Entire Recording
+        times[motif] = start_time  # Add the Start time to the array
+
+        if verbose:
+            # Print out info about motif
+            print('On Motif ', (motif + 1), '/', kwe_data['motif_st'].shape[0])
+
+    return times
+
+
+from collections import Counter
+
+
+def _check_for_repeats(times):
+    """ Check if any of Zeke's Labels are Repeats"""
+
+    repeats = [item for item, count in Counter(times).items() if count > 1]  # Find which times are repeated
+
+    removals = []
+    for i in repeats:
+        repeat_motifs = np.where(times == i)[0]  # Find which Motifs are repeats of this time stamp
+        removals.append(repeat_motifs[1:])  # Record all but one of the repeats
+
+    removals = np.squeeze(np.asarray(removals))  # Convert to a array and remove the extra dimension
+
+    return removals
+
+
 ########################## WAS LAST WORKING HERE##################################
 # TODO: I need to save the absolute start times for reference against the hand labels
 # TODO: Work on the Raster Plot Function for test the spikes prior to pre-processing everything
@@ -481,7 +581,6 @@ def main():
         # Save Song Data
         _save_numpy_data(data=song_data, data_name="SongData", bird_id=bird_id, session=session)
 
-
     # [8] Get LFP Data
     if data_type == 'LFP' or data_type == 'All':
         # Get LFP Data
@@ -489,7 +588,6 @@ def main():
 
         # Save LFP Data
         _save_numpy_data(data=lfp_data, data_name="LFPData", bird_id=bird_id, session=session)
-
 
     # [9] Get Spike Data
     if data_type == 'Spike' or data_type == 'All':
