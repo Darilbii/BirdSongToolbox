@@ -426,8 +426,8 @@ def get_epoch_times(kwe_data, kwik_data, song_len_ms, before_t, verbose=False):
         motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][motif]]  # Start Sample of Recording
 
         # [5] Get Start Time and End Time in samples for the motif
-        start_time = int(motif_start_time + motif_rec_start - before_t * 30)
-        end_time = int(start_time + song_len_ms * 30)
+        start_time = int(motif_start_time + motif_rec_start - (before_t * 30))
+        end_time = int(start_time + (song_len_ms * 30))
 
         epoch_times[motif, 0] = start_time
         epoch_times[motif, 1] = end_time
@@ -438,56 +438,6 @@ def get_epoch_times(kwe_data, kwik_data, song_len_ms, before_t, verbose=False):
 
     return epoch_times
 
-
-def _get_true_starts(kwe_data, kwik_data, verbose=False):
-    """ Get the start times of the automated Motif labels within the entire recording
-
-    Parameters
-    ----------
-    kwe_data : dict
-        dictionary of the events in the KWE file
-        Keys:
-            'motif_st': [# of Motifs]
-            'motif_rec_num': [# of Motifs]
-    kwik_data : dict
-        data needed to render spiking activity fromm the Kwik file
-        keys: 'recordingStarts', 'time_samples', 'clusters
-
-    '"""
-
-    times = np.zeros((kwe_data['motif_st'].shape[0]))
-
-    for motif in range(kwe_data['motif_st'].shape[0]):
-
-        # Get start time for motif and recording start
-        motif_start_time = kwe_data['motif_st'][motif]  # Start Time of Motif in its Specific Recording
-        motif_rec_start = kwik_data['recordingStarts'][kwe_data['motif_rec_num'][motif]]  # Start Sample of Recording
-        start_time = int(motif_start_time + motif_rec_start)  # The True Start time within the Entire Recording
-        times[motif] = start_time  # Add the Start time to the array
-
-        if verbose:
-            # Print out info about motif
-            print('On Motif ', (motif + 1), '/', kwe_data['motif_st'].shape[0])
-
-    return times
-
-
-from collections import Counter
-
-
-def _check_for_repeats(times):
-    """ Check if any of Zeke's Labels are Repeats"""
-
-    repeats = [item for item, count in Counter(times).items() if count > 1]  # Find which times are repeated
-
-    removals = []
-    for i in repeats:
-        repeat_motifs = np.where(times == i)[0]  # Find which Motifs are repeats of this time stamp
-        removals.append(repeat_motifs[1:])  # Record all but one of the repeats
-
-    removals = np.squeeze(np.asarray(removals))  # Convert to a array and remove the extra dimension
-
-    return removals
 
 
 ########################## WAS LAST WORKING HERE##################################

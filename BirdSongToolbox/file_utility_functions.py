@@ -51,7 +51,7 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
         data_file_path.parents[0].mkdir(parents=True, exist_ok=True)
 
     with open(data_file_path, "wb") as file_object:
-        json.dump(data, file_object)
+        pickle.dump(data, file_object)
 
     print(f"Saving {data_name} Data to", data_file_path.name)
 
