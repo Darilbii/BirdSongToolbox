@@ -57,7 +57,6 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
 
 
 def _load_pckl_data(data_name: str, bird_id: str, session: str):
-
     file_name = data_name + '.pckl'
 
     data_file_path = INTERMEDIATE_DATA_PATH / bird_id / session / file_name
@@ -94,7 +93,6 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
 
 
 def _load_json_data(data_name: str, bird_id: str, session: str):
-
     file_name = data_name + '.json'
     data_file_path = INTERMEDIATE_DATA_PATH / bird_id / session / file_name
 
@@ -105,3 +103,5 @@ def _load_json_data(data_name: str, bird_id: str, session: str):
     print(f"Loading {data_name} Data from", data_file_path.name)
 
     return data
+
+
