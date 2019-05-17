@@ -77,9 +77,6 @@ class ContextLabels(object):
         post_padded = bout_results[1:] + [bout_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0]  # Get the end edge
 
-        print('starts:', starts)
-        print('ends:', ends)
-
         # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
         if len(ends) < 1:
             starts = []
