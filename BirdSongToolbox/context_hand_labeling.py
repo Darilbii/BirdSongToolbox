@@ -77,11 +77,19 @@ class ContextLabels(object):
         post_padded = bout_results[1:] + [bout_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0]  # Get the end edge
 
-        # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
-        if starts[0] > ends[0]:
-            ends = np.delete(ends, 0)  # Delete unresolvable end of Bout that continues beyond the labeled Epoch
-        if starts[-1] > ends[-1]:
-            starts = np.delete(starts, 0)  # Delete unresolvable start of Bout that continues beyond the labeled Epoch
+        print('starts:', starts)
+        print('ends:', ends)
+
+        # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
+        if len(ends) < 1:
+            starts = []
+        else:
+            # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
+            if starts[0] > ends[0]:
+                ends = np.delete(ends, 0)  # Delete unresolvable end of Bout that continues beyond the labeled Epoch
+            if starts[-1] > ends[-1]:
+                starts = np.delete(starts,
+                                   0)  # Delete unresolvable start of Bout that continues beyond the labeled Epoch
 
         return starts, ends
 
