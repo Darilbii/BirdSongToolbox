@@ -137,8 +137,10 @@ class ContextLabels(object):
 
         # Get Ends
         post_padded = motif_results[1:] + [motif_results[-1]]  # Pad with the last label
-        ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2]
+        ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2 or labels[index] == self.bout_end_syllable]
 
+        print(starts)
+        print(ends)
         # Cut Out Motif Indexes that can't be resolved within the labeled Epoch (Edge Cases)
         if starts[0] > ends[0]:
             ends = np.delete(ends, 0)  # Delete unresolvable end of Motif that continues beyond the labeled Epoch
