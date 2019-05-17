@@ -61,6 +61,19 @@ class ContextLabels(object):
 
         return bout_results
 
+    def _edge_corrections(self, starts: list, ends: list):
+
+        # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
+        if len(ends) < 1:
+            starts = []
+        else:
+            # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
+            if starts[0] > ends[0]:
+                ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
+            if starts[-1] > ends[-1]:
+                starts = np.delete(starts, 0)  # Delete start of Bout that continues beyond the labeled Epoch
+        return starts, ends
+
     def bout_index(self, labels: list):
         """ Gets the index for the labels that are the start and end of each Bout for one epoch
         """
@@ -77,16 +90,15 @@ class ContextLabels(object):
         post_padded = bout_results[1:] + [bout_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0]  # Get the end edge
 
-        # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
-        if len(ends) < 1:
-            starts = []
-        else:
-            # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
-            if starts[0] > ends[0]:
-                ends = np.delete(ends, 0)  # Delete unresolvable end of Bout that continues beyond the labeled Epoch
-            if starts[-1] > ends[-1]:
-                starts = np.delete(starts,
-                                   0)  # Delete unresolvable start of Bout that continues beyond the labeled Epoch
+        # # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
+        # if len(ends) < 1:
+        #     starts = []
+        # else:
+        #     # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
+        #     if starts[0] > ends[0]:
+        #         ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
+        #     if starts[-1] > ends[-1]:
+        #         starts = np.delete(starts, 0)  # Delete start of Bout that continues beyond the labeled Epoch
 
         return starts, ends
 
@@ -126,6 +138,12 @@ class ContextLabels(object):
         # Get Ends
         post_padded = motif_results[1:] + [motif_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2]
+
+        # Cut Out Motif Indexes that can't be resolved within the labeled Epoch (Edge Cases)
+        if starts[0] > ends[0]:
+            ends = np.delete(ends, 0)  # Delete unresolvable end of Motif that continues beyond the labeled Epoch
+        if starts[-1] > ends[-1]:
+            starts = np.delete(starts, 0)  # Delete unresolvable start of Motif that continues beyond the labeled Epoch
 
         return starts, ends
 
@@ -192,11 +210,12 @@ class ContextLabels(object):
         motif_array = np.zeros((len(labels), 4))
 
         bout_starts, bout_ends = self.bout_index(labels=labels)
+        fix_bout_starts, fix_bout_ends = self._edge_corrections(starts=bout_starts, ends=bout_ends)
         motif_starts, motif_ends = self._motif_index(labels=labels)
 
         # Get Motif Sequence Number withing Bout
-        motif_array[:, 0] = self._motif_sequence_in_bout_array(labels=labels, bout_starts=bout_starts,
-                                                               bout_ends=bout_ends, motif_starts=motif_starts,
+        motif_array[:, 0] = self._motif_sequence_in_bout_array(labels=labels, bout_starts=fix_bout_starts,
+                                                               bout_ends=fix_bout_ends, motif_starts=motif_starts,
                                                                motif_ends=motif_ends)
 
         # Get All First Motifs in Epoch
@@ -208,9 +227,9 @@ class ContextLabels(object):
                                                            motif_starts=motif_starts, motif_ends=motif_ends)
 
         # Get All Motifs in Bouts with Skipped (Last) Syllables
-        motif_array[:, 3] = self._last_syllable_dropped_in_bout_array(labels=labels, bout_starts=bout_starts,
-                                                                      bout_ends=bout_ends, motif_starts=motif_starts,
-                                                                      motif_ends=motif_ends)
+        motif_array[:, 3] = self._last_syllable_dropped_in_bout_array(labels=labels, bout_starts=fix_bout_starts,
+                                                                      bout_ends=fix_bout_ends,
+                                                                      motif_starts=motif_starts, motif_ends=motif_ends)
 
         return motif_array
 
