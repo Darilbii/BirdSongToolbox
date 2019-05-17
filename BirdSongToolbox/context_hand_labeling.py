@@ -71,7 +71,7 @@ class ContextLabels(object):
             if starts[0] > ends[0]:
                 ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
             if starts[-1] > ends[-1]:
-                starts = np.delete(starts, 0)  # Delete start of Bout that continues beyond the labeled Epoch
+                starts = np.delete(starts, -1)  # Delete start of Bout that continues beyond the labeled Epoch
         return starts, ends
 
     def bout_index(self, labels: list):
@@ -141,11 +141,12 @@ class ContextLabels(object):
 
         print(starts)
         print(ends)
+        print(starts[0] > ends[0])
         # Cut Out Motif Indexes that can't be resolved within the labeled Epoch (Edge Cases)
         if starts[0] > ends[0]:
             ends = np.delete(ends, 0)  # Delete unresolvable end of Motif that continues beyond the labeled Epoch
         if starts[-1] > ends[-1]:
-            starts = np.delete(starts, 0)  # Delete unresolvable start of Motif that continues beyond the labeled Epoch
+            starts = np.delete(starts, -1)  # Delete unresolvable start of Motif that continues beyond the labeled Epoch
 
         return starts, ends
 
