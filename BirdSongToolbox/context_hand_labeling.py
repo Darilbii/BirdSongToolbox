@@ -5,11 +5,17 @@ import numpy as np
 class ContextLabels(object):
     #     bout_breaks = {'not': 'start', 'bout': 'end'}
 
-    def __init__(self, bout_states, bout_transitions, full_bout_length: int):
-        """
+    def __init__(self, bout_states: dict, bout_transitions: dict, full_bout_length: int):
+        """ Create Contextual Labels for the Handlabels based on the defined behavior of the birds song
 
-        :param bout_states:
-        :param bout_transitions:
+        Parameters
+        -----------
+        bout_states : dict
+            dictionary of all labels used for specified bird and their context for vocal behavior
+        bout_transitions : dict
+            dictionary of the transition label for each state (bout & not)
+        full_bout_length :
+
         :param full_bout_length:
 
         # Example from z020:
@@ -62,6 +68,7 @@ class ContextLabels(object):
         return bout_results
 
     def _edge_corrections(self, starts: list, ends: list):
+        """Eliminate labels of bouts that can't be resolved within the Epoch"""
 
         # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
         if len(ends) < 1:
@@ -89,16 +96,6 @@ class ContextLabels(object):
         # Get Ends
         post_padded = bout_results[1:] + [bout_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0]  # Get the end edge
-
-        # # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
-        # if len(ends) < 1:
-        #     starts = []
-        # else:
-        #     # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
-        #     if starts[0] > ends[0]:
-        #         ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
-        #     if starts[-1] > ends[-1]:
-        #         starts = np.delete(starts, 0)  # Delete start of Bout that continues beyond the labeled Epoch
 
         return starts, ends
 
@@ -139,9 +136,6 @@ class ContextLabels(object):
         post_padded = motif_results[1:] + [motif_results[-1]]  # Pad with the last label
         ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2 or labels[index] == self.bout_end_syllable]
 
-        print(starts)
-        print(ends)
-        print(starts[0] > ends[0])
         # Cut Out Motif Indexes that can't be resolved within the labeled Epoch (Edge Cases)
         if starts[0] > ends[0]:
             ends = np.delete(ends, 0)  # Delete unresolvable end of Motif that continues beyond the labeled Epoch
@@ -152,7 +146,7 @@ class ContextLabels(object):
 
     def _motif_sequence_in_bout_array(self, labels: list, bout_starts: list, bout_ends: list, motif_starts: list,
                                       motif_ends: list):
-        # Makes an array that indexes the Motif Seqeunce Number within Bout (Based on the Label Identity)
+        """Makes an array that indexes the Motif Seqeunce Number within Bout (Based on the Label Identity)"""
 
         motif_array = np.zeros((len(labels)))
 
@@ -166,7 +160,7 @@ class ContextLabels(object):
         return motif_array
 
     def _first_motif_in_bout_array(self, labels: list, bout_starts: list, motif_starts: list, motif_ends: list):
-        # Makes an array that indexes the labels that occur during All First Motifs that can be resolved in one Epoch
+        """Makes an array that indexes the labels that occur during All First Motifs that are resolved in one Epoch"""
 
         motif_array = np.zeros((len(labels)))
 
@@ -178,20 +172,20 @@ class ContextLabels(object):
         return motif_array
 
     def _last_motif_in_bout_array(self, labels: list, bout_ends: list, motif_starts: list, motif_ends: list):
-        # Makes an array that indexes the labels that occur during All Last Motifs that can be resolved in one Epoch
+        """Makes an array that indexes the labels that occur during All Last Motifs that can be resolved in one Epoch"""
 
         motif_array = np.zeros((len(labels)))
 
         for bout_end in bout_ends:
             for motif_start, motif_end in zip(motif_starts, motif_ends):
                 if motif_end == bout_end:
-                    motif_array[motif_start:motif_end + 1] = 1
+                    motif_array[motif_start:motif_end + 1] = 1  # Mark the Last Motif in the Bout
 
         return motif_array
 
     def _last_syllable_dropped_in_bout_array(self, labels: list, bout_starts: list, bout_ends: list, motif_starts: list,
                                              motif_ends: list):
-        # Makes an array that indexes the Motif with syllables skipped within Bout (Based on the Label Identity)
+        """Makes an array that indexes the Motif with syllables skipped within Bout (Based on the Label Identity)"""
 
         # TODO: If there is more variation in which syllable is dropped then use list comprehension to see if any ...
         # syllables labels of a full list are not in the labels between the start and end of the motif ...
@@ -208,7 +202,21 @@ class ContextLabels(object):
         return motif_array
 
     def get_context_index_array(self, labels: list):
-        # Note this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
+        """ Get Context array for one Epoch
+
+        Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
+
+        Parameters
+        ----------
+        labels : list
+            list of all labels for one Epoch
+
+        Returns
+        -------
+        motif_array : array
+            Array of context labels for one Epoch.
+            columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
+        """
 
         motif_array = np.zeros((len(labels), 4))
 
@@ -237,7 +245,7 @@ class ContextLabels(object):
         return motif_array
 
     def get_all_context_index_arrays(self, all_labels: list):
-        # get Context Arrays for all the Epoch for a day
+        """Get Context Arrays for all the Epoch for a day"""
 
         motif_array_list = []
 

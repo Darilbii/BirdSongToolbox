@@ -6,9 +6,15 @@ python:
 
 # Install packages
 # Install packages
-install:
-  - pip install -r requirements.txt
-  - pip install pytest-cov
-  - pip install codecov
-  - pip install .
+#install:
+#  - pip install -r requirements.txt
+#  - pip install pytest-cov
+#  - pip install codecov
+#  - pip install .
+
+script:
+  - pytest --cov=BirdSongToolbox
+
+after_success:
+  - coveralls
 
