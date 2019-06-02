@@ -160,10 +160,10 @@ class Import_PrePd_Data():
         * Must Create a Table of Birds and Relevant Information on them *
         """
         # Consider Moving this to be a Global Variable of this Package
-        Song_Length = {'z020': .5, 'z007': .8}  # Dictionary of Bird's Specific Motif Length (Seconds)
-        Gap_Length = {'z020': 4, 'z007': 4}  # Dictionary of Bird's Specific Time Buffer (Seconds)
-        Channel_Count = {'z020': 16, 'z007': 32}  # Dictionary of Bird's Probe's Channel Count
-        Bad_Channels = {'z020': [2], 'z007': []}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
+        Song_Length = {'z020': .5, 'z007': .8, 'z017': .8}  # Dictionary of Bird's Specific Motif Length (Seconds)
+        Gap_Length = {'z020': 4, 'z007': 4, 'z017': 4}  # Dictionary of Bird's Specific Time Buffer (Seconds)
+        Channel_Count = {'z020': 16, 'z007': 32, 'z017': 16}  # Dictionary of Bird's Probe's Channel Count
+        Bad_Channels = {'z020': [2], 'z007': [], 'z017': []}  # Dictionary of Bird's Bad Channels ***** Maybe Overkill
         Sample_Frequency = {'Raw': 30000, 'LPF': 30000,
                             'LPF_DS': 1000, }  # Dictionary of Possible Sample Frequencies (Samples per Second)
         print(
