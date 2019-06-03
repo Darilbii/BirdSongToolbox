@@ -3,7 +3,7 @@ import numpy as np
 
 
 def determine_chunks_for_epochs(times):
-    """
+    """ Epochs the Raw Data into Long Chunks that contain the handlabeled epochs
 
     Parameters
     ----------
