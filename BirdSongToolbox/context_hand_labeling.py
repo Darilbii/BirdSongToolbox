@@ -245,7 +245,22 @@ class ContextLabels(object):
         return motif_array
 
     def get_all_context_index_arrays(self, all_labels: list):
-        """Get Context Arrays for all the Epoch for a day"""
+        """Get Context Arrays for all the Epoch for a day
+
+                Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
+
+        Parameters
+        ----------
+        all_labels : list
+            list of all labels for one Epoch
+
+        Returns
+        -------
+        motif_array_list : list
+            list of arrays of context labels for each Epoch.
+            [Epoch #] -> (labels, 4)
+                col: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
+            """
 
         motif_array_list = []
 
