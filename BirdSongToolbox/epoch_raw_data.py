@@ -28,7 +28,6 @@ def determine_chunks_for_epochs(times):
     counter = 0
 
     while len(roster) > 0:
-        print(len(roster))
         competitor = roster[0]  # Select the Candidate for the End of the Chunk
         distance = (times[competitor] - times[candidate]) / 30000  # Distance in Seconds
 
