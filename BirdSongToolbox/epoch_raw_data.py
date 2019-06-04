@@ -189,7 +189,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
         chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, -1] * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
                                             verbose=False)
-        buff_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer|Downsample to 1KHz
+        buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
 
