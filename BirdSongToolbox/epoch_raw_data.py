@@ -144,7 +144,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
         chunk_index.append([int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)])
 
-        print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
+        # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
         chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, :-1]) * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array,
                                             sfreq=fs,
@@ -184,7 +184,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
         chunk_index.append([int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)])
 
-        print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
+        # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
 
         chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, -1] * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
