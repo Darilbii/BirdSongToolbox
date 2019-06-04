@@ -1,6 +1,25 @@
 # Code For Importing .prb files and reading them to make something useful
 # TODO: THIS ISN'T READY FOR FULL USE
 
+# Seems like this part is what generates the chan_map_dict.npy files
+# x_coords = np.ones((n_channels, 1)) * -1
+# y_coords = np.ones((n_channels, 1)) * -1
+# k_coords = np.ones((n_channels, 1)) * -1
+#
+# for group in metadata['channel_groups']:
+#     for channel in metadata['channel_groups'][group]['geometry']:
+#         x_coords[channel], y_coords[channel] = metadata['channel_groups'][group]['geometry'][channel]
+#         k_coords[channel] = group + 1
+#
+# chan_map_dict = {'Nchannels': n_channels,
+#                  'connected': connected,
+#                  'chanMap': chan_map,
+#                  'chanMap0ind': chan_map_zero_ind,
+#                  'xcoords': x_coords,
+#                  'ycoords': y_coords,
+#                  'kcoords': k_coords}
+#
+
 import os
 import pickle
 from six import exec_
