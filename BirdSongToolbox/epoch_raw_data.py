@@ -144,8 +144,42 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
         chunk_index.append([int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)])
 
+        # Handle Edge Cases where the Epochs go Beyond their Particular Recording
+        if chunk_start < 0 or chunk_end > kwd_rec_raw_data.shape[0]:  # If the Epoch goes Beyond its Starting Recording
+            # Initiate a empty chunk array the size of the Current Epoch (Chunk)
+            duration = chunk_end - chunk_start  # the Full Length of the Entire Epoch
+            chunk_array = np.zeros((duration, kwd_rec_raw_data.shape[1] - 1))
+
+            # Case 1: Chunk starts before the start of Rec
+            if chunk_start < 0:
+                # Get the Prior Recordings Data
+                prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
+                # Stitch the starting samples with the prior Recording
+                chunk_array[:np.abs(chunk_start), :] = prior_kwd_rec_raw_data[chunk_start:, :-1]
+                # Stitch the ending samples with the current Recording
+                chunk_array[np.abs(chunk_start):, :] = kwd_rec_raw_data[:chunk_end, :-1]
+
+                if verbose:
+                    print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
+
+            # Case 2: Chunk ends after the end of the REc
+            if chunk_end > kwd_rec_raw_data.shape[0]:
+                # Get Ending of Epoch in the Next Recording
+                relative_chunk_end = chunk_end - kwd_rec_raw_data.shape[0]
+                # Get the Next Recordings Data
+                next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
+                # Stitch the starting samples with the prior Recording
+                chunk_array[:-relative_chunk_end, :] = kwd_rec_raw_data[chunk_start:, :-1]
+                # Stitch the ending samples with the current Recording
+                chunk_array[-relative_chunk_end:, :] = next_kwd_rec_raw_data[:relative_chunk_end, :-1]
+                if verbose:
+                    print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
+
+            chunk_array = np.transpose(chunk_array * .195)  # Make the Correct Shape for mne with 0.195 µV resolution
+
         # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
-        chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, :-1]) * .195  # 0.195 µV resolution
+        else:
+            chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, :-1]) * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array,
                                             sfreq=fs,
                                             l_freq=None,
@@ -178,7 +212,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
 
         if verbose:
             # Print out info about motif
-            print('On Motif ', (index + 1), '/', len(chunks))
+            print('On Motif ', (index + 1), '/', len(chunks), 'Duration: ', )
 
         chunk_start = int(epoch_start - (chunk_buffer + lpf_buffer))
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
@@ -186,10 +220,44 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
 
         # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
 
-        chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, -1] * .195  # 0.195 µV resolution
+        # Handle Edge Cases where the Epochs go Beyond their Particular Recording
+        if chunk_start < 0 or chunk_end > kwd_rec_raw_data.shape[0]:  # If the Epoch goes Beyond its Starting Recording
+            # Initiate a empty chunk array the size of the Current Epoch (Chunk)
+            duration = chunk_end - chunk_start  # the Full Length of the Entire Epoch
+            chunk_array = np.zeros(duration)
+
+            # Case 1: Chunk starts before the start of Rec
+            if chunk_start < 0:
+                # Get the Prior Recordings Data
+                prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
+                # Stitch the starting samples with the prior Recording
+                chunk_array[:np.abs(chunk_start)] = prior_kwd_rec_raw_data[chunk_start:, -1]
+                # Stitch the ending samples with the current Recording
+                chunk_array[np.abs(chunk_start):] = kwd_rec_raw_data[:chunk_end, -1]
+
+                if verbose:
+                    print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
+
+            # Case 2: Chunk ends after the end of the REc
+            if chunk_end > kwd_rec_raw_data.shape[0]:
+                # Get Ending of Epoch in the Next Recording
+                relative_chunk_end = chunk_end - kwd_rec_raw_data.shape[0]
+                # Get the Next Recordings Data
+                next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
+                # Stitch the starting samples with the prior Recording
+                chunk_array[:-relative_chunk_end] = kwd_rec_raw_data[chunk_start:, -1]
+                # Stitch the ending samples with the current Recording
+                chunk_array[-relative_chunk_end:] = next_kwd_rec_raw_data[:relative_chunk_end, -1]
+                if verbose:
+                    print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
+
+            chunk_array = chunk_array * .195  # Make the Correct Shape for mne with 0.195 µV resolution
+
+        else:
+            chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, -1] * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
                                             verbose=False)
-        buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer|Downsample to 1KHz
+        buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
 
