@@ -20,4 +20,7 @@ scipy
 h5py
 numpy
 
+# Optional
+# mne
+
 
