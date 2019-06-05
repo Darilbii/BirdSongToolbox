@@ -144,6 +144,8 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
         chunk_index.append([int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)])
 
+        worst_case = 0  # Hacky Solution to keeping tabs of whether a worst case is occuring
+
         # Handle Edge Cases where the Epochs go Beyond their Particular Recording
         if chunk_start < 0 or chunk_end > kwd_rec_raw_data.shape[0]:  # If the Epoch goes Beyond its Starting Recording
             # Initiate a empty chunk array the size of the Current Epoch (Chunk)
@@ -152,12 +154,22 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
 
             # Case 1: Chunk starts before the start of Rec
             if chunk_start < 0:
-                # Get the Prior Recordings Data
-                prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
-                # Stitch the starting samples with the prior Recording
-                chunk_array[:np.abs(chunk_start), :] = prior_kwd_rec_raw_data[chunk_start:, :-1]
-                # Stitch the ending samples with the current Recording
-                chunk_array[np.abs(chunk_start):, :] = kwd_rec_raw_data[:chunk_end, :-1]
+                # Worst Case 1: The Buffer goes beyond the start of entire recording
+                if rec_num == 0:
+                    reduced_buffer = lpf_buffer + chunk_start
+                    if reduced_buffer < 0:
+                        print('Not enough of a Buffer for the First Recording')
+                        break
+                    chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
+                    worst_case = 1
+                    print('worst')
+                else:
+                    # Get the Prior Recordings Data
+                    prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
+                    # Stitch the starting samples with the prior Recording
+                    chunk_array[:np.abs(chunk_start), :] = prior_kwd_rec_raw_data[chunk_start:, :-1]
+                    # Stitch the ending samples with the current Recording
+                    chunk_array[np.abs(chunk_start):, :] = kwd_rec_raw_data[:chunk_end, :-1]
 
                 if verbose:
                     print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
@@ -166,12 +178,23 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
             if chunk_end > kwd_rec_raw_data.shape[0]:
                 # Get Ending of Epoch in the Next Recording
                 relative_chunk_end = chunk_end - kwd_rec_raw_data.shape[0]
-                # Get the Next Recordings Data
-                next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
-                # Stitch the starting samples with the prior Recording
-                chunk_array[:-relative_chunk_end, :] = kwd_rec_raw_data[chunk_start:, :-1]
-                # Stitch the ending samples with the current Recording
-                chunk_array[-relative_chunk_end:, :] = next_kwd_rec_raw_data[:relative_chunk_end, :-1]
+
+                # Worst Case 2: The Buffer goes beyond the end of entire recording
+                if rec_num == int(max(kwd_file['recordings'].keys())):
+                    reduced_buffer = lpf_buffer - relative_chunk_end
+                    if reduced_buffer < 0:
+                        print('Not enough of a Buffer for the Last Recording')
+                        break
+                    chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
+                    worst_case = 2
+
+                else:
+                    # Get the Next Recordings Data
+                    next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
+                    # Stitch the starting samples with the prior Recording
+                    chunk_array[:-relative_chunk_end, :] = kwd_rec_raw_data[chunk_start:, :-1]
+                    # Stitch the ending samples with the current Recording
+                    chunk_array[-relative_chunk_end:, :] = next_kwd_rec_raw_data[:relative_chunk_end, :-1]
                 if verbose:
                     print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
 
@@ -185,7 +208,14 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                                             l_freq=None,
                                             h_freq=400,
                                             verbose=False)
-        buff_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+        if worst_case == 0:
+            buff_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+        elif worst_case == 1:
+            buff_chunks.append(
+                chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+        else:
+            buff_chunks.append(
+                chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
     return buff_chunks, chunk_index
 
 
@@ -218,6 +248,8 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
         chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
         chunk_index.append([int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)])
 
+        worst_case = 0  # Hacky Solution to keeping tabs of whether a worst case is occuring
+
         # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
 
         # Handle Edge Cases where the Epochs go Beyond their Particular Recording
@@ -228,12 +260,22 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
 
             # Case 1: Chunk starts before the start of Rec
             if chunk_start < 0:
-                # Get the Prior Recordings Data
-                prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
-                # Stitch the starting samples with the prior Recording
-                chunk_array[:np.abs(chunk_start)] = prior_kwd_rec_raw_data[chunk_start:, -1]
-                # Stitch the ending samples with the current Recording
-                chunk_array[np.abs(chunk_start):] = kwd_rec_raw_data[:chunk_end, -1]
+                # Worst Case 1: The Buffer goes beyond the start of entire recording
+                if rec_num == 0:
+                    reduced_buffer = lpf_buffer + chunk_start
+                    if reduced_buffer < 0:
+                        print('Not enough of a Buffer for the First Recording')
+                        break
+                    chunk_array = kwd_rec_raw_data[:chunk_end, -1]
+                    worst_case = 1
+                    print('worst')
+                else:
+                    # Get the Prior Recordings Data
+                    prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
+                    # Stitch the starting samples with the prior Recording
+                    chunk_array[:np.abs(chunk_start)] = prior_kwd_rec_raw_data[chunk_start:, -1]
+                    # Stitch the ending samples with the current Recording
+                    chunk_array[np.abs(chunk_start):] = kwd_rec_raw_data[:chunk_end, -1]
 
                 if verbose:
                     print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
@@ -242,12 +284,22 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
             if chunk_end > kwd_rec_raw_data.shape[0]:
                 # Get Ending of Epoch in the Next Recording
                 relative_chunk_end = chunk_end - kwd_rec_raw_data.shape[0]
-                # Get the Next Recordings Data
-                next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
-                # Stitch the starting samples with the prior Recording
-                chunk_array[:-relative_chunk_end] = kwd_rec_raw_data[chunk_start:, -1]
-                # Stitch the ending samples with the current Recording
-                chunk_array[-relative_chunk_end:] = next_kwd_rec_raw_data[:relative_chunk_end, -1]
+
+                # Worst Case 2: The Buffer goes beyond the end of entire recording
+                if rec_num == int(max(kwd_file['recordings'].keys())):
+                    reduced_buffer = lpf_buffer - relative_chunk_end
+                    if reduced_buffer < 0:
+                        print('Not enough of a Buffer for the Last Recording')
+                        break
+                    chunk_array = kwd_rec_raw_data[chunk_start:, -1]
+                    worst_case = 2
+                else:
+                    # Get the Next Recordings Data
+                    next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
+                    # Stitch the starting samples with the prior Recording
+                    chunk_array[:-relative_chunk_end] = kwd_rec_raw_data[chunk_start:, -1]
+                    # Stitch the ending samples with the current Recording
+                    chunk_array[-relative_chunk_end:] = next_kwd_rec_raw_data[:relative_chunk_end, -1]
                 if verbose:
                     print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
 
@@ -257,7 +309,14 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
             chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, -1] * .195  # 0.195 µV resolution
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
                                             verbose=False)
-        buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+        if worst_case == 0:
+            buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+
+        elif worst_case == 1:
+            buff_chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+
+        else:
+            buff_chunks.append(chunk_filt[:, lpf_buffer:-reduced_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
 
