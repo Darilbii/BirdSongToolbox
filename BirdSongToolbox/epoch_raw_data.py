@@ -159,10 +159,14 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     reduced_buffer = lpf_buffer + chunk_start
                     if reduced_buffer < 0:
                         print('Not enough of a Buffer for the First Recording')
-                        break
-                    chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
-                    worst_case = 1
-                    print('worst')
+                        print(f"Starting Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
+                        chunk_index[-1] = [0, int((rec_start + epoch_end) + chunk_buffer)]  # Correct the Index
+                        worst_case = 1.1
+                    else:
+                        chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
+                        worst_case = 1
+                        print('worst')
                 else:
                     # Get the Prior Recordings Data
                     prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
@@ -184,9 +188,14 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     reduced_buffer = lpf_buffer - relative_chunk_end
                     if reduced_buffer < 0:
                         print('Not enough of a Buffer for the Last Recording')
-                        break
-                    chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
-                    worst_case = 2
+                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
+                        chunk_index[-1] = \
+                            [int((rec_start + epoch_start) - chunk_buffer), int(kwd_rec_raw_data.shape[0] + rec_start)]
+                        worst_case = 2.1
+                    else:
+                        chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
+                        worst_case = 2
 
                 else:
                     # Get the Next Recordings Data
@@ -213,9 +222,13 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         elif worst_case == 1:
             buff_chunks.append(
                 chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
-        else:
+        elif worst_case == 1.1:
+            buff_chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+        elif worst_case == 2:
             buff_chunks.append(
                 chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+        elif worst_case == 2.1:
+            buff_chunks.append(chunk_filt[:, lpf_buffer:])  # Remove the LPF Buffer|Downsample to 1KHz
     return buff_chunks, chunk_index
 
 
@@ -264,11 +277,17 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
                 if rec_num == 0:
                     reduced_buffer = lpf_buffer + chunk_start
                     if reduced_buffer < 0:
-                        print('Not enough of a Buffer for the First Recording')
-                        break
-                    chunk_array = kwd_rec_raw_data[:chunk_end, -1]
-                    worst_case = 1
-                    print('worst')
+                        if verbose:
+                            print('Not enough of a Buffer for the First Recording')
+                            print(f"Starting Buffer is reduced by: {reduced_buffer/30000} seconds")
+                            chunk_array = kwd_rec_raw_data[:chunk_end, -1]
+                            chunk_index[-1] = [0, int((rec_start + epoch_end) + chunk_buffer)]  # Correct the Index
+                            worst_case = 1.1
+                    else:
+                        chunk_array = kwd_rec_raw_data[:chunk_end, -1]
+                        worst_case = 1
+                    if verbose:
+                        print('Worst Case: 1')
                 else:
                     # Get the Prior Recordings Data
                     prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
@@ -290,9 +309,16 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
                     reduced_buffer = lpf_buffer - relative_chunk_end
                     if reduced_buffer < 0:
                         print('Not enough of a Buffer for the Last Recording')
-                        break
-                    chunk_array = kwd_rec_raw_data[chunk_start:, -1]
-                    worst_case = 2
+                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        chunk_array = kwd_rec_raw_data[chunk_start:, -1]
+                        chunk_index[-1] = \
+                            [int((rec_start + epoch_start) - chunk_buffer), int(kwd_rec_raw_data.shape[0] + rec_start)]
+                        worst_case = 2.1
+                    else:
+                        chunk_array = kwd_rec_raw_data[chunk_start:, -1]
+                        worst_case = 2
+                    if verbose:
+                        print('Worst Case: 2')
                 else:
                     # Get the Next Recordings Data
                     next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
@@ -313,10 +339,16 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
             buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
         elif worst_case == 1:
+            buff_chunks.append(chunk_filt[:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+
+        elif worst_case == 1.1:
             buff_chunks.append(chunk_filt[reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
-        else:
+        elif worst_case == 2:
             buff_chunks.append(chunk_filt[lpf_buffer:-reduced_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+
+        elif worst_case == 2.1:
+            buff_chunks.append(chunk_filt[lpf_buffer:])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
 
