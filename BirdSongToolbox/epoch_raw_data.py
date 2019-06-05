@@ -313,10 +313,10 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
             buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
         elif worst_case == 1:
-            buff_chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            buff_chunks.append(chunk_filt[reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
         else:
-            buff_chunks.append(chunk_filt[:, lpf_buffer:-reduced_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            buff_chunks.append(chunk_filt[lpf_buffer:-reduced_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
 
