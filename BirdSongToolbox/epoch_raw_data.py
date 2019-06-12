@@ -5,7 +5,7 @@ import mne
 
 
 def determine_chunks_for_epochs(times):
-    """ Epochs the Raw Data into Long Chunks that contain the handlabeled epochs
+    """ Epochs the Raw Data into Long Chunks that contain the handlabeled epochs (from .kwe)
 
     Parameters
     ----------
@@ -130,6 +130,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         if end is None:
             end = start
 
+        # data['info']['start_time']
         epoch_start = kwe_data['motif_st'][start]  # Start Time of Epoch (Chunk) in its Specific Recording
         epoch_end = kwe_data['motif_st'][end]  # End Time of Epoch (Chunk) in its Specific Recording
         rec_num = kwe_data['motif_rec_num'][start]  # Recording Number Epoch (Chunk) Occurs During
