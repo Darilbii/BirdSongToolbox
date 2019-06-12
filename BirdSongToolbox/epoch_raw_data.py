@@ -167,7 +167,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     else:
                         chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
                         worst_case = 1
-                        print('worst')
+                        print('worst: No LPF|DS Buffer at the Start of the Chunk')
                 else:
                     # Get the Prior Recordings Data
                     prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
@@ -197,6 +197,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     else:
                         chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
                         worst_case = 2
+                        print('worst: No LPF|DS Buffer at the End of the Chunk')
 
                 else:
                     # Get the Next Recordings Data
@@ -213,11 +214,8 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
         # print(epoch_start, 'to', epoch_end)  # Recording Number Motif Occurs During
         else:
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, :-1]) * .195  # 0.195 µV resolution
-        chunk_filt = mne.filter.filter_data(chunk_array,
-                                            sfreq=fs,
-                                            l_freq=None,
-                                            h_freq=400,
-                                            verbose=False)
+        chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=None, h_freq=400, verbose=False)
+
         if worst_case == 0:
             buff_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
         elif worst_case == 1:
