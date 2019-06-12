@@ -167,7 +167,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     else:
                         chunk_array = kwd_rec_raw_data[:chunk_end, :-1]
                         worst_case = 1
-                        print('worst: No LPF|DS Buffer at the Start of the Chunk')
+                        print('Worst Case: 1, No LPF|DS Buffer at the Start of the Chunk')
                 else:
                     # Get the Prior Recordings Data
                     prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
@@ -197,7 +197,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool
                     else:
                         chunk_array = kwd_rec_raw_data[chunk_start:, :-1]
                         worst_case = 2
-                        print('worst: No LPF|DS Buffer at the End of the Chunk')
+                        print('Worst Case 2: No LPF|DS Buffer at the End of the Chunk')
 
                 else:
                     # Get the Next Recordings Data
@@ -286,7 +286,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
                         chunk_array = kwd_rec_raw_data[:chunk_end, -1]
                         worst_case = 1
                     if verbose:
-                        print('Worst Case: 1')
+                        print('Worst Case: 1, No LPF|DS Buffer at the Start of the Chunk')
                 else:
                     # Get the Prior Recordings Data
                     prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
@@ -317,7 +317,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, kwik_data=None,  verbose: bool=F
                         chunk_array = kwd_rec_raw_data[chunk_start:, -1]
                         worst_case = 2
                     if verbose:
-                        print('Worst Case: 2')
+                        print('Worst Case: 2, No LPF|DS Buffer at the End of the Chunk')
                 else:
                     # Get the Next Recordings Data
                     next_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num + 1)]['data']
