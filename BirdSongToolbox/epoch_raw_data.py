@@ -403,7 +403,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     rec_num = kwe_data['motif_rec_num'][start]  # Recording Number Epoch(Chunk) Occurs During
     kwd_rec_raw_data = kwd_file['recordings'][str(rec_num)]['data']  # Raw Data for this Recording Number
 
-    rec_start = kwd_file['recordings'][rec_num].attrs.get('start_sample')  # Start Sample of Recording (.attrs of hdf)
+    rec_start = kwd_file['recordings'][str(rec_num)].attrs.get('start_sample')  # Start Sample of Rec (.attrs of hdf)
 
     chunk_start = int(epoch_start - (chunk_buffer + lpf_buffer))
     chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
@@ -543,6 +543,7 @@ def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool
             buff_chunks.append(chunk_filt[lpf_buffer:])  # Remove the LPF Buffer|Downsample to 1KHz
 
     return buff_chunks
+
 
 def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
     """ Epochs Neural Data from the KWD File and converts it to µV, Low-Pass Filters and Downsamples to 1 KHz
