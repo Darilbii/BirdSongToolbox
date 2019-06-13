@@ -128,6 +128,8 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     Case 2.1 : the entire ending buffer is clipped off (reduced)
 
     """
+    # TODO: Change the first two Parameters to be a Tuple to reduce space and reduncancy
+    # start, end = chunk_comps
     epoch_start = kwe_data['motif_st'][start]  # Start Time of Epoch(Chunk) in its Specific Recording
     epoch_end = kwe_data['motif_st'][end]  # End Time of Epoch (Chunk) in its Specific Recording
     rec_num = kwe_data['motif_rec_num'][start]  # Recording Number Epoch(Chunk) Occurs During
@@ -365,7 +367,7 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: b
     # Save the Chunks into a list of arrays [Chunks] -> (channels, Samples)
 
     fs = 30000  # Sampling Rate
-    lpf_buffer = 20 * fs  # 10 sec Buffer for the Lowpass Filter
+    lpf_buffer = 10 * fs  # 10 sec Buffer for the Lowpass Filter
     chunk_buffer = 30 * fs  # 30 sec Buffer for Epoching
 
     neural_chunks = []
@@ -379,13 +381,13 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: b
             # Print out info about motif
             print('On Motif ', (index + 1), '/', len(chunks))
 
-        chunk_array, chunk_index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
-                                                                                   chunk_buffer=chunk_buffer,
-                                                                                   lpf_buffer=lpf_buffer,
-                                                                                   kwd_file=kwd_file, kwe_data=kwe_data,
-                                                                                   index=neural_chans, verbose=verbose)
+        chunk_array, index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
+                                                                             chunk_buffer=chunk_buffer,
+                                                                             lpf_buffer=lpf_buffer, kwd_file=kwd_file,
+                                                                             kwe_data=kwe_data, index=neural_chans,
+                                                                             verbose=verbose)
 
-        chunk_index.append(chunk_index_sub)  # Append the Absolute Index [Start, End] of the Chunk
+        chunk_index.append(index_sub)  # Append the Absolute Index [Start, End] of the Chunk
 
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=None, h_freq=400, verbose=False)
 
