@@ -508,9 +508,10 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, index]) * .195  # 0.195 µV resolution
 
     # Create the Absolute Index Entry that aren't edge cases with reduced Buffers
-    if worst_case == 0:
+    if worst_case != 1.1 or worst_case != 2.1:
         chunk_index = [int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)]
-        reduced_buffer = None
+        if worst_case == 0:
+            reduced_buffer = None
 
     return chunk_array, chunk_index, worst_case, reduced_buffer
 
@@ -562,13 +563,12 @@ def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool
             # Print out info about motif
             print('On Motif ', (index + 1), '/', len(chunks), 'Duration: ', )
 
-        chunk_array, chunk_index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
+        chunk_array, _, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
                                                                                    chunk_buffer=chunk_buffer,
                                                                                    lpf_buffer=filt_buffer,
                                                                                    kwd_file=kwd_file, kwe_data=kwe_data,
                                                                                    index=audio_chan, verbose=verbose)
 
-        chunk_index.append(chunk_index_sub)  # Append the Absolute Index [Start, End] of the Chunk
 
         # TODO: Rewrite Audio Filter Step with a Filter made for Audio
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
@@ -664,6 +664,8 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
                                                                                    lpf_buffer=lpf_buffer,
                                                                                    kwd_file=kwd_file, kwe_data=kwe_data,
                                                                                    index=neural_chans, verbose=verbose)
+
+        chunk_index.append(chunk_index_sub)  # Append the Absolute Index [Start, End] of the Chunk
 
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=None, h_freq=400, verbose=False)
 
