@@ -218,7 +218,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                 print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
 
         if len(index) == 1:  # If Singular Index
-            chunk_array = chunk_array * .195  # Make the Correct Shape for mne with 0.195 µV resolution
+            chunk_array = chunk_array[:, 0] * .195  # Make the Correct Shape for mne with 0.195 µV resolution
         else:
             chunk_array = np.transpose(chunk_array * .195)  # Make the Correct Shape for mne with 0.195 µV resolution
 
