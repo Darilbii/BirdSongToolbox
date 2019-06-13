@@ -14,7 +14,7 @@ def determine_chunks_for_epochs(times):
 
     Returns
     -------
-    logged : array
+    logged : list
         array of the automated motif labels to use as benchmarks for the long epochs
     ledger : list
         list of each automated motif that occurs within each Epoch
@@ -516,10 +516,39 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
 
 
 def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool = False):
-    """Chunk the Audio and Bandpass Filter to Bandpass Filter to remove noise """
+    """Chunk the Audio and Bandpass Filter to remove noise
+
+    Parameters
+    ----------
+    kwd_file : h5py.File
+        KWD file imported using h5py library
+    kwe_data : dict
+        dictionary of the events in the KWE file
+        Keys:
+            'motif_st': [# of Motifs]
+            'motif_rec_num': [# of Motifs]
+    chunks : list
+        array of the automated motif labels to use as benchmarks for the long epochs
+    audio_chan: list
+        list of the channel(s)[column(s)] of the .kwd file that are audio channels
+    verbose : bool
+        If True the Function prints out useful statements, defaults to False
+
+    Returns
+    -------
+    audio_chunks : list, shape = [Chunk]->(channels, Samples)
+        Audio Data that is Bandpass Filtered between 300 and 10000 Hz, list of 2darrays
+
+    Notes
+    -----
+        The raw data are saved as signed 16-bit integers, in the range -32768 to 32767. They don’t have a unit. To
+    convert to microvolts, just  multiply by 0.195. This scales the data into the range ±6.390 mV,
+    with 0.195 µV resolution (Intan chips have a ±5 mV input range).
+
+    """
 
     fs = 30000  # Sampling Rate
-    filter_buffer = 10 * fs  # 10 sec Buffer for the Bandpass Filter
+    filt_buffer = 10 * fs  # 10 sec Buffer for the Bandpass Filter
     chunk_buffer = 30 * fs  # 30 sec Buffer for the Epoch(Chunk)
 
     audio_chunks = []
@@ -535,7 +564,7 @@ def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool
 
         chunk_array, chunk_index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
                                                                                    chunk_buffer=chunk_buffer,
-                                                                                   lpf_buffer=filter_buffer,
+                                                                                   lpf_buffer=filt_buffer,
                                                                                    kwd_file=kwd_file, kwe_data=kwe_data,
                                                                                    index=audio_chan, verbose=verbose)
 
@@ -544,27 +573,33 @@ def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool
         # TODO: Rewrite Audio Filter Step with a Filter made for Audio
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
                                             verbose=False)
-        # Remove The Extra filter Buffer
-        if case_id == 0:
-            audio_chunks.append(chunk_filt[filter_buffer:-filter_buffer])  # Base Case: It Fits in the entire Recording
+        if len(audio_chan) == 1:
+            # Remove The Extra filter Buffer
+            if case_id == 0:
+                audio_chunks.append(chunk_filt[filt_buffer:-filt_buffer])  # Base Case: It Fits in the entire Recording
+            elif case_id == 1:
+                audio_chunks.append(chunk_filt[reduced_buffer:-filt_buffer])  # Starting Filter buffer is clipped off
+            elif case_id == 1.1:
+                audio_chunks.append(chunk_filt[:-filt_buffer])  # Entire Starting Filter Buffer is gone
+            elif case_id == 2:
+                audio_chunks.append(chunk_filt[filt_buffer:-reduced_buffer])  # Ending filter buffer is clipped off
+            elif case_id == 2.1:
+                audio_chunks.append(chunk_filt[filt_buffer:])  # Entire ending filter buffer is gone
 
-        elif case_id == 1:
-            audio_chunks.append(chunk_filt[reduced_buffer:-filter_buffer])  # the Starting Filter buffer is clipped off
-
-        elif case_id == 1.1:
-            audio_chunks.append(chunk_filt[:-filter_buffer])  # the entire Starting Filter Buffer is gone
-
-        elif case_id == 2:
-            audio_chunks.append(chunk_filt[filter_buffer:-reduced_buffer])  # the ending filter buffer is clipped off
-
-        elif case_id == 2.1:
-            audio_chunks.append(chunk_filt[filter_buffer:])  # the entire ending filter buffer is gone
-
+        else:  # Planning ahead for multiple Audio Channels
+            # Remove The Extra filter Buffer
+            if case_id == 0:
+                audio_chunks.append(
+                    chunk_filt[:, filt_buffer:-filt_buffer])  # Base Case: It Fits in the entire Recording
+            elif case_id == 1:
+                audio_chunks.append(chunk_filt[:, reduced_buffer:-filt_buffer])  # Starting Filter buffer is clipped off
+            elif case_id == 1.1:
+                audio_chunks.append(chunk_filt[:, -filt_buffer])  # Entire Starting Filter Buffer is gone
+            elif case_id == 2:
+                audio_chunks.append(chunk_filt[:, filt_buffer:-reduced_buffer])  # Ending filter buffer is clipped off
+            elif case_id == 2.1:
+                audio_chunks.append(chunk_filt[:, filt_buffer:])  # Entire ending filter buffer is gone
     return audio_chunks
-
-
-
-
 
 
 def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
@@ -579,16 +614,19 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
             Keys:
                 'motif_st': [# of Motifs]
                 'motif_rec_num': [# of Motifs]
+        chunks : list
+            array of the automated motif labels to use as benchmarks for the long epochs
+        neural_chans: list
+            list of the channels(columns) of the .kwd file are neural channels
+        verbose : bool
+            If True the Function prints out useful statements, defaults to False
 
         Returns
         -------
-        lfp : ndarray
-            Multidimensional array of Neural Raw signal Recording
-            (Motif Length in Samples  x  Num. of Channels  x  Num. of Motifs)
-        chunks : list
-            list of Epoch data based on chunks parameter
-        chunk_times : list
-            list of the Absolute Start and End of the Epochs
+        neural_chunks : shape = [Chunk]->(channels, Samples)
+            Neural Data that is Low-Pass Filter at 400 Hz and Downsampled to 1 KHz, list of 2darrays
+        chunk_index : shape = [Chunk]->(absolute start, absolute end)
+            List of the Absolute Start and End of Each Chunk for that Recordings Day
 
         Notes
         -----
@@ -610,8 +648,8 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
     lpf_buffer = 20 * fs  # 10 sec Buffer for the Lowpass Filter
     chunk_buffer = 30 * fs  # 30 sec Buffer for Epoching
 
-    chunks = []
-    chunk_times = []
+    neural_chunks = []
+    chunk_index = []
 
     for index, (start, end) in enumerate(chunks):
         if end is None:
@@ -631,13 +669,13 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
 
         # Remove the LPF Buffer and Downsample to 1KHz
         if case_id == 0:
-            chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Base Case: It Fits in the entire Recording
+            neural_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Base Case: It Fits in the entire Recording
         elif case_id == 1:
-            chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # the Starting Filter buffer is clipped off
+            neural_chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # Starting Filter buffer is clipped off
         elif case_id == 1.1:
-            chunks.append(chunk_filt[:, :-lpf_buffer:30])  # the entire Starting Filter Buffer is gone
+            neural_chunks.append(chunk_filt[:, :-lpf_buffer:30])  # the entire Starting Filter Buffer is gone
         elif case_id == 2:
-            chunks.append(chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # the ending filter buffer is clipped off
+            neural_chunks.append(chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # Ending filter buffer is clipped off
         elif case_id == 2.1:
-            chunks.append(chunk_filt[:, lpf_buffer::30])  # the entire ending filter buffer is gone
-    return chunks, chunk_times
+            neural_chunks.append(chunk_filt[:, lpf_buffer::30])  # the entire ending filter buffer is gone
+    return neural_chunks, chunk_index
