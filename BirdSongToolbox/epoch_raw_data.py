@@ -457,7 +457,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                 chunk_array[np.abs(chunk_start):, :] = kwd_rec_raw_data[:chunk_end, index]
 
                 if verbose:
-                    print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
+                    print(f'Special Case 1: Recording {rec_num} to Recording {rec_num-1}')
 
         # Case 2: Chunk ends after the end of the Entire Days Recording
         elif chunk_end > kwd_rec_raw_data.shape[0]:
