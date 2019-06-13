@@ -144,7 +144,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     if chunk_start < 0 or chunk_end > kwd_rec_raw_data.shape[0]:  # If the Epoch goes Beyond its Starting Recording
         # Initiate a empty chunk array the size of the Current Epoch (Chunk)
         duration = chunk_end - chunk_start  # the Full Length of the Entire Epoch
-        chunk_array = np.zeros((duration, kwd_rec_raw_data.shape[1] - 1))
+        chunk_array = np.zeros((duration, len(index)))
 
         # Case 1: Chunk starts before the start of Rec
         if chunk_start < 0:
