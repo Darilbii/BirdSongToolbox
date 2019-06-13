@@ -80,7 +80,7 @@ def determine_chunks_for_epochs(times):
     return logged, ledger
 
 
-def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data, index: list, verbose: bool = False):
+def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data, index: list, verbose: bool= False):
     """ Gets one Epoch(Chunk) from the KWD File and returns Meta-Data on the Epoch for Pre-Processing
 
     Parameters
@@ -239,7 +239,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     return chunk_array, chunk_index, worst_case, reduced_buffer
 
 
-def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool = False):
+def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool= False):
     """Chunk the Audio and Bandpass Filter to remove noise
 
     Parameters
@@ -276,7 +276,6 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
     chunk_buffer = 30 * fs  # 30 sec Buffer for the Epoch(Chunk)
 
     audio_chunks = []
-    chunk_index = []
 
     for index, (start, end) in enumerate(chunks):
         if end is None:
@@ -286,12 +285,10 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
             # Print out info about motif
             print('On Motif ', (index + 1), '/', len(chunks), 'Duration: ', )
 
-        chunk_array, _, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
-                                                                                   chunk_buffer=chunk_buffer,
-                                                                                   lpf_buffer=filt_buffer,
-                                                                                   kwd_file=kwd_file, kwe_data=kwe_data,
-                                                                                   index=audio_chan, verbose=verbose)
-
+        chunk_array, _, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end, chunk_buffer=chunk_buffer,
+                                                                     lpf_buffer=filt_buffer, kwd_file=kwd_file,
+                                                                     kwe_data=kwe_data, index=audio_chan,
+                                                                     verbose=verbose)
 
         # TODO: Rewrite Audio Filter Step with a Filter made for Audio
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
@@ -325,7 +322,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
     return audio_chunks
 
 
-def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
+def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool= False):
     """ Epochs Neural Data from the KWD File and converts it to µV, Low-Pass Filters and Downsamples to 1 KHz
 
         Parameters
