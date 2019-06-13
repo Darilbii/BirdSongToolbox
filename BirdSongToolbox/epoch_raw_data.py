@@ -214,8 +214,8 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                 chunk_array[:-relative_chunk_end, :] = kwd_rec_raw_data[chunk_start:, index]
                 # Stitch the ending samples with the current Recording
                 chunk_array[-relative_chunk_end:, :] = next_kwd_rec_raw_data[:relative_chunk_end, index]
-            if verbose:
-                print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
+                if verbose:
+                    print(f'Special Case 2: Recording {rec_num} to Recording {rec_num+1}')
 
         if len(index) == 1:  # If Singular Index
             chunk_array = chunk_array[:, 0] * .195  # Make the Correct Shape for mne with 0.195 µV resolution
@@ -226,6 +226,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     else:
         if len(index) == 1:  # If Singular Index
             chunk_array = kwd_rec_raw_data[chunk_start:chunk_end, index] * .195  # 0.195 µV resolution
+            chunk_array = chunk_array[:, 0]  # Make the Correct Shape (1-darray)
         else:
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, index]) * .195  # 0.195 µV resolution
 
