@@ -121,6 +121,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
 
     Notes
     -----
+    Case 0 : the Epoch(Chunk) and its buffers are within the entire Recording
     Case 1 : the starting buffer is clipped off (reduced)
     Case 1.1 : the entire Starting Buffer is gone
     Case 2 : the ending buffer is clipped off (reduced)
