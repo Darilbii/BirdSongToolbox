@@ -446,7 +446,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                     if verbose:
                         print('Worst Case: 1')
                         print('Not enough of a Buffer for the First Recording')
-                        print(f"Starting Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        print(f"Starting Filter Buffer is reduced to: {reduced_buffer/30000} seconds")
 
             else:
                 # Get the Prior Recording's Data
@@ -474,7 +474,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                     if verbose:
                         print('Worst Case 2.1')
                         print('No LPF|DS Buffer at the End of the Chunk')
-                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        print(f"End Buffer of the Epoch(Chunk) is reduced by: {reduced_buffer/30000} seconds")
 
                 # Worst Case 2: The LPF is Reduced
                 else:
@@ -483,7 +483,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
                     if verbose:
                         print('Worst Case 2')
                         print('Not enough of a Buffer for the Last Recording')
-                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
+                        print(f"End Filter Buffer is reduced to: {reduced_buffer/30000} seconds")
 
             else:
                 # Get the Next Recordings Data
