@@ -397,6 +397,14 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     reduced_buffer : int
         If the epoch is a edge case with a reduced Buffer then this will be a integer describing how much of the buffer
         is possible, else it is None
+
+    Notes
+    -----
+    Case 1 : the starting buffer is clipped off (reduced)
+    Case 1.1 : the entire Starting Buffer is gone
+    Case 2 : the ending buffer is clipped off (reduced)
+    Case 2.1 : the entire ending buffer is clipped off (reduced)
+
     """
     epoch_start = kwe_data['motif_st'][start]  # Start Time of Epoch(Chunk) in its Specific Recording
     epoch_end = kwe_data['motif_st'][end]  # End Time of Epoch (Chunk) in its Specific Recording
@@ -421,53 +429,61 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
             # Worst Case 1: The Buffer goes beyond(before) the start of entire recording
             if rec_num == 0:
                 reduced_buffer = lpf_buffer + chunk_start  # Reduced Buffer for the Low Pass Filter Step
-                if verbose:
-                    print('Worst Case: 1')
 
                 if reduced_buffer < 0:
-                    print('Not enough of a Buffer for the First Recording')
-                    print(f"Starting Buffer is reduced by: {reduced_buffer/30000} seconds")
                     chunk_array = kwd_rec_raw_data[:chunk_end, index]
                     chunk_index = [0, int((rec_start + epoch_end) + chunk_buffer)]  # Correct the Index
                     worst_case = 1.1
+
+                    if verbose:
+                        print('Worst Case: 1.1')
+                        print('No LPF|DS Buffer at the Start of the Chunk')
+                        print(f"Starting Buffer of the Epoch(Chunk) is reduced by: {reduced_buffer/30000} seconds")
                 else:
                     chunk_array = kwd_rec_raw_data[:chunk_end, index]
                     worst_case = 1
-                    print('No LPF|DS Buffer at the Start of the Chunk')
+
+                    if verbose:
+                        print('Worst Case: 1')
+                        print('Not enough of a Buffer for the First Recording')
+                        print(f"Starting Buffer is reduced by: {reduced_buffer/30000} seconds")
+
             else:
-                # Get the Prior Recordings Data
+                # Get the Prior Recording's Data
                 prior_kwd_rec_raw_data = kwd_file['recordings'][str(rec_num - 1)]['data']
                 # Stitch the starting samples with the prior Recording
                 chunk_array[:np.abs(chunk_start), :] = prior_kwd_rec_raw_data[chunk_start:, index]
                 # Stitch the ending samples with the current Recording
                 chunk_array[np.abs(chunk_start):, :] = kwd_rec_raw_data[:chunk_end, index]
 
-            if verbose:
-                print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
+                if verbose:
+                    print(f'Special Case 1: Recording {rec_num-1} to Recording {rec_num}')
 
         # Case 2: Chunk ends after the end of the Entire Days Recording
         elif chunk_end > kwd_rec_raw_data.shape[0]:
             relative_chunk_end = chunk_end - kwd_rec_raw_data.shape[0]  # Get Ending of Epoch in the Next Recording
 
-            # Worst Case 2: The Buffer goes beyond the end of entire recording
+            # Worst Case 2.1: The Buffer goes beyond the end of the entire recording
             if rec_num == int(max(kwd_file['recordings'].keys())):
                 reduced_buffer = lpf_buffer - relative_chunk_end  # Reduced Buffer for the Low Pass Filter Step
-
-                if verbose:
-                    print('Worst Case 2')
-
                 if reduced_buffer < 0:
-                    print('Not enough of a Buffer for the Last Recording')
-                    print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
                     chunk_array = kwd_rec_raw_data[chunk_start:, index]
                     chunk_index = \
                         [int((rec_start + epoch_start) - chunk_buffer), int(kwd_rec_raw_data.shape[0] + rec_start)]
                     worst_case = 2.1
-                # No Buffer for the Low Pass Filter
+                    if verbose:
+                        print('Worst Case 2.1')
+                        print('No LPF|DS Buffer at the End of the Chunk')
+                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
+
+                # Worst Case 2: The LPF is Reduced
                 else:
                     chunk_array = kwd_rec_raw_data[chunk_start:, index]
                     worst_case = 2
-                    print('No LPF|DS Buffer at the End of the Chunk')
+                    if verbose:
+                        print('Worst Case 2')
+                        print('Not enough of a Buffer for the Last Recording')
+                        print(f"End Buffer is reduced by: {reduced_buffer/30000} seconds")
 
             else:
                 # Get the Next Recordings Data
@@ -492,7 +508,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, index]) * .195  # 0.195 µV resolution
 
     # Create the Absolute Index Entry that aren't edge cases with reduced Buffers
-    if worst_case != 1.1 or worst_case != 2.1:
+    if worst_case == 0:
         chunk_index = [int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)]
         reduced_buffer = None
 
@@ -500,13 +516,13 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
 
 
 def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool = False):
-    """Chunk the Audio and Bandpass Filter to remove noise """
+    """Chunk the Audio and Bandpass Filter to Bandpass Filter to remove noise """
 
     fs = 30000  # Sampling Rate
-    lpf_buffer = 20 * fs  # 10 sec Buffer for the Lowpass Filter
-    chunk_buffer = 30 * fs  # 30 sec Buffer for Epoching
+    filter_buffer = 10 * fs  # 10 sec Buffer for the Bandpass Filter
+    chunk_buffer = 30 * fs  # 30 sec Buffer for the Epoch(Chunk)
 
-    buff_chunks = []
+    audio_chunks = []
     chunk_index = []
 
     for index, (start, end) in enumerate(chunks):
@@ -519,30 +535,36 @@ def epoch_bpf_audio2(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool
 
         chunk_array, chunk_index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
                                                                                    chunk_buffer=chunk_buffer,
-                                                                                   lpf_buffer=lpf_buffer,
+                                                                                   lpf_buffer=filter_buffer,
                                                                                    kwd_file=kwd_file, kwe_data=kwe_data,
                                                                                    index=audio_chan, verbose=verbose)
 
         chunk_index.append(chunk_index_sub)  # Append the Absolute Index [Start, End] of the Chunk
 
+        # TODO: Rewrite Audio Filter Step with a Filter made for Audio
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=300, h_freq=10000, fir_design='firwin2',
                                             verbose=False)
+        # Remove The Extra filter Buffer
         if case_id == 0:
-            buff_chunks.append(chunk_filt[lpf_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            audio_chunks.append(chunk_filt[filter_buffer:-filter_buffer])  # Base Case: It Fits in the entire Recording
 
         elif case_id == 1:
-            buff_chunks.append(chunk_filt[:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            audio_chunks.append(chunk_filt[reduced_buffer:-filter_buffer])  # the Starting Filter buffer is clipped off
 
         elif case_id == 1.1:
-            buff_chunks.append(chunk_filt[reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            audio_chunks.append(chunk_filt[:-filter_buffer])  # the entire Starting Filter Buffer is gone
 
         elif case_id == 2:
-            buff_chunks.append(chunk_filt[lpf_buffer:-reduced_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            audio_chunks.append(chunk_filt[filter_buffer:-reduced_buffer])  # the ending filter buffer is clipped off
 
         elif case_id == 2.1:
-            buff_chunks.append(chunk_filt[lpf_buffer:])  # Remove the LPF Buffer|Downsample to 1KHz
+            audio_chunks.append(chunk_filt[filter_buffer:])  # the entire ending filter buffer is gone
 
-    return buff_chunks
+    return audio_chunks
+
+
+
+
 
 
 def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
@@ -563,9 +585,9 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
         lfp : ndarray
             Multidimensional array of Neural Raw signal Recording
             (Motif Length in Samples  x  Num. of Channels  x  Num. of Motifs)
-        buff_chunks : list
+        chunks : list
             list of Epoch data based on chunks parameter
-        chunk_index : list
+        chunk_times : list
             list of the Absolute Start and End of the Epochs
 
         Notes
@@ -588,8 +610,8 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
     lpf_buffer = 20 * fs  # 10 sec Buffer for the Lowpass Filter
     chunk_buffer = 30 * fs  # 30 sec Buffer for Epoching
 
-    buff_chunks = []
-    chunk_index = []
+    chunks = []
+    chunk_times = []
 
     for index, (start, end) in enumerate(chunks):
         if end is None:
@@ -607,16 +629,15 @@ def epoch_lfp_ds_data2(kwd_file, kwe_data, chunks, neural_chans: list, verbose: 
 
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=None, h_freq=400, verbose=False)
 
+        # Remove the LPF Buffer and Downsample to 1KHz
         if case_id == 0:
-            buff_chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+            chunks.append(chunk_filt[:, lpf_buffer:-lpf_buffer:30])  # Base Case: It Fits in the entire Recording
         elif case_id == 1:
-            buff_chunks.append(
-                chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+            chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer:30])  # the Starting Filter buffer is clipped off
         elif case_id == 1.1:
-            buff_chunks.append(chunk_filt[:, reduced_buffer:-lpf_buffer])  # Remove the LPF Buffer|Downsample to 1KHz
+            chunks.append(chunk_filt[:, :-lpf_buffer:30])  # the entire Starting Filter Buffer is gone
         elif case_id == 2:
-            buff_chunks.append(
-                chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # Remove the LPF Buffer and Downsample to 1KHz
+            chunks.append(chunk_filt[:, lpf_buffer:-reduced_buffer:30])  # the ending filter buffer is clipped off
         elif case_id == 2.1:
-            buff_chunks.append(chunk_filt[:, lpf_buffer:])  # Remove the LPF Buffer|Downsample to 1KHz
-    return buff_chunks, chunk_index
+            chunks.append(chunk_filt[:, lpf_buffer::30])  # the entire ending filter buffer is gone
+    return chunks, chunk_times
