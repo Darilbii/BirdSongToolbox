@@ -233,7 +233,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, index]) * .195  # 0.195 µV resolution
 
     # Create the Absolute Index Entry that aren't edge cases with reduced Buffers
-    if worst_case != 1.1 or worst_case != 2.1:
+    if worst_case != 1.1 and worst_case != 2.1:
         chunk_index = [int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)]
         if worst_case == 0:
             reduced_buffer = None
