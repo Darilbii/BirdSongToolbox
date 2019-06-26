@@ -80,7 +80,7 @@ def determine_chunks_for_epochs(times):
     return logged, ledger
 
 
-def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data, index: list, verbose: bool= False):
+def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data, index: list, verbose: bool = False):
     """ Gets one Epoch(Chunk) from the KWD File and returns Meta-Data on the Epoch for Pre-Processing
 
     Parameters
@@ -233,7 +233,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
             chunk_array = np.transpose(kwd_rec_raw_data[chunk_start:chunk_end, index]) * .195  # 0.195 µV resolution
 
     # Create the Absolute Index Entry that aren't edge cases with reduced Buffers
-    if worst_case != 1.1 or worst_case != 2.1:
+    if worst_case != 1.1 and worst_case != 2.1:
         chunk_index = [int((rec_start + epoch_start) - chunk_buffer), int((rec_start + epoch_end) + chunk_buffer)]
         if worst_case == 0:
             reduced_buffer = None
@@ -241,7 +241,7 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     return chunk_array, chunk_index, worst_case, reduced_buffer
 
 
-def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool= False):
+def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool = False):
     """Chunk the Audio and Bandpass Filter to remove noise
 
     Parameters
@@ -324,7 +324,7 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool=
     return audio_chunks
 
 
-def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool= False):
+def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
     """ Epochs Neural Data from the KWD File and converts it to µV, Low-Pass Filters and Downsamples to 1 KHz
 
         Parameters
@@ -381,13 +381,14 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: b
             # Print out info about motif
             print('On Motif ', (index + 1), '/', len(chunks))
 
-        chunk_array, index_sub, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
-                                                                             chunk_buffer=chunk_buffer,
-                                                                             lpf_buffer=lpf_buffer, kwd_file=kwd_file,
-                                                                             kwe_data=kwe_data, index=neural_chans,
-                                                                             verbose=verbose)
+        chunk_array, index_single, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
+                                                                                chunk_buffer=chunk_buffer,
+                                                                                lpf_buffer=lpf_buffer,
+                                                                                kwd_file=kwd_file,
+                                                                                kwe_data=kwe_data, index=neural_chans,
+                                                                                verbose=verbose)
 
-        chunk_index.append(index_sub)  # Append the Absolute Index [Start, End] of the Chunk
+        chunk_index.append(index_single)  # Append the Absolute Index [Start, End] of the Chunk
 
         chunk_filt = mne.filter.filter_data(chunk_array, sfreq=fs, l_freq=None, h_freq=400, verbose=False)
 
