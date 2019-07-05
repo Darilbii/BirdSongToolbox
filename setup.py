@@ -16,9 +16,9 @@ setup(
     author='Daril Brown II',
     author_email='',
     description='',
-    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'h5py'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'h5py', 'platform', 'pickle', 'pathlib'],
     keywords=['neuroscience', 'neural oscillations', 'bird song', 'spectral analysis', 'LFP'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'googledrivedownloader', 'pytest-ordering'],
     extra_requires={
         'mne': ['mne']
     }
