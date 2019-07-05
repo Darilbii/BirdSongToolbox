@@ -1,6 +1,5 @@
 language: python
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
 
@@ -18,6 +17,7 @@ notifications:
 install:
   - pip install -r requirements.txt
   - pip install googledrivedownloader
+  - pip install pytest-ordering
 #  - pip install pytest-cov
 #  - pip install codecov
 #  - pip install .  # This has somethihng to do with Testing with PyPi
