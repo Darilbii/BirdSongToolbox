@@ -22,9 +22,6 @@ scikit-learn
 scipy
 h5py
 numpy
-platform
-pickle
-pathlib
 
 # Optional
 # mne
