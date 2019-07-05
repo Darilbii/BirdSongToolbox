@@ -4,17 +4,27 @@ python:
   - "3.5"
   - "3.6"
 
+# Current workaround to test on Python 3.7
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
+notifications:
+    email: false
+
 # Install packages
-# Install packages
-#install:
-#  - pip install -r requirements.txt
+install:
+  - pip install -r requirements.txt
 #  - pip install pytest-cov
 #  - pip install codecov
-#  - pip install .
+#  - pip install .  # This has somethihng to do with Testing with PyPi
 
 script:
-  - pytest --cov=BirdSongToolbox
+  - pytest
+#  - pytest --cov=BirdSongToolbox
 
-after_success:
-  - coveralls
+#after_success:
+#  - coveralls
 
