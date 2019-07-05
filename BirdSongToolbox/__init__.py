@@ -1,5 +1,5 @@
 # from .config import settings
-from .ImportClass import *
+from .ImportClass import Import_PrePd_Data
 from .PreProcessClass import *
 from .PreProcTools import *
 
