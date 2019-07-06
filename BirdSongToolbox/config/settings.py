@@ -65,7 +65,7 @@ def handle_local_data_path():
                     "Birdsong Data is located on your host computer. \n Once this is done determine the full path to its" +
                     "location. \n Examples: \n Linux/Mac: /Users/Username/Documents/Data \n Windows: c:/Program Files/Data")
 
-                create_local_config()  # Create the local_config.pckl file
+                create_local_config_interactive()  # Create the local_config.pckl file
                 data_path = load_local_data_path()  # return the data path from the local_config.pckl file
                 interacting = False
 
@@ -81,7 +81,7 @@ def handle_local_data_path():
     return data_path
 
 
-def create_local_config():
+def create_local_config_interactive():
     """ Create a local_config file from user input
     """
 
@@ -117,6 +117,16 @@ def create_local_config():
 
             print("That path doesn't work. Try again. Number of Attempts left: ", str(4 - counter))
 
+# TODO: Make a Test Function to test the creation of this path as well as changing it from a pckl to json
+# def create_local_config():
+#     """ Create a local_config file from user input
+#     """
+#     # Create the setting.pckl file
+#     default_path.resolve()
+#     with default_path.open(mode='wb') as settings_file:
+#         pk.dump(local_data_path, settings_file,
+#                 protocol=0)  # Protocol 0 is human readable and backwards compatible
+
 
 def load_local_data_path():
     """ Reads the local_config.pckl file and Loads the local Data path"""
@@ -141,7 +151,7 @@ def main():
 
 
 # TODO: Find a less hacky way to make this a global variable or determine if this way isn't that hacky Resource https://www.python-course.eu/python3_global_vs_local_variables.php
-DATA_PATH = main()  # This is a Hacky way to get the variable to be a global variable usefule to ImportClass.py
-
-if __name__ == main():
-    main()
+# DATA_PATH = main()  # This is a Hacky way to get the variable to be a global variable useful to ImportClass.py
+#
+# if __name__ == main():
+#     main()
