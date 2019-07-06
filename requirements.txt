@@ -27,4 +27,7 @@ decorator
 # Optional
 # mne
 
+# Random Dependencies that maybe removed
+ipywidgets
+
 
