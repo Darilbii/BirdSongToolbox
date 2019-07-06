@@ -517,7 +517,7 @@ def hilbert_module(Frequencies, output: str):
 
     # TODO: Verify that the axis parameter allows for hilbert of the frequencies seperately not as a single channel
     assert output == 'amplitude' or output == 'phase', "output parameter can only be 'amplitude' or 'phase' not {output}"
-    assert len(np.shape(Frequencies)) == 4, f"Shape Incorrect for Parameter Frequencies, Shape: {np.shape(Frequencies)}"
+    assert len(np.shape(Frequencies)) == 4, "Shape Incorrect for Parameter Frequencies" #, Shape: {np.shape(Frequencies)}"
 
     hilbert_results = []
     for trial in Frequencies:
