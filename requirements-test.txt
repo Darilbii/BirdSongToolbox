@@ -1,6 +1,7 @@
 pytest>=3.6
 pytest-ordering
 googledrivedownloader
+requests
 
 # for testing
 #coverage>=4.4

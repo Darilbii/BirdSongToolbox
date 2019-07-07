@@ -17,6 +17,7 @@ notifications:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
+  - pip install .  # Install BirdSongToolbox
 #  - pip install googledrivedownloader
 #  - pip install pytest>=3.6
 #  - pip install pytest-ordering
