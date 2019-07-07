@@ -18,13 +18,12 @@ install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
   - pip install .  # Install BirdSongToolbox
-#  - pip install pytest-cov
-#  - pip install codecov
+  - pip install pytest-cov
+  - pip install codecov
 
 script:
-  - pytest
-#  - pytest --cov=BirdSongToolbox
+  - pytest --cov=./
 
-#after_success:
-#  - coveralls
+after_success:
+  - codecov --token=<a0c9bce2-2f60-4c11-aaa3-d2372a5f7e4b>
 
