@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import scipy.io as sio
+from pathlib import Path
 # import BirdSongToolbox.config.settings as settings
 from .config.settings import DATA_PATH
 
@@ -130,15 +131,21 @@ class Import_PrePd_Data():
         else:
             experiment_folder = location
 
-        Prepd_ss_data_folder = os.path.join(experiment_folder, 'ss_data_Processed')
+        if isinstance(experiment_folder, str):
+            experiment_folder = Path(experiment_folder)
+            assert experiment_folder.exists(), "Directory pointed by location parameter does not exist"
+            experiment_folder.resolve()
+
+        # prepd_ss_data_folder = os.path.join(experiment_folder, 'ss_data_Processed')
+        prepd_ss_data_folder = experiment_folder / 'ss_data_Processed'
 
         # Modularized Data Import Steps
         self.Identify_Bird()  ## Determine Data's Metadata (Predefined Options based on Annotation)
 
-        self._ImportSwitch(Prepd_ss_data_folder)  ## Import User Designated Neural Data for Song and Silence
-        self.Get_Song_Audio(Prepd_ss_data_folder)  ## Song: Store the Filtered Audio Data
-        self.Get_Silence_Audio(Prepd_ss_data_folder)  ## Silence: Store the Filtered Audio Data
-        self.Get_Hand_Labels(Prepd_ss_data_folder)  ## Store the Different Types of Hand Labels into Seperate Lists
+        self._ImportSwitch(prepd_ss_data_folder)  ## Import User Designated Neural Data for Song and Silence
+        self.Get_Song_Audio(prepd_ss_data_folder)  ## Song: Store the Filtered Audio Data
+        self.Get_Silence_Audio(prepd_ss_data_folder)  ## Silence: Store the Filtered Audio Data
+        self.Get_Hand_Labels(prepd_ss_data_folder)  ## Store the Different Types of Hand Labels into Seperate Lists
 
         # Modularized Indexes of Relevant Handlabel Pairs
         self.Locate_All_Good_Motifs()
@@ -208,7 +215,8 @@ class Import_PrePd_Data():
             Song_File: str
                 path to data
         """
-        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP_DS.mat')
+        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP_DS.mat')
+        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP_DS.mat'
         Song_LPF_DS_Data = []
         Mat_File = sio.loadmat(Song_File)
         Mat_File_Filt = Mat_File['Song_LFP_DS']
@@ -228,7 +236,8 @@ class Import_PrePd_Data():
             Song_File: str
                 path to data
         """
-        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP.mat')
+        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP.mat')
+        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP.mat'
         Song_LPF_Data = []
         Mat_File = sio.loadmat(Song_File)
         Mat_File_Filt = Mat_File['Song_LFP']
@@ -248,7 +257,8 @@ class Import_PrePd_Data():
             Song_File: str
                 path to data
         """
-        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
+        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
+        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Raw.mat'
         Song_Raw_Data = []
         Mat_File = sio.loadmat(Song_File)
         Mat_File_Filt = Mat_File['Song_Raw']
@@ -262,7 +272,8 @@ class Import_PrePd_Data():
 
     def Get_Song_Audio(self, Prepd_ss_data_folder):
         """Song: Store the Filtered Audio Data"""
-        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
+        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
+        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Audio.mat'
 
         Song_Audio_Data = []
         Mat_File = sio.loadmat(Song_File)
@@ -276,7 +287,8 @@ class Import_PrePd_Data():
     def Get_LPF_DS_Silence(self, Prepd_ss_data_folder):
         """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
 
-        Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP_DS.mat')
+        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP_DS.mat')
+        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP_DS.mat'
         Silence_LPF_DS_Data = []
         Mat_File = sio.loadmat(Silence_File)
         Mat_File_Filt = Mat_File['Silence_LFP_DS']
@@ -291,7 +303,9 @@ class Import_PrePd_Data():
     def Get_LPF_Silence(self, Prepd_ss_data_folder):
         """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
 
-        Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP.mat')
+        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP.mat')
+        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP.mat'
+
         Silence_LPF_Data = []
         Mat_File = sio.loadmat(Silence_File)
         Mat_File_Filt = Mat_File['Silence_LFP']
@@ -310,7 +324,9 @@ class Import_PrePd_Data():
             Song_File: str
                 path to data
         """
-        Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
+        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
+        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Raw.mat'
+
         Silence_Raw_Data = []
         Mat_File = sio.loadmat(Song_File);
         Mat_File_Filt = Mat_File['Silence_Raw'];
@@ -325,7 +341,8 @@ class Import_PrePd_Data():
     def Get_Silence_Audio(self, Prepd_ss_data_folder):
         """Silence: Store the Filtered Audio Data"""
 
-        Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Audio.mat')
+        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Audio.mat')
+        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Audio.mat'
 
         Silence_Audio_Data = []
         Mat_File = sio.loadmat(Silence_File);
@@ -339,7 +356,8 @@ class Import_PrePd_Data():
     def Get_Hand_Labels(self, Prepd_ss_data_folder):
         """Stores the Different Types of Labels into Seperate Lists"""
 
-        Labels_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Labels_py.mat')
+        # Labels_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Labels_py.mat')
+        Labels_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Labels_py.mat'
 
         Labels_Quality = []
         Labels_Location = []
