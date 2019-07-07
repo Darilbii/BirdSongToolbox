@@ -10,6 +10,8 @@ Documentation for the BirdSongToolbox module is underdevelopment.
 
 The documentation also intends to include a full set of *tutorials* covering the functionality of BirdSongToolbox.
 
+A **Basic Introduction Tutorial** can be found [here](https://github.com/Darilbii/BirdSongToolbox/blob/master/Tutorial/1-Introduction_to_BirdSongToolbox.ipynb)
+
 If you have a question about using NeuroDSP that doesn't seem to be covered by the documentation, feel free to
 open an [issue](https://github.com/Darilbii/BirdSongToolbox/issues) and ask!
 
@@ -17,7 +19,7 @@ open an [issue](https://github.com/Darilbii/BirdSongToolbox/issues) and ask!
 
 **Stable Release Version**
 
-*Note:* At Present there is no official Stable Release, however once there is, the below should be true
+**Note:** At Present there is no official Stable Release, however once there is, the below should be true
 To install the latest release of BirdSongToolbox, you can install from pip:
 
 `$ pip install BirdSongToolbox`
