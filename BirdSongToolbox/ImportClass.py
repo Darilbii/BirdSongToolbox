@@ -19,21 +19,23 @@ class Import_PrePd_Data():
     ------------------
     <bird_id>_day_<#>
 
-    Methods:
+    Methods
     --------
     Describe(self): Prints Relevant information about the Imported Data
 
-    Parameters:
+    Parameters
     -----------
-    bird_id: str
+    bird_id : str
         Bird Indentifier to Locate Specified Bird's data folder
-    sess_name: str
+    sess_name : str
         Experiment Day to Locate it's Folder
-    data_type: string
+    data_type : string
         String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
 
     Objects:
     --------
+    > Meta Data
+    -----------
     .bird_id: str
         Bird Indentifier to Locate Specified Bird's data folder
     .date: str
@@ -52,6 +54,13 @@ class Import_PrePd_Data():
         Number of Recording Channels used on Bird
     .Bad_Channels = list
         List of Channels with Noise to be excluded from Common Average Referencing
+    .Num_Motifs: int
+        Number of Motifs in data set
+    .Num_Silence: int
+        Number of Examples of Silence
+
+    > Epoch Data
+    ------------
     .Song_Neural: list
         User Designated Neural data during Song Trials
         [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
@@ -61,13 +70,12 @@ class Import_PrePd_Data():
     .Song_Audio: list
         Audio of Trials, centered on motif
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
-    .Num_Motifs: int
-        Number of Motifs in data set
     .Silence_Audio: list
         Audio of Silents Trials
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
-    .Num_Silence: int
-        Number of Examples of Silence
+
+    > Epoch Descriptors
+    -------------------
     .Song_Quality: list
         Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
         [Number of Trials x 1 (numpy.unicode_)]
@@ -78,6 +86,9 @@ class Import_PrePd_Data():
         Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
         [Number of Trials x 1 (numpy.unicode_)]
         *** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility***
+
+    > Epoch Indexes
+    ---------------
     .Good_Motifs: np.ndarray
         Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
     .First_Motifs: np.ndarray
@@ -93,8 +104,8 @@ class Import_PrePd_Data():
     .All_Last_Motifs: np.ndarray
         Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
     .Good_Mid_Motifs: np.ndarray
-        Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
-        Analysis
+        Index of All Good Motifs in the middle of a Bout Regardless of Quality label,
+        This is Useful for Clip-wise (Series) Analysis
 
     Example:
     --------
@@ -106,7 +117,7 @@ class Import_PrePd_Data():
 
         Parameters:
         -----------
-            bird_id: str
+            bird_id: string
                 Bird Indentifier to Locate Specified Bird's data folder
             sess_name: str
                 Experiment Day to Locate it's Folder
@@ -115,8 +126,10 @@ class Import_PrePd_Data():
             location: str or Path object, (Optional)
                 Location to search for the data other than default DATA_PATH (Optional)
         """
-        assert type(bird_id) == str
-        assert type(sess_name) == str
+        assert isinstance(bird_id, str)
+        assert isinstance(sess_name, str)
+        assert isinstance(data_type, str)
+        assert data_type in ['LPF_DS', 'LPF', 'Raw'], "Invalid data_type. It can only be 'LPF_DS', 'LPF', 'Raw'"
 
         # Initialize Session Identifiers
         self.bird_id = bird_id
@@ -124,8 +137,6 @@ class Import_PrePd_Data():
         self.data_type = data_type
 
         # Basic Setup for path Creation
-        # experiment_folder = '/net/expData/birdSong/'
-        # experiment_folder = settings.DATA_PATH
         if location is None:
             experiment_folder = DATA_PATH
         else:
@@ -136,31 +147,39 @@ class Import_PrePd_Data():
             assert experiment_folder.exists(), "Directory pointed by location parameter does not exist"
             experiment_folder.resolve()
 
-        # prepd_ss_data_folder = os.path.join(experiment_folder, 'ss_data_Processed')
         prepd_ss_data_folder = experiment_folder / 'ss_data_Processed'
 
         # Modularized Data Import Steps
-        self.Identify_Bird()  ## Determine Data's Metadata (Predefined Options based on Annotation)
+        self._identify_bird()  # Determine Data's Metadata (Predefined Options based on Annotation)
 
-        self._ImportSwitch(prepd_ss_data_folder)  ## Import User Designated Neural Data for Song and Silence
-        self.Get_Song_Audio(prepd_ss_data_folder)  ## Song: Store the Filtered Audio Data
-        self.Get_Silence_Audio(prepd_ss_data_folder)  ## Silence: Store the Filtered Audio Data
-        self.Get_Hand_Labels(prepd_ss_data_folder)  ## Store the Different Types of Hand Labels into Seperate Lists
+        # Import Song Related Data
+        self.Song_Neural = self._get_specified_data(prepd_ss_data_folder, data_type=self.data_type, epoch_type='Song')
+        self.Song_Audio = self._get_specified_data(prepd_ss_data_folder, data_type='Audio', epoch_type='Song')
+        self.Num_Motifs = len(self.Song_Neural)  # Number of Song Epochs
+
+        # Import Silence Related Data
+        self.Silence_Neural = self._get_specified_data(prepd_ss_data_folder, data_type=self.data_type,
+                                                       epoch_type='Silence')
+        self.Silence_Audio = self._get_specified_data(prepd_ss_data_folder, data_type='Audio', epoch_type='Silence')
+        self.Num_Silence = len(self.Silence_Neural)  # Number of Silence Epochs
+
+        # Import the First Pass Handlabels
+        self._get_hand_labels(prepd_ss_data_folder)  # Store the Different Types of Hand Labels into Separate Lists
 
         # Modularized Indexes of Relevant Handlabel Pairs
-        self.Locate_All_Good_Motifs()
-        self.Locate_Good_First_Motifs()
-        self.Locate_Bad_Full_Motifs()
-        self.Locate_Good_Last_Motifs()
-        self.Locate_Last_Syll_Dropped()
-        self.Locate_Bouts()
-        self.Locate_All_Last_Motifs()
-        self.Locate_Good_Mid_Motifs()
+        self._locate_all_good_motifs()
+        self._locate_good_first_motifs()
+        self._locate_bad_full_motifs()
+        self._locate_good_last_motifs()
+        self._locate_last_syll_dropped()
+        self._locate_bouts()
+        self._locate_all_last_motifs()
+        self._locate_good_mid_motifs()
 
         # Confirm completion of Import to User
         self.Describe()
 
-    def Identify_Bird(self):
+    def _identify_bird(self):
         """Acquire Standard Descriptive Information on Data based on Bird Identity and User Instructions
 
         This Function Must Be Maintained and Updated as More Birds are added
@@ -193,7 +212,7 @@ class Import_PrePd_Data():
         self.Bad_Channels = Bad_Channels[self.bird_id]  # Get Bad Channels
         self.Fs = Sample_Frequency[self.data_type]
 
-    def _ImportSwitch(self, Prepd_ss_data_folder):
+    def _import_switch(self, Prepd_ss_data_folder):
         """Functional Switch to Control what type of Neural Data is imported"""
 
         if self.data_type == 'LPF_DS':
@@ -208,152 +227,197 @@ class Import_PrePd_Data():
         else:
             print('Invalid Neural Data Type')
 
-    def Get_LPF_DS_Song(self, Prepd_ss_data_folder):
-        """Song: Store the Low Pass Filtered & Downsampled Neural Data
-        Parameters:
-        -----------
-            Song_File: str
-                path to data
+    ###
+    def _get_specified_data(self, prepd_ss_data_folder, data_type: str, epoch_type: str):
+        """ Gets the data as specified by the data_specified parameter
+
+        Parameters
+        ----------
+        prepd_ss_data_folder : str
+            path to the directory that contains the specified data
+        data_type : str
+            string designating what type of pre-processed data to import
+        epoch_type : str
+            designates what behavior type to import options (Song, Silence)
+
+        Returns
+        -------
+        specified_data : list
+            Data Structure of the parameter designated Data, either Neural or Audio
+                Neural shape: [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
+                Audio shape: [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
         """
-        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP_DS.mat')
-        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP_DS.mat'
-        Song_LPF_DS_Data = []
-        Mat_File = sio.loadmat(Song_File)
-        Mat_File_Filt = Mat_File['Song_LFP_DS']
-        Numb_Motifs = len(Mat_File_Filt)
 
-        for i in range(0, Numb_Motifs):
-            Song_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+        assert epoch_type in ['Song', 'Silence'], "Invalid epoch_type. It can only be 'Song' or 'Silence' "
+        assert data_type in ['Audio', 'LPF_DS', 'LPF', 'Raw'], "Invalid data_type for _get_specified_data"
 
-        self.Num_Motifs = Numb_Motifs
+        if data_type == 'LPF_DS':
+            data_type = 'LFP_DS'  # Hack to keep API Consistent
+        elif data_type == 'LPF':
+            data_type = 'LFP'  # Hack to keep API Consistent
 
-        return Song_LPF_DS_Data
+        # Define Path to the User Designated Pre-Processed Data
+        desig_data_type = epoch_type + '_' + data_type  # Full Designated Data Name, ex: 'Song'+'LFP_DS'->'Song_LFP_DS'
+        spec_file_name = desig_data_type + '.mat'  # Name of Matlab Data with Specified Data
+        data_file_path = prepd_ss_data_folder / self.bird_id / self.date / spec_file_name
 
-    def Get_LPF_Song(self, Prepd_ss_data_folder):
-        """Song: Store the Low Pass Filtered & Downsampled Neural Data
-        Parameters:
-        -----------
-            Song_File: str
-                path to data
-        """
-        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP.mat')
-        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP.mat'
-        Song_LPF_Data = []
-        Mat_File = sio.loadmat(Song_File)
-        Mat_File_Filt = Mat_File['Song_LFP']
-        Numb_Motifs = len(Mat_File_Filt)
+        # Import the Data
+        specified_data = []
+        mat_file = sio.loadmat(str(data_file_path))  # Open and Import the specified Matlab File
+        mat_file_filt = mat_file[desig_data_type]  # make the data easier to work with in python
 
-        for i in range(0, Numb_Motifs):
-            Song_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+        # Arrange Imported Data into Usable Format
+        for i in range(len(mat_file_filt)):
+            specified_data.append(np.transpose(mat_file_filt[i, 0]))
 
-        self.Num_Motifs = Numb_Motifs
+        return specified_data
+    #
+    # def Get_LPF_DS_Song(self, Prepd_ss_data_folder):
+    #     """Song: Store the Low Pass Filtered & Downsampled Neural Data
+    #     Parameters:
+    #     -----------
+    #         Song_File: str
+    #             path to data
+    #     """
+    #     # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP_DS.mat')
+    #     Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP_DS.mat'
+    #     Song_LPF_DS_Data = []
+    #     Mat_File = sio.loadmat(Song_File)
+    #     Mat_File_Filt = Mat_File['Song_LFP_DS']
+    #     Numb_Motifs = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Motifs):
+    #         Song_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #
+    #     self.Num_Motifs = Numb_Motifs
+    #
+    #     return Song_LPF_DS_Data
+    #
+    # def Get_LPF_Song(self, Prepd_ss_data_folder):
+    #     """Song: Store the Low Pass Filtered & Downsampled Neural Data
+    #     Parameters:
+    #     -----------
+    #         Song_File: str
+    #             path to data
+    #     """
+    #     # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_LFP.mat')
+    #     Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_LFP.mat'
+    #     Song_LPF_Data = []
+    #     Mat_File = sio.loadmat(Song_File)
+    #     Mat_File_Filt = Mat_File['Song_LFP']
+    #     Numb_Motifs = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Motifs):
+    #         Song_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #
+    #     self.Num_Motifs = Numb_Motifs
+    #
+    #     return Song_LPF_Data
+    #
+    # def Get_Raw_Song(self, Prepd_ss_data_folder):
+    #     """Song: Store the Raw Neural Data
+    #     Parameters:
+    #     -----------
+    #         Song_File: str
+    #             path to data
+    #     """
+    #     # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
+    #     Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Raw.mat'
+    #     Song_Raw_Data = []
+    #     Mat_File = sio.loadmat(Song_File)
+    #     Mat_File_Filt = Mat_File['Song_Raw']
+    #     Numb_Motifs = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Motifs):
+    #         Song_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #     self.Num_Motifs = Numb_Motifs
+    #
+    #     return Song_Raw_Data
+    #
+    # def Get_Song_Audio(self, Prepd_ss_data_folder):
+    #     """Song: Store the Filtered Audio Data"""
+    #     # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
+    #     Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Audio.mat'
+    #
+    #     Song_Audio_Data = []
+    #     Mat_File = sio.loadmat(Song_File)
+    #     Mat_File_Filt = Mat_File['Song_Audio']
+    #
+    #     Song_Audio_Data = []
+    #     for i in range(0, self.Num_Motifs):
+    #         Song_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #     self.Song_Audio = Song_Audio_Data
+    #
+    # def Get_LPF_DS_Silence(self, Prepd_ss_data_folder):
+    #     """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
+    #
+    #     # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP_DS.mat')
+    #     Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP_DS.mat'
+    #     Silence_LPF_DS_Data = []
+    #     Mat_File = sio.loadmat(Silence_File)
+    #     Mat_File_Filt = Mat_File['Silence_LFP_DS']
+    #     Numb_Sil_Ex = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Sil_Ex):
+    #         Silence_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #
+    #     self.Num_Silence = Numb_Sil_Ex
+    #     return Silence_LPF_DS_Data
+    #
+    # def Get_LPF_Silence(self, Prepd_ss_data_folder):
+    #     """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
+    #
+    #     # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP.mat')
+    #     Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP.mat'
+    #
+    #     Silence_LPF_Data = []
+    #     Mat_File = sio.loadmat(Silence_File)
+    #     Mat_File_Filt = Mat_File['Silence_LFP']
+    #     Numb_Sil_Ex = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Sil_Ex):
+    #         Silence_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #
+    #     self.Num_Silence = Numb_Sil_Ex
+    #     return Silence_LPF_Data
+    #
+    # def Get_Raw_Silence(self, Prepd_ss_data_folder):
+    #     """Silence: Store the Raw Neural Data
+    #     Parameters:
+    #     -----------
+    #         Song_File: str
+    #             path to data
+    #     """
+    #     # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
+    #     Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Raw.mat'
+    #
+    #     Silence_Raw_Data = []
+    #     Mat_File = sio.loadmat(Song_File);
+    #     Mat_File_Filt = Mat_File['Silence_Raw'];
+    #     Numb_Sil_Ex = len(Mat_File_Filt)
+    #
+    #     for i in range(0, Numb_Sil_Ex):
+    #         Silence_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #
+    #     self.Num_Silence = Numb_Sil_Ex
+    #     return Silence_Raw_Data
+    #
+    # def Get_Silence_Audio(self, Prepd_ss_data_folder):
+    #     """Silence: Store the Filtered Audio Data"""
+    #
+    #     # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Audio.mat')
+    #     Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Audio.mat'
+    #
+    #     Silence_Audio_Data = []
+    #     Mat_File = sio.loadmat(Silence_File);
+    #     Mat_File_Filt = Mat_File['Silence_Audio'];
+    #
+    #     Silence_Audio_Data = []
+    #     for i in range(0, self.Num_Silence):
+    #         Silence_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
+    #     self.Silence_Audio = Silence_Audio_Data
 
-        return Song_LPF_Data
-
-    def Get_Raw_Song(self, Prepd_ss_data_folder):
-        """Song: Store the Raw Neural Data
-        Parameters:
-        -----------
-            Song_File: str
-                path to data
-        """
-        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Raw.mat')
-        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Raw.mat'
-        Song_Raw_Data = []
-        Mat_File = sio.loadmat(Song_File)
-        Mat_File_Filt = Mat_File['Song_Raw']
-        Numb_Motifs = len(Mat_File_Filt)
-
-        for i in range(0, Numb_Motifs):
-            Song_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-        self.Num_Motifs = Numb_Motifs
-
-        return Song_Raw_Data
-
-    def Get_Song_Audio(self, Prepd_ss_data_folder):
-        """Song: Store the Filtered Audio Data"""
-        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Song_Audio.mat')
-        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Song_Audio.mat'
-
-        Song_Audio_Data = []
-        Mat_File = sio.loadmat(Song_File)
-        Mat_File_Filt = Mat_File['Song_Audio']
-
-        Song_Audio_Data = []
-        for i in range(0, self.Num_Motifs):
-            Song_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-        self.Song_Audio = Song_Audio_Data
-
-    def Get_LPF_DS_Silence(self, Prepd_ss_data_folder):
-        """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
-
-        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP_DS.mat')
-        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP_DS.mat'
-        Silence_LPF_DS_Data = []
-        Mat_File = sio.loadmat(Silence_File)
-        Mat_File_Filt = Mat_File['Silence_LFP_DS']
-        Numb_Sil_Ex = len(Mat_File_Filt)
-
-        for i in range(0, Numb_Sil_Ex):
-            Silence_LPF_DS_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-
-        self.Num_Silence = Numb_Sil_Ex
-        return Silence_LPF_DS_Data
-
-    def Get_LPF_Silence(self, Prepd_ss_data_folder):
-        """Silence: Store the Low Pass Filtered & Downsampled Neural Data"""
-
-        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_LFP.mat')
-        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_LFP.mat'
-
-        Silence_LPF_Data = []
-        Mat_File = sio.loadmat(Silence_File)
-        Mat_File_Filt = Mat_File['Silence_LFP']
-        Numb_Sil_Ex = len(Mat_File_Filt)
-
-        for i in range(0, Numb_Sil_Ex):
-            Silence_LPF_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-
-        self.Num_Silence = Numb_Sil_Ex
-        return Silence_LPF_Data
-
-    def Get_Raw_Silence(self, Prepd_ss_data_folder):
-        """Silence: Store the Raw Neural Data
-        Parameters:
-        -----------
-            Song_File: str
-                path to data
-        """
-        # Song_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Raw.mat')
-        Song_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Raw.mat'
-
-        Silence_Raw_Data = []
-        Mat_File = sio.loadmat(Song_File);
-        Mat_File_Filt = Mat_File['Silence_Raw'];
-        Numb_Sil_Ex = len(Mat_File_Filt)
-
-        for i in range(0, Numb_Sil_Ex):
-            Silence_Raw_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-
-        self.Num_Silence = Numb_Sil_Ex
-        return Silence_Raw_Data
-
-    def Get_Silence_Audio(self, Prepd_ss_data_folder):
-        """Silence: Store the Filtered Audio Data"""
-
-        # Silence_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Silence_Audio.mat')
-        Silence_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Silence_Audio.mat'
-
-        Silence_Audio_Data = []
-        Mat_File = sio.loadmat(Silence_File);
-        Mat_File_Filt = Mat_File['Silence_Audio'];
-
-        Silence_Audio_Data = []
-        for i in range(0, self.Num_Silence):
-            Silence_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
-        self.Silence_Audio = Silence_Audio_Data
-
-    def Get_Hand_Labels(self, Prepd_ss_data_folder):
+    def _get_hand_labels(self, Prepd_ss_data_folder):
         """Stores the Different Types of Labels into Seperate Lists"""
 
         # Labels_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Labels_py.mat')
@@ -379,7 +443,7 @@ class Import_PrePd_Data():
         self.Song_Locations = Labels_Location
         self.Song_Syl_Drop = Labels_Syl_Drop
 
-    def Locate_All_Good_Motifs(self):
+    def _locate_all_good_motifs(self):
         """Create Index for All Good Motifs
 
         Parameters:
@@ -414,7 +478,7 @@ class Import_PrePd_Data():
         Good_Motifz = Good_Motifz[0]  # Weird Needed Step
         self.Good_Motifs = Good_Motifz
 
-    def Locate_Good_First_Motifs(self):
+    def _locate_good_first_motifs(self):
         """Create Index for All Good First Motifs
 
         Parameters:
@@ -450,7 +514,7 @@ class Import_PrePd_Data():
         First_Motifz = First_Motifz[0]  # Weird Needed Step
         self.First_Motifs = First_Motifz
 
-    def Locate_Good_Last_Motifs(self):
+    def _locate_good_last_motifs(self):
         """Create Index for All Good Last Motifs
 
         Parameters:
@@ -488,7 +552,7 @@ class Import_PrePd_Data():
         self.Last_Motifs = Last_Motifz
 
 
-    def Locate_All_Last_Motifs(self):
+    def _locate_all_last_motifs(self):
         """Create Index for All Good Motifs
         Parameters:
         -----------
@@ -523,7 +587,7 @@ class Import_PrePd_Data():
         All_Last_Motifz = All_Last_Motifz[0]  # Weird Needed Step
         self.All_Last_Motifs = All_Last_Motifz
 
-    def Locate_Good_Mid_Motifs(self):
+    def _locate_good_mid_motifs(self):
         """Create Index for All Good Middle Motifs
 
         Parameters:
@@ -560,7 +624,7 @@ class Import_PrePd_Data():
         Good_Mid_Motifz = Good_Mid_Motifz[0]  # Weird Needed Step
         self.Good_Mid_Motifs = Good_Mid_Motifz
 
-    def Locate_Bad_Full_Motifs(self):
+    def _locate_bad_full_motifs(self):
         """Create Index for All Good Motifs
         Parameters:
         -----------
@@ -596,7 +660,7 @@ class Import_PrePd_Data():
         Bad_Motifz = Bad_Motifz[0]  # Weird Needed Step
         self.Bad_Motifs = Bad_Motifz
 
-    def Locate_Last_Syll_Dropped(self):
+    def _locate_last_syll_dropped(self):
         """ Create Index for All Motifs with the last Syllable Dropped
 
         Parameters:
@@ -632,7 +696,7 @@ class Import_PrePd_Data():
         LS_Dropz = LS_Dropz[0]  # Weird Needed Step
         self.LS_Drop = LS_Dropz
 
-    def Locate_Bouts(self):
+    def _locate_bouts(self):
         """ Create Index for All First Motifs
 
         Parameters:
