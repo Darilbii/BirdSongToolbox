@@ -25,5 +25,5 @@ script:
   - pytest --cov=./
 
 after_success:
-  - codecov --token=<a0c9bce2-2f60-4c11-aaa3-d2372a5f7e4b>
+  - codecov -t a0c9bce2-2f60-4c11-aaa3-d2372a5f7e4b
 
