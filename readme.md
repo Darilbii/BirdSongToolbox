@@ -1,5 +1,6 @@
 # BirdSongToolbox
 [![Build Status](https://travis-ci.com/Darilbii/BirdSongToolbox.svg?token=ZTfpA5S7XqS8CnSq7qLL&branch=master)](https://travis-ci.com/Darilbii/BirdSongToolbox)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 A Package of Tools for Analysing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
 
