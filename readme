@@ -1,7 +1,50 @@
-Hello World!
+# BirdSongToolbox
+[![Build Status](https://travis-ci.com/Darilbii/BirdSongToolbox.svg?token=ZTfpA5S7XqS8CnSq7qLL&branch=master)](https://travis-ci.com/Darilbii/BirdSongToolbox)
+
+A Package of Tools for Analysing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
+
+## Documentation
+
+Documentation for the BirdSongToolbox module is underdevelopment.
+
+The documentation also intends to include a full set of *tutorials* covering the functionality of BirdSongToolbox.
+
+If you have a question about using NeuroDSP that doesn't seem to be covered by the documentation, feel free to
+open an [issue](https://github.com/Darilbii/BirdSongToolbox/issues) and ask!
+
+## Install
+
+**Stable Release Version**
+
+*Note:* At Present there is no official Stable Release, however once there is, the below should be true
+To install the latest release of BirdSongToolbox, you can install from pip:
+
+`$ pip install BirdSongToolbox`
+
+**Development Version**
+
+To get the development version (updates that are not yet published to pip), you can clone this repo.
+
+`$ git clone https://github.com/Darilbii/BirdSongToolbox.git`
+
+To install this cloned copy of neurodsp, move into the directory you just cloned, and run:
+
+`$ pip install .`
+
+**Editable Version**
+
+If you want to install an editable version, for making contributions, download the development version as above, and run:
+
+`$ pip install -e .`
+
+It is recommended that if you are using conda virtual environments, to first activate the specific environment you will be developing contributions on prior to running the above line
+
+## Bug Reports
+
+Please use the [Github issue tracker](https://github.com/Darilbii/BirdSongToolbox/issues) to file bug reports and/or ask questions about this project.
 
 
-General Workflow of this Package:
+## General Workflow of this Package:
 
 Import Class: Import data for use
 PreProcessClass.py: Pre-process Data as desired
