@@ -43,6 +43,33 @@ It is recommended that if you are using conda virtual environments, to first act
 
 Please use the [Github issue tracker](https://github.com/Darilbii/BirdSongToolbox/issues) to file bug reports and/or ask questions about this project.
 
+## Contribute
+
+`BirdSongToolbox` welcomes and encourages contributions from the community!
+
+If you have an idea of something to add to BirdSongToolbox, please start by opening an [issue](https://github.com/Darilbii/BirdSongToolbox/issues).
+
+When writing code to add to NeuroDSP, please follow the [Contribution Guidelines](https://github.com/Darilbii/BirdSongToolbox/blob/master/CONTRIBUTING.md), and also make sure to follow our
+[Code of Conduct](https://github.com/Darilbii/BirdSongToolbox/blob/master/CODE_OF_CONDUCT.md).
+
+## Reference
+
+If you use this code in your project, please cite:
+
+```
+Someday we shall get published and that reference will go here!
+```
+
+## Acknowledgements
+
+Special Thanks to [Tom Donoghue](https://tomdonoghue.github.io/) and the [Voytek Lab](https://voyteklab.com/) who were heavily influential in the development of this readme
+
+## Contact
+debrown@ucsd.edu
+
+----------------------------------
+# Stuff Below was dumped here a long time ago
+----------------------------------
 
 ## General Workflow of this Package:
 
@@ -85,6 +112,5 @@ The Processing Functions all follow the same general Steps:
     - [4] Do User Specified Processing on Silence Neural Data
     - [5] Update the Process Log with User Defined Steps (Done Last Incase of Error)
 
-## Contact
-debrown@ucsd.edu
+
 
