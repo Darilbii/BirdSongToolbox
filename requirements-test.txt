@@ -1,0 +1,10 @@
+pytest>=3.6
+pytest-ordering
+googledrivedownloader
+
+# for testing
+#coverage>=4.4
+
+#pytest-cov
+#python-coveralls
+#nbval # Need to learn more from Marvin

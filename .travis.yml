@@ -16,10 +16,12 @@ notifications:
 # Install packages
 install:
   - pip install -r requirements.txt
-  - pip install googledrivedownloader
-  - pip install pytest>=3.6
-  - pip install pytest-ordering
-  - pip install requests
+  - pip install -r requirements-test.txt
+#  - pip install googledrivedownloader
+#  - pip install pytest>=3.6
+#  - pip install pytest-ordering
+#  - pip install requests
+
 #  - pip install pytest-cov
 #  - pip install codecov
 #  - pip install .  # This has somethihng to do with Testing with PyPi
