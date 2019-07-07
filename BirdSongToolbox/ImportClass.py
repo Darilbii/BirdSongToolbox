@@ -417,31 +417,30 @@ class Import_PrePd_Data():
     #         Silence_Audio_Data.append(np.transpose(Mat_File_Filt[i, 0]))
     #     self.Silence_Audio = Silence_Audio_Data
 
-    def _get_hand_labels(self, Prepd_ss_data_folder):
+    def _get_hand_labels(self, prepd_ss_data_folder):
         """Stores the Different Types of Labels into Seperate Lists"""
 
-        # Labels_File = os.path.join(Prepd_ss_data_folder, self.bird_id, self.date, 'Labels_py.mat')
-        Labels_File = Prepd_ss_data_folder / self.bird_id / self.date / 'Labels_py.mat'
+        labels_file = prepd_ss_data_folder / self.bird_id / self.date / 'Labels_py.mat'
 
-        Labels_Quality = []
-        Labels_Location = []
-        Labels_Syl_Drop = []
+        labels_quality = []
+        labels_location = []
+        labels_syl_drop = []
 
-        Mat_File = sio.loadmat(Labels_File);
-        Mat_File_Filt = Mat_File['Motif_Labels'];
-        Numb_Motifs = len(Mat_File_Filt);
+        mat_file = sio.loadmat(str(labels_file));
+        mat_file_filt = mat_file['Motif_Labels'];
+        numb_motifs = len(mat_file_filt);
 
-        assert self.Num_Motifs == Numb_Motifs
+        assert self.Num_Motifs == numb_motifs
 
         # Store the Low Pass Filtered & Downsampled Neural Data
         for i in range(0, self.Num_Motifs):
-            Labels_Quality.append(np.transpose(Mat_File_Filt[i, 0]))
-            Labels_Location.append(np.transpose(Mat_File_Filt[i, 1]))
-            Labels_Syl_Drop.append(np.transpose(Mat_File_Filt[i, 2]))
+            labels_quality.append(np.transpose(mat_file_filt[i, 0]))
+            labels_location.append(np.transpose(mat_file_filt[i, 1]))
+            labels_syl_drop.append(np.transpose(mat_file_filt[i, 2]))
 
-        self.Song_Quality = Labels_Quality
-        self.Song_Locations = Labels_Location
-        self.Song_Syl_Drop = Labels_Syl_Drop
+        self.Song_Quality = labels_quality
+        self.Song_Locations = labels_location
+        self.Song_Syl_Drop = labels_syl_drop
 
     def _locate_all_good_motifs(self):
         """Create Index for All Good Motifs
