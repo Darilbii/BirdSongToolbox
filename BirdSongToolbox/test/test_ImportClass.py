@@ -15,6 +15,9 @@ def test_ImportClass():
 
     PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
 
+    # Making sure the class initiated properly
+    assert isinstance(PreP_Data, Import_PrePd_Data)
+
     assert PreP_Data.bird_id == bird_id
     assert PreP_Data.date == date
     assert isinstance(PreP_Data.data_type, str)
@@ -36,7 +39,7 @@ def test_ImportClass():
     # Test Silence Data
     assert isinstance(PreP_Data.Silence_Neural, list)
     assert isinstance(PreP_Data.Silence_Audio, list)
-    assert len(PreP_Data.Silence_Neural) == len(PreP_Data.Silence_Neural) == PreP_Data.Num_Silence #, f"Song_Neural len: {PreP_Data.Silence_Neural} \n Song_Audio len: {PreP_Data.Silence_Neural} \n Num_Motifs: {PreP_Data.Num_Silence}"
+    assert len(PreP_Data.Silence_Neural) == len(PreP_Data.Silence_Audio) == PreP_Data.Num_Silence #, f"Song_Neural len: {PreP_Data.Silence_Neural} \n Song_Audio len: {PreP_Data.Silence_Neural} \n Num_Motifs: {PreP_Data.Num_Silence}"
     assert np.shape(PreP_Data.Silence_Neural[0]) == np.shape(PreP_Data.Silence_Neural[-1]) == (PreP_Data.Gap_Len+PreP_Data.Sn_Len, PreP_Data.Num_Chan)
 
 

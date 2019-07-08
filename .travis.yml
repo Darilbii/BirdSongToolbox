@@ -17,7 +17,6 @@ notifications:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
-  - pip install .  # Install BirdSongToolbox
   - pip install pytest-cov
   - pip install codecov
 
