@@ -12,7 +12,7 @@ setup(
     version='0.1.0dev',
     packages=find_packages(),
     url='',
-    license='',
+    license='Apache License, 2.0',
     author='Daril Brown II',
     author_email='',
     description='',
