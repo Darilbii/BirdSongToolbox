@@ -14,7 +14,7 @@ The documentation also intends to include a full set of *tutorials* covering the
 
 A **Basic Introduction Tutorial** can be found [here](https://github.com/Darilbii/BirdSongToolbox/blob/master/Tutorial/1-Introduction_to_BirdSongToolbox.ipynb)
 
-If you have a question about using NeuroDSP that doesn't seem to be covered by the documentation, feel free to
+If you have a question about using BirdSongToolbox that doesn't seem to be covered by the documentation, feel free to
 open an [issue](https://github.com/Darilbii/BirdSongToolbox/issues) and ask!
 
 ## Install
@@ -32,7 +32,7 @@ To get the development version (updates that are not yet published to pip), you 
 
 `$ git clone https://github.com/Darilbii/BirdSongToolbox.git`
 
-To install this cloned copy of neurodsp, move into the directory you just cloned, and run:
+To install this cloned copy of BirdSongToolbox, move into the directory you just cloned, and run:
 
 `$ pip install .`
 
@@ -54,7 +54,7 @@ Please use the [Github issue tracker](https://github.com/Darilbii/BirdSongToolbo
 
 If you have an idea of something to add to BirdSongToolbox, please start by opening an [issue](https://github.com/Darilbii/BirdSongToolbox/issues).
 
-When writing code to add to NeuroDSP, please follow the [Contribution Guidelines](https://github.com/Darilbii/BirdSongToolbox/blob/master/CONTRIBUTING.md), and also make sure to follow our
+When writing code to add to BirdSongToolbox, please follow the [Contribution Guidelines](https://github.com/Darilbii/BirdSongToolbox/blob/master/CONTRIBUTING.md), and also make sure to follow our
 [Code of Conduct](https://github.com/Darilbii/BirdSongToolbox/blob/master/CODE_OF_CONDUCT.md).
 
 ## Reference
