@@ -109,7 +109,7 @@ def conv_textgrid_to_dict(bird_id, session, base_folder: Path):
     for chunk in textgrids:
         chunk_id = int(chunk.stem)  # Get the Number/ID of Chunk
         print(chunk_id)
-        chunk_textgrid = tgio.openTextgrid(chunk)  # Open Chunk's Textgrid
+        chunk_textgrid = tgio.openTextgrid(str(chunk))  # Open Chunk's Textgrid
         chunk_dict = chunk_textgrid_parser(chunk_textgrid)  # Convert Chunk's Textgrid to dict
         _sanity_check_labels_tier(tier_list=chunk_dict['labels'], chunk_num=chunk_id)  # Sanity Check labels tier
         days_handlabels_dict[chunk_id] = chunk_dict  # Add Chunk's TextGrid->dict to Day's dictionary
