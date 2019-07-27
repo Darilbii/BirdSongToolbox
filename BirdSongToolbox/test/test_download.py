@@ -13,6 +13,23 @@ from BirdSongToolbox.config.settings import DATA_DIR, TEST_DATA_ZIP, TEST_DATA_D
 TEST_DATA_PIPELINE_ZIP = DATA_DIR / "Pipeline_Test_Dataz020_day-2016-06-02.pckl.zip"
 TEST_DATA_PIPELINE_PCKL = DATA_DIR / "Pipeline_Test_Dataz020_day-2016-06-02.pckl"
 
+TEST_DATA_PRAAT_UTILS_ZIP = DATA_DIR / "praat_utils_test_data.zip"
+TEST_DATA_PRAAT_UTILS_DIR = DATA_DIR / "Chunk_TextGrids_Final"
+
+# For Travis There needs the config file must be created for further tests
+# local_data_path = input("What is the path to the data folder on your local computer?)")
+#
+# # Verify that this local path exists
+# verify = Path(local_data_path)
+# verify.resolve()
+#
+# if verify.exists():
+#     # Create the setting.pckl file
+#     default_path.resolve()
+#     with default_path.open(mode='wb') as settings_file:
+#         pk.dump(local_data_path, settings_file,
+#                 protocol=0)  # Protocol 0 is human readable and backwards compatible
+
 @pytest.mark.run(order=0)
 def test_download_data():
     if not TEST_DATA_DIR.exists():
@@ -67,3 +84,14 @@ def test_download_data_instance_of_pipeline_class():
                                             unzip=True)
         # Test for Pipeline() Test Data
         assert TEST_DATA_DIR.exists()
+
+@pytest.mark.run(order=0)
+def test_download_data_chunk_textgrid_directory():
+    """Download Data for testing the praat_utils module"""
+    if not TEST_DATA_PRAAT_UTILS_DIR.exists():
+        gdd.download_file_from_google_drive(file_id='1G8cGCJzczptIon9kus0m1X417HUA5QUE',
+                                            dest_path=TEST_DATA_PRAAT_UTILS_ZIP.as_posix(),
+                                            unzip=True)
+        # Test for annotate module Test Data
+        assert TEST_DATA_PRAAT_UTILS_DIR.exists()
+
