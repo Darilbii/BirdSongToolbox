@@ -26,7 +26,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
         elif isinstance(dir_path, Path()):
             data_path = dir_path  # already a Path instance
         else:
-            raise TypeError  # Currently only suppor str and Path()
+            raise TypeError  # Currently only support str and Path()
     else:
         if not INTERMEDIATE_DATA_PATH.exists():
             INTERMEDIATE_DATA_PATH.mkdir(parents=False, exist_ok=True)  # Makes the default intermediate data folder
@@ -41,7 +41,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
             data_file_path.parents[0].mkdir(parents=True, exist_ok=True)
 
     data_file_path.resolve()
-    assert data_file_path.exists(), f"{data_file_path} doesn't exist"
+    assert data_file_path.parents[0].exists(), f"{data_file_path} doesn't exist"
 
     return data_file_path
 
@@ -78,7 +78,9 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
 
     print(f"Loading {data_name} Data from", data_file_path.name)
 
-    return np.load(str(data_file_path))
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
+
+    return np.load(data_file_path)
 
 
 def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
