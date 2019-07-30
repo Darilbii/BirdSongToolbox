@@ -34,7 +34,6 @@ def test_ImportClass():
     assert isinstance(PreP_Data.Song_Audio, list)
     assert len(PreP_Data.Song_Neural) == len(PreP_Data.Song_Audio) == PreP_Data.Num_Motifs #, f"Song_Neural len: {PreP_Data.Song_Neural} \n Song_Audio len: {PreP_Data.Song_Audio} \n Num_Motifs: {PreP_Data.Num_Motifs}"
     assert np.shape(PreP_Data.Song_Neural[0]) == np.shape(PreP_Data.Song_Neural[-1]) == (PreP_Data.Gap_Len+PreP_Data.Sn_Len, PreP_Data.Num_Chan)
-    assert len(PreP_Data.Song_Audio[0]) == len(PreP_Data.Song_Audio[-1]) == len(PreP_Data.Silence_Audio[0]) == len(PreP_Data.Silence_Audio[-1])
 
     # Test Silence Data
     assert isinstance(PreP_Data.Silence_Neural, list)
@@ -42,6 +41,8 @@ def test_ImportClass():
     assert len(PreP_Data.Silence_Neural) == len(PreP_Data.Silence_Audio) == PreP_Data.Num_Silence #, f"Song_Neural len: {PreP_Data.Silence_Neural} \n Song_Audio len: {PreP_Data.Silence_Neural} \n Num_Motifs: {PreP_Data.Num_Silence}"
     assert np.shape(PreP_Data.Silence_Neural[0]) == np.shape(PreP_Data.Silence_Neural[-1]) == (PreP_Data.Gap_Len+PreP_Data.Sn_Len, PreP_Data.Num_Chan)
 
+    # Test length of Song and Silence audio
+    assert len(PreP_Data.Song_Audio[0]) == len(PreP_Data.Song_Audio[-1]) == len(PreP_Data.Silence_Audio[0]) == len(PreP_Data.Silence_Audio[-1])
 
     # Test Labels (Pass 1)
     assert isinstance(PreP_Data.Song_Quality, list)
