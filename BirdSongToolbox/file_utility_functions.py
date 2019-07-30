@@ -78,7 +78,7 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
 
     print(f"Loading {data_name} Data from", data_file_path.name)
 
-    return np.load(data_file_path)
+    return np.load(str(data_file_path))
 
 
 def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
