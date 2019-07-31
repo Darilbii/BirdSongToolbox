@@ -30,3 +30,18 @@ def test_handle_data_path(file_utils_path):
     Goal = DATA_DIR / "test_file_utilities" / bird_id / session / goal_name
 
 
+
+@pytest.mark.run(order=1)
+def test__save_numpy_data(file_utils_path):
+    goal_name = 'test'
+    bird_id = 'z020'
+    session = 'day-2016-06-02'
+
+    test_data = np.arange(1, 100)
+
+    _save_numpy_data(data=test_data, data_name=goal_name, bird_id=bird_id, session=session, destination=file_utils_path,
+                         make_parents=False)
+
+    # Write test to Confirm that the file created exist and are in the expected location
+
+
