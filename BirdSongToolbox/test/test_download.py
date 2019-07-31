@@ -1,8 +1,8 @@
 """ Test Script that Downloads Test Data for the Test Scripts"""
 import pytest
-# from pathlib import Path
 from google_drive_downloader import GoogleDriveDownloader as gdd
 from BirdSongToolbox.config.settings import DATA_DIR, TEST_DATA_ZIP, TEST_DATA_DIR
+# from pathlib import Path
 
 # PROJECT_DIR = Path(__file__).resolve().parents[1]
 # DATA_DIR = PROJECT_DIR / "data"
@@ -95,3 +95,17 @@ def test_download_data_chunk_textgrid_directory():
         # Test for annotate module Test Data
         assert TEST_DATA_PRAAT_UTILS_DIR.exists()
 
+@pytest.mark.run(order=0)
+def test_download_data_chunk_data_demo_directory(data_path, chunk_data_path):
+    """Download Data for testing the praat_utils module"""
+
+    test_data_chunk_data_demo_zip = data_path / "Chunk_Data_Demo.zip"
+    # test_data_chunk_data_demo_dir = data_path / "Chunk_Data_Demo"
+    test_data_chunk_data_demo_dir = chunk_data_path
+
+    if not test_data_chunk_data_demo_dir.exists():
+        gdd.download_file_from_google_drive(file_id='1GLREIG8zaW3-4MJLVg9OibfLBBKV28pp',
+                                            dest_path=test_data_chunk_data_demo_zip.as_posix(),
+                                            unzip=True)
+        # Test for annotate module Test Data
+        assert test_data_chunk_data_demo_dir.exists()
