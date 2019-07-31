@@ -23,7 +23,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
     if dir_path is not None:
         if isinstance(dir_path, str):
             data_path = Path(dir_path)  # Make a Path instance
-        elif isinstance(dir_path, Path()):
+        elif isinstance(dir_path, Path):
             data_path = dir_path  # already a Path instance
         else:
             raise TypeError  # Currently only support str and Path()
