@@ -15,11 +15,11 @@ notifications:
 
 # Install packages
 install:
-  - pip install -r requirements.txt
+#  - pip install -r requirements.txt
   - pip install -r requirements-test.txt
   - pip install pytest-cov
   - pip install codecov
-  - pip install .  # Install BirdSongToolbox
+  - pip install .[mne]  # Install BirdSongToolbox
 
 script:
   - pytest --cov=./

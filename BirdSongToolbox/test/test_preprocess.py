@@ -1,7 +1,7 @@
 import pytest
 from BirdSongToolbox.file_utility_functions import _load_numpy_data, _load_pckl_data
 from BirdSongToolbox.preprocess import common_average_reference_array, common_average_reference, bandpass_filter, \
-    bandpass_filter_array_mne, bandpass_filter_array_ndsp, bandpass_filter_epochs
+    bandpass_filter_array_mne, bandpass_filter_array_ndsp, bandpass_filter_epochs, multi_bpf_epochs
 
 @pytest.mark.run(order=1)
 @pytest.fixture()
@@ -62,6 +62,12 @@ def test_bandpass_filter_epochs(chunk_neural_data):
 
     filt_data = bandpass_filter_epochs(epoch_neural_data=chunk_neural_data, fs=fs, l_freq=l_freq, h_freq=h_freq)
 
-#
-# @pytest.mark.run(order=1)
-# def test_multi_bpf_epochs():
+
+@pytest.mark.run(order=1)
+def test_multi_bpf_epochs(chunk_neural_data):
+    fs = 1000
+    l_freqs = [10, 11, 12]
+    h_freqs = [12, 13, 14]
+
+    filt_data = multi_bpf_epochs(epoch_neural_data=chunk_neural_data, fs=fs, l_freqs=l_freqs, h_freqs=h_freqs,
+                                 remove_edges=False, verbose=False)
