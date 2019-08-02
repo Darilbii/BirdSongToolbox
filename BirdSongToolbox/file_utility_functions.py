@@ -48,7 +48,8 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
             data_file_path.parents[0].mkdir(parents=True, exist_ok=True)
 
     data_file_path.resolve()
-    assert data_file_path.parents[0].exists()  #, f"{data_file_path} doesn't exist"
+    assert data_file_path.parents[0].exists(), "{data_file_path} doesn't exist".format(data_file_path=data_file_path)
+    # f"{data_file_path} doesn't exist"  # Replace above once py3.5 support dropped
 
     return data_file_path
 
@@ -75,7 +76,9 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
     data_file_path = _handle_data_path(data_name=data_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)
     if verbose:
-        print(f"Saving {data_name} Data to", data_file_path.name + '.npy')
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
+
     np.save(data_file_path, data)  # Save Data
 
 
@@ -106,7 +109,8 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, ve
                                        make_parents=False)
 
     if verbose:
-        print(f"Loading {data_name} Data from", data_file_path.name)
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
 
@@ -141,8 +145,8 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
         pickle.dump(data, file_object)
 
     if verbose:
-        print(f"Saving {data_name} Data to", data_file_path.name)
-
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
 def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
@@ -172,7 +176,8 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, ver
         data = pickle.load(file_object)
 
     if verbose:
-        print(f"Loading {data_name} Data from", data_file_path.name)
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     return data
 
@@ -205,8 +210,8 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
         json.dump(data, file_object)
 
     if verbose:
-        print(f"Saving {data_name} Data to", data_file_path.name)
-
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
 def _load_json_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
@@ -236,7 +241,8 @@ def _load_json_data(data_name: str, bird_id: str, session: str, source=None, ver
         data = json.load(file_object)
 
     if verbose:
-        print(f"Loading {data_name} Data from", data_file_path.name)
+        # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
+        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     return data
 
