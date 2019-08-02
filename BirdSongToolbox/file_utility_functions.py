@@ -47,7 +47,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
         if not data_file_path.parents[0].exists():
             data_file_path.parents[0].mkdir(parents=True, exist_ok=True)
 
-    data_file_path.resolve()
+    # data_file_path.parents[0].resolve()
     assert data_file_path.parents[0].exists(), "{data_file_path} doesn't exist".format(data_file_path=data_file_path)
     # f"{data_file_path} doesn't exist"  # Replace above once py3.5 support dropped
 
@@ -79,7 +79,7 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
         print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
-    np.save(data_file_path, data)  # Save Data
+    np.save(str(data_file_path), data)  # Save Data
 
 
 def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
