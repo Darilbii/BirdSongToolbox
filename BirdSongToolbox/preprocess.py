@@ -232,7 +232,9 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
     """
 
     assert len(l_freqs) == len(
-        h_freqs), f'l_freqs and h_freqs must be the same length, {len(l_freqs)} not equal to {len(h_freqs)}'
+        h_freqs), 'l_freqs and h_freqs must be the same length, {l_f} not equal to {h_f}'.format(l_f=len(l_freqs),
+                                                                                                 h_f=len(h_freqs))
+        # f'l_freqs and h_freqs must be the same length, {len(l_freqs)} not equal to {len(h_freqs)}'
 
     multi_filt_epochs = []
     for l_freq, h_freq in zip(l_freqs, h_freqs):
