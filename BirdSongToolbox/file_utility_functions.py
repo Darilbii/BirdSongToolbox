@@ -79,6 +79,8 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
         print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
+
     np.save(data_file_path, data)  # Save Data
 
 
@@ -141,6 +143,8 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)  # Handle File Path and Directory Structure
 
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
+
     with open(data_file_path, "wb") as file_object:
         pickle.dump(data, file_object)
 
@@ -170,6 +174,8 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, ver
 
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
                                        make_parents=False)
+
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
 
     # Safer Open procedure to make sure it isn't kept open
     with open(data_file_path, "rb") as file_object:
@@ -206,6 +212,7 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)  # Handle File Path and Directory Structure
 
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
     with open(data_file_path, "w", encoding="utf8") as file_object:
         json.dump(data, file_object)
 
@@ -236,6 +243,7 @@ def _load_json_data(data_name: str, bird_id: str, session: str, source=None, ver
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
                                        make_parents=False)
 
+    data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
     # Safer Open procedure to make sure it isn't kept open
     with open(data_file_path, "r", encoding="utf8") as file_object:
         data = json.load(file_object)

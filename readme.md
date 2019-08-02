@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/Darilbii/BirdSongToolbox.svg?token=ZTfpA5S7XqS8CnSq7qLL&branch=master)](https://travis-ci.com/Darilbii/BirdSongToolbox)
 [![codecov](https://codecov.io/gh/Darilbii/BirdSongToolbox/branch/master/graph/badge.svg?token=GrXRs2VvMo)](https://codecov.io/gh/Darilbii/BirdSongToolbox)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Python versions](https://img.shields.io/badge/python-3.6%7C3.7-blue.svg)](https://www.python.org/)
+[![Python versions](https://img.shields.io/badge/python-3.5%7C3.6%7C3.7-blue.svg)](https://www.python.org/)
 
 
 A Package of Tools for Analysing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
