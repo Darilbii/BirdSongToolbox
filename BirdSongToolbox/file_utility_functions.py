@@ -48,7 +48,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
             data_file_path.parents[0].mkdir(parents=True, exist_ok=True)
 
     data_file_path.resolve()
-    assert data_file_path.parents[0].exists(), f"{data_file_path} doesn't exist"
+    assert data_file_path.parents[0].exists()  #, f"{data_file_path} doesn't exist"
 
     return data_file_path
 
