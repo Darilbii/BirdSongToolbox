@@ -53,7 +53,8 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
     return data_file_path
 
 
-def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
+def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
+                     verbose = False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -73,12 +74,12 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
 
     data_file_path = _handle_data_path(data_name=data_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)
-
-    print(f"Saving {data_name} Data to", data_file_path.name + '.npy')
+    if verbose:
+        print(f"Saving {data_name} Data to", data_file_path.name + '.npy')
     np.save(data_file_path, data)  # Save Data
 
 
-def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
+def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -104,14 +105,16 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
                                        make_parents=False)
 
-    print(f"Loading {data_name} Data from", data_file_path.name)
+    if verbose:
+        print(f"Loading {data_name} Data from", data_file_path.name)
 
     data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
 
     return np.load(data_file_path)
 
 
-def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
+def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
+                    verbose = False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -137,10 +140,11 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
     with open(data_file_path, "wb") as file_object:
         pickle.dump(data, file_object)
 
-    print(f"Saving {data_name} Data to", data_file_path.name)
+    if verbose:
+        print(f"Saving {data_name} Data to", data_file_path.name)
 
 
-def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None):
+def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
     """
 
@@ -167,12 +171,14 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None):
     with open(data_file_path, "rb") as file_object:
         data = pickle.load(file_object)
 
-    print(f"Loading {data_name} Data from", data_file_path.name)
+    if verbose:
+        print(f"Loading {data_name} Data from", data_file_path.name)
 
     return data
 
 
-def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
+def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
+                    verbose = False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -198,10 +204,11 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
     with open(data_file_path, "w", encoding="utf8") as file_object:
         json.dump(data, file_object)
 
-    print(f"Saving {data_name} Data to", data_file_path.name)
+    if verbose:
+        print(f"Saving {data_name} Data to", data_file_path.name)
 
 
-def _load_json_data(data_name: str, bird_id: str, session: str, source=None):
+def _load_json_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
     """
 
@@ -228,7 +235,8 @@ def _load_json_data(data_name: str, bird_id: str, session: str, source=None):
     with open(data_file_path, "r", encoding="utf8") as file_object:
         data = json.load(file_object)
 
-    print(f"Loading {data_name} Data from", data_file_path.name)
+    if verbose:
+        print(f"Loading {data_name} Data from", data_file_path.name)
 
     return data
 
