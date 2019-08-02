@@ -39,12 +39,12 @@ def test_bandpass_filter_array_mne(chunk_neural_data):
     filt_data = bandpass_filter_array_mne(neural_data=chunk_neural_data[0], fs=fs, l_freq=l_freq, h_freq=h_freq)
 
 
-# @pytest.mark.run(order=1)
-# def test_bandpass_filter_array_ndsp(chunk_neural_data):
-#     fs = 1000
-#     l_freq = 10
-#     h_freq = 20
-#     filt_data = bandpass_filter_array_ndsp(neural_data=chunk_neural_data[0], fs=fs, l_freq=l_freq, h_freq=h_freq)
+@pytest.mark.run(order=1)
+def test_bandpass_filter_array_ndsp(chunk_neural_data):
+    fs = 1000
+    l_freq = 10
+    h_freq = 20
+    filt_data = bandpass_filter_array_ndsp(neural_data=chunk_neural_data[0], fs=fs, l_freq=l_freq, h_freq=h_freq)
 
 @pytest.mark.run(order=1)
 def test_bandpass_filter(chunk_neural_data):

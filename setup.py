@@ -20,6 +20,6 @@ setup(
     keywords=['neuroscience', 'neural oscillations', 'bird song', 'spectral analysis', 'LFP'],
     tests_require=['pytest', 'googledrivedownloader', 'pytest-ordering'],
     extra_requires={
-        'mne': ['mne']
+        'mne': ["mne"]
     }
 )

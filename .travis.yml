@@ -19,7 +19,8 @@ install:
   - pip install -r requirements-test.txt
   - pip install pytest-cov
   - pip install codecov
-  - pip install .[mne]  # Install BirdSongToolbox
+  - pip install -U mne
+  - pip install .  # Install BirdSongToolbox
 
 script:
   - pytest --cov=./
