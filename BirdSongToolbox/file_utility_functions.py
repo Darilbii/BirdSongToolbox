@@ -7,16 +7,23 @@ from pathlib import Path
 
 
 def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None, make_parents=False):
-    """
 
-    :param data_name:
-    :param bird_id:
-    :param session:
-    :param dir_path:  Path(), optional
+    """ Modular Function to Resolve the path to the file to either be opened or saved
+
+    Parameters
+    ----------
+    data_name : str
+    bird_id : str
+    session : str
+    dir_path :  pathlib.Path, optional
         Destination of data to be save other than the default intermediate location
-    :param make_parents: bool, optional
+    make_parents : bool, optional
         if True, it will create all of the parent folders for the Data File
-    :return:
+    Returns
+    -------
+    data_file_path : Path()
+        The Resolved Path to the file designated by User given parameters
+
     """
 
     # Handle Use Cases of the dir_path variable
@@ -47,19 +54,22 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
 
 
 def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
+    # TODO: Add *Args to allow for identifier information to be appended to the name of the file
+
     """
 
-    :param data:
-    :param data_name:
-    :param bird_id:
-    :param session:
-    :param destination: Path(), optional
-        Destination of data to be save other than the default intermediate location
-    :param make_parents: bool, optional
+    Parameters
+    ----------
+    data : ndarray
+    data_name : str
+    bird_id : str
+    session : str
+    destination: str, pathlib.Path, optional
+        Destination of data to be saved
+    make_parents: bool, optional
         if True, it will create all of the parent folders for the Data File
-    :return:
+
     """
-    # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     data_file_path = _handle_data_path(data_name=data_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)
@@ -70,6 +80,24 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
 
 def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
+
+    """
+
+    Parameters
+    ----------
+    data_name : str
+    bird_id : str
+    session : str
+    source : str, pathlib.Path, optional
+        Location of data to be loaded
+
+    Returns
+    -------
+    np.load(data_file_path) : array, tuple, dict, etc.
+        Data stored in the file
+
+    """
+
 
     file_name = data_name + '.npy'
 
@@ -86,6 +114,21 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None):
 def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
+    """
+
+    Parameters
+    ----------
+    data : ndarray
+    data_name : str
+    bird_id : str
+    session : str
+    destination : str, pathlib.Path, optional
+        Desitnation to save the pickle file
+    make_parents : bool, optional
+        If True, it will create all of the parent folders for the Data File
+
+    """
+
     file_name = data_name + '.pckl'  # Add the .pckl stem to the data_name
 
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=destination,
@@ -98,6 +141,23 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
 
 
 def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None):
+
+    """
+
+    Parameters
+    ----------
+    data_name : str
+    bird_id : str
+    session : str
+    source : str, pathlib.Path, optional
+        Source to load the pickle file from
+
+    Returns
+    -------
+    data : pckl
+        The pickle data object to be loaded
+    """
+
     file_name = data_name + '.pckl'
 
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
@@ -115,6 +175,22 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None):
 def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
+    """
+
+    Parameters
+    ----------
+    data : ndarray
+    data_name : str
+    bird_id : str
+    session : str
+    destination : str, pathlib.Path, optional
+        Destination of json file to be saved
+    make_parents : bool, optional
+        if True, it will create all of the parent folders for the Data File
+
+    """
+
+
     file_name = data_name + '.json'
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)  # Handle File Path and Directory Structure
@@ -126,6 +202,24 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
 
 
 def _load_json_data(data_name: str, bird_id: str, session: str, source=None):
+
+    """
+
+    Parameters
+    ----------
+    data_name : str
+    bird_id : str
+    session : str
+    source : str, pathlib.Path, optional
+        Destination of json file to be saved
+
+    Returns
+    -------
+    data : json
+        The json data object
+
+    """
+
     file_name = data_name + '.json'
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
                                        make_parents=False)
