@@ -2,7 +2,9 @@
 
 import pytest
 from BirdSongToolbox.file_utility_functions import _load_pckl_data
-from BirdSongToolbox.free_epoch_tools import get_chunk_handlabels, label_extractor
+from BirdSongToolbox.free_epoch_tools import get_chunk_handlabels, label_extractor, get_event_related_1d, \
+    get_event_related
+import numpy as np
 
 
 @pytest.mark.run(order=1)
@@ -15,6 +17,13 @@ def bird_id():
 @pytest.fixture()
 def session():
     return 'day-2016-09-09'
+
+@pytest.mark.run(order=1)
+@pytest.fixture()
+def chunk_neural_data(bird_id, session, chunk_data_path):
+    data_path = chunk_data_path
+    return _load_pckl_data(data_name="Large_Epochs_Neural_Song", bird_id=bird_id, session=session,
+                           source=data_path)
 
 
 @pytest.mark.run(order=1)
@@ -58,4 +67,43 @@ def test_label_extractor(labels_testcase, onsets_testcase, test_instructions):
     assert len(specified_labels) == len(test_instructions)
 
 
+@pytest.mark.run(order=1)
+@pytest.fixture()
+def starts_1chunk(labels_testcase, onsets_testcase):
+
+    test_instructions = [1]
+    specified_labels = label_extractor(all_labels=labels_testcase, starts=onsets_testcase[0],
+                                       label_instructions=test_instructions)
+
+    return specified_labels[0][0]
+
+
+@pytest.mark.run(order=1)
+@pytest.mark.parametrize("windows,subtract,overlap", [((-50, 50), None, None),
+                                                      ((-100, 100), (-100,0), None),
+                                                      ((0, 100), None, None),
+                                                      ((-100, 0), None, None)])
+def test_get_event_related_1d(chunk_neural_data, starts_1chunk, windows, subtract, overlap):
+    #TODO: Write Parameterize functions to test out the Overlap for the Old Epochs
+
+    data_1d = chunk_neural_data[0][0, :]
+
+    test_related_matrix = get_event_related_1d(data=data_1d, fs=1000, indices=starts_1chunk,
+                                               window=windows, subtract_mean=subtract, overlapping=overlap)
+
+
+
+@pytest.mark.run(order=1)
+def test_get_event_related(chunk_neural_data,  starts_1chunk):
+
+    data_2d = chunk_neural_data[0]  # Grab one Chunk (channels, samples)
+
+    events_matrix = get_event_related(data=data_2d, indices=starts_1chunk, fs=1000, window=(-50, 50))
+
+
+    num_instances, num_chans, samples = np.shape(events_matrix)
+
+    assert len(starts_1chunk) == num_instances
+    assert len(data_2d) == num_chans
+    assert samples == 100  # Bad Test, but a start
 
