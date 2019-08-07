@@ -231,7 +231,7 @@ def make_event_times_axis(window, fs):
     return event_times
 
 
-def get_event_related(data, indices, fs, window, subtract_mean=None, overlapping=None, **kwargs):
+def get_event_related_2d(data, indices, fs, window, subtract_mean=None, overlapping=None, **kwargs):
     """
     Parameters
     ----------
@@ -248,12 +248,12 @@ def get_event_related(data, indices, fs, window, subtract_mean=None, overlapping
     subtract_mean : tuple, optional | shape (start, end)
         if present, subtract the mean value in the subtract_mean window for each
         trial from that trial's time series (this is a trial-by-trial baseline)
-    overlapping : list
+    overlapping : list, optional
         Samples that overlap with another Epoch (overlapping_samples - epoch_abs_start)
 
     Returns
     -------
-    events_matrix : ndarray, shape (Instances, Channels, Samples)
+    events_matrix : ndarray | shape (Instances, Channels, Samples)
         Neural Data in the User Defined Window for all Instances of each Label
     """
 
@@ -262,5 +262,112 @@ def get_event_related(data, indices, fs, window, subtract_mean=None, overlapping
                                              **kwargs)
     events_matrix = np.transpose(all_channel_events, axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
     return events_matrix
+
+
+def get_event_related(data, indices, fs, window, subtract_mean=None, **kwargs):
+    """ Get all Instances of 1 Label from all Chunks
+
+    Parameters
+    ----------
+    data: list | shape [Chunks]->(Channels, Samples)
+        Neural Data
+    indices : list | shape [Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    indices : array-like 1d of integers
+        Indices of event onset indices
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+
+    Returns
+    -------
+    events_matrix : ndarray | shape (Instances, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+    """
+
+    chunk_events = []
+
+    for chunk, events in zip(data, indices):
+        event_related_matrix = get_event_related_2d(data=chunk, fs=fs, indices=events, window=window,
+                                                    subtract_mean=subtract_mean, **kwargs)
+        chunk_events.extend(event_related_matrix)
+
+    chunk_events = np.asarray(chunk_events)
+
+    return chunk_events
+
+
+def event_clipper(data, label_events, fs, window, subtract_mean=None, **kwargs):
+    """Get all of the Instances for all Labels given for one set of chunks
+
+    Parameters
+    ----------
+    data: list | shape [Chunks]->(Channels, Samples)
+        Neural Data
+    label_events : list, shape [Label]->[Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+
+    Returns
+    -------
+    chunk_events : list | shape [Labels]->(Instances, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+
+    """
+
+    chunk_events = []
+
+    for index, events in enumerate(label_events):
+        event_related_matrix = get_event_related(data=data, indices=events, fs=fs, window=window,
+                                                 subtract_mean=subtract_mean, **kwargs)
+        chunk_events.append(event_related_matrix)  # Append to List
+
+    return chunk_events
+
+
+def event_clipper_freqs(filt_data, label_events, fs, window, subtract_mean=None, **kwargs):
+    """ Get all of the Instances for all Labels given for all frequency bands for one set of chunks
+
+    Parameters
+    ----------
+    filt_data: list | shape [Freq]->[Chunks]->(Channels, Samples)
+        Neural Data
+    label_events : list | shape [Label]->[Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+
+    Returns
+    -------
+    chunk_events : list | shape [Labels]->[Freq]->(Instances, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+    """
+
+    chunk_events = []
+
+    for label in label_events:
+        freq_events = []
+        for freq in filt_data:
+            event_matrix = get_event_related(data=freq, indices=label, fs=fs, window=window,
+                                             subtract_mean=subtract_mean, **kwargs)
+            freq_events.append(event_matrix)
+        chunk_events.append(freq_events)
+
+    return chunk_events
 
 
