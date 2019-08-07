@@ -148,8 +148,6 @@ def get_event_related_1d(data, fs, indices, window, subtract_mean=None, overlapp
             Voltage time series
         fs : int
             Sampling Frequency
-        data : float
-            Data sampling rate (Hz)
         indices : array-like 1d of integers
             Indices of event onset indices
         window : tuple | shape (start, end)
@@ -188,8 +186,7 @@ def get_event_related_1d(data, fs, indices, window, subtract_mean=None, overlapp
         indices = np.delete(indices, overlaps, axis=0)  # Remove them from the indices
 
     window_idx = windows_to_indices(fs=fs, window_times=window)  # convert times (in ms) to indices
-    inds = convert_index(fs=fs, indexes=indices) + np.arange(window_idx[0],
-                                                             window_idx[1])[:, None]  # build matrix of indices
+    inds = convert_index(fs=fs, indexes=indices) + np.arange(window_idx[0], window_idx[1])[:, None]  # broadcast indices
 
     # Remove Edge Instances from the inds
     bad_label = []
