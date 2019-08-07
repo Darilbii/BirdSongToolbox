@@ -33,7 +33,7 @@ def chunk_neural_data(bird_id, session, chunk_data_path):
 @pytest.fixture()
 def chunk_handlabels(bird_id, session, chunk_data_path):
     data_path = chunk_data_path
-    return _load_pckl_data(data_name="chunk_handlabels_song", bird_id=bird_id, session=session,
+    return _load_pckl_data(data_name="chunk_handlabels_Song", bird_id=bird_id, session=session,
                            source=data_path)
 
 
