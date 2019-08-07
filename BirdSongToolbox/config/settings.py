@@ -5,10 +5,6 @@ from pathlib import Path
 
 from BirdSongToolbox.config.utils import get_spec_config_path
 
-# TODO: handle paths for lintu and txori
-lab_servers = ['crunch', 'lintu', 'txori']
-lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
-
 HOSTNAME = platform.uname()[1]  # Get the identity of the host computer
 DEFAULT_PATH = Path(__file__)
 DEFAULT_PATH = DEFAULT_PATH.parent / 'local_config.pckl'
@@ -25,6 +21,10 @@ RAW_DATA_PATH = Path(get_spec_config_path(specific_path="Raw_Data_Path"))
 INTERMEDIATE_DATA_PATH2 = Path(get_spec_config_path(specific_path="Intermediate_Path"))
 USER_DEFINED_PATHS = get_spec_config_path(specific_path="User_Defined_Paths")
 
+
+# TODO: Remove the Old Handling of the Default Paths
+lab_servers = ['crunch', 'lintu', 'txori']
+lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
 
 def using_lab_server():
     """ Check if using one of the lab servers """

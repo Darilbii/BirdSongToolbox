@@ -109,6 +109,8 @@ venv.bak/
 
 # local Flex Path Handling Config files
 /BirdSongToolbox/config/local_config.pckl
+/BirdSongToolbox/config/config.yaml
+
 
 # ignore Data Folder
 data/
