@@ -2,7 +2,6 @@
 
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 from BirdSongToolbox.PreProcessClass import BPF_Master, BPF_Module, Skip_BPF_Module, skip_bpf_master, RR_Neural_Module, RR_Neural_Master
-from BirdSongToolbox.config.settings import TEST_DATA_DIR
 import numpy as np
 import pytest
 
@@ -13,11 +12,11 @@ date = 'day-2016-06-02'
 
 
 @pytest.mark.run(order=1)
-def test_bpf_module():
+def test_bpf_module(PrePd_data_dir_path):
     """ Test the bpf_module function"""
     #TODO: Make this more than a smoke test
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural[0]
     Freq_Bands = ([10], [1])
@@ -43,12 +42,12 @@ def test_bpf_module():
 
 
 @pytest.mark.run(order=1)
-def test_bpf_master():
+def test_bpf_masterPrePd_data_dir_path(PrePd_data_dir_path):
     """test the bpf_master function"""
 
     #TODO: Make this more than a smoke test
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural
     Num_Trials = PreP_Data.Num_Motifs
@@ -79,11 +78,11 @@ def test_bpf_master():
 
 
 @pytest.mark.run(order=1)
-def test_skip_bpf_module():
+def test_skip_bpf_module(PrePd_data_dir_path):
     """ test the skip_bpf_module"""
     # TODO: Make this more than a smoke test
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural[0]
     SN_L = PreP_Data.Sn_Len
@@ -113,11 +112,11 @@ def test_skip_bpf_module():
 
 
 @pytest.mark.run(order=1)
-def test_skip_bpf_master():
+def test_skip_bpf_master(PrePd_data_dir_path):
     """ test the skip_bpf_module"""
     # TODO: Make this more than a smoke test
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural
     SN_L = PreP_Data.Sn_Len

@@ -2,7 +2,6 @@
 
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 from BirdSongToolbox.PreProcessClass import Pipeline
-from BirdSongToolbox.config.settings import TEST_DATA_DIR
 from BirdSongToolbox.PreProcTools import Good_Channel_Index
 import numpy as np
 import pytest
@@ -14,11 +13,11 @@ date = 'day-2016-06-02'
 
 
 @pytest.mark.run(order=1)
-def test_Pipeline_initiation():
+def test_Pipeline_initiation(PrePd_data_dir_path):
     """ Test the bpf_module function"""
     #TODO: Make this more than a smoke test
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     pipeline = Pipeline(PreP_Data)
 

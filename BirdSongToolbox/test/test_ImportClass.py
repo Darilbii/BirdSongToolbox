@@ -1,19 +1,18 @@
 """Test functions for the ImportClass """
 
-from BirdSongToolbox.config.settings import TEST_DATA_DIR
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 import numpy as np
 import pytest
 
 
 @pytest.mark.run(order=1)
-def test_ImportClass():
+def test_ImportClass(PrePd_data_dir_path):
     """ Test ImportClass"""
 
     bird_id = 'z020'
     date = 'day-2016-06-02'
 
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     # Making sure the class initiated properly
     assert isinstance(PreP_Data, Import_PrePd_Data)

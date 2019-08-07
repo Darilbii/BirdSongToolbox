@@ -1,7 +1,6 @@
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 from BirdSongToolbox.PreProcessClass import BPF_Master, BPF_Module, RR_Neural_Module, RR_Neural_Master
 from BirdSongToolbox.PreProcTools import Good_Channel_Index
-from BirdSongToolbox.config.settings import TEST_DATA_DIR
 import numpy as np
 import pytest
 
@@ -10,8 +9,8 @@ bird_id = 'z020'
 date = 'day-2016-06-02'
 
 @pytest.mark.run(order=1)
-def test_rr_neural_module():
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+def test_rr_neural_module(PrePd_data_dir_path):
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural[0]
     Freq_Bands = ([10], [1])
@@ -50,8 +49,8 @@ def test_rr_neural_module():
 
 
 @pytest.mark.run(order=1)
-def test_rr_neural_master():
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+def test_rr_neural_master(PrePd_data_dir_path):
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural
     Freq_Bands = ([10], [1])

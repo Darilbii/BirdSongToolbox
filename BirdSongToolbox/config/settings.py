@@ -12,12 +12,6 @@ DEFAULT_PATH = Path(__file__)
 DEFAULT_PATH = DEFAULT_PATH.parent / 'local_config.pckl'
 DATA_PATH = ''
 
-# Test Data Paths
-PROJECT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_DIR / "data"
-TEST_DATA_ZIP = DATA_DIR / "PrePd_Data.zip"
-TEST_DATA_DIR = DATA_DIR / "PrePd_Data"
-
 # Intermediate Data Path
 USER_HOME = Path.home()
 INTERMEDIATE_DATA_PATH = USER_HOME / "data"
@@ -155,3 +149,12 @@ def main():
 #
 # if __name__ == main():
 #     main()
+
+##########################################################
+# New Path Handling Approach (Save Paths as a JSON)
+# Chunkd_Data_Path:
+# PrePd_Data_Path:
+# Raw_Data_Path:
+# Intermediate_Path:
+# User_Dedfined_Paths: {} # Dictionary of optional Paths if User wants something beyond what is given
+## If Optionally Path is given then there will be a check to see if it is in the keys of this path.

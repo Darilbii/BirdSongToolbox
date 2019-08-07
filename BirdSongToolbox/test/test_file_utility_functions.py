@@ -3,21 +3,19 @@
 import numpy as np
 import pytest
 from pathlib import Path
-from pathlib import PureWindowsPath
 from shutil import rmtree
-from BirdSongToolbox.config.settings import DATA_DIR
 from BirdSongToolbox.file_utility_functions import _handle_data_path, _save_numpy_data, _load_numpy_data, \
     _save_pckl_data, _load_pckl_data, _save_json_data, _load_json_data
 
 
 # TODO: Move Global Paths for Testing to a conftest.py file
 @pytest.fixture(scope="module")
-def file_utils_path():
-    data_path = DATA_DIR / "test_file_utilities"
+def file_utils_path(data_path):
+    file_data_path = data_path / "test_file_utilities"
 
-    yield data_path
+    yield file_data_path
 
-    rmtree(data_path)
+    rmtree(file_data_path)
 
 
 @pytest.fixture(scope="module")
@@ -41,10 +39,10 @@ def data_array():
 
 
 @pytest.mark.run(order=1)
-def test_handle_data_path(file_utils_path, bird_id, session, goal_name):
+def test_handle_data_path(file_utils_path, data_path, bird_id, session, goal_name):
     """ Test _handle_data_path """
 
-    Goal = DATA_DIR / "test_file_utilities" / bird_id / session / goal_name
+    Goal = data_path / "test_file_utilities" / bird_id / session / goal_name
     path = _handle_data_path(data_name=goal_name, bird_id=bird_id, session=session, dir_path=file_utils_path,
                              make_parents=True)
 
@@ -53,11 +51,11 @@ def test_handle_data_path(file_utils_path, bird_id, session, goal_name):
 
 
 @pytest.mark.run(order=1)
-def test_save_numpy_data(file_utils_path, bird_id, session, goal_name, data_array):
+def test_save_numpy_data(file_utils_path, data_path, bird_id, session, goal_name, data_array):
     """ Test _save_numpy_data """
 
     goal_name = goal_name + '.npy'
-    Goal = DATA_DIR / "test_file_utilities" / bird_id / session / goal_name
+    Goal = data_path / "test_file_utilities" / bird_id / session / goal_name
 
     save_obj = _save_numpy_data(data=data_array, data_name=goal_name, bird_id=bird_id, session=session,
                                 destination=file_utils_path, make_parents=False, verbose=True)
@@ -67,7 +65,7 @@ def test_save_numpy_data(file_utils_path, bird_id, session, goal_name, data_arra
 
 
 @pytest.mark.run(order=1)
-def test_load_numpy_data(file_utils_path, bird_id, session, goal_name, data_array):
+def test_load_numpy_data(file_utils_path,  bird_id, session, goal_name, data_array):
     """ Test _load_numpy_data """
 
     load_obj = _load_numpy_data(data_name=goal_name, bird_id=bird_id, session=session, source=file_utils_path,

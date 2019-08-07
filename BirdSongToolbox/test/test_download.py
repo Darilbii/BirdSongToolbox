@@ -1,51 +1,26 @@
 """ Test Script that Downloads Test Data for the Test Scripts"""
 import pytest
-from google_drive_downloader import GoogleDriveDownloader as gdd
-from BirdSongToolbox.config.settings import DATA_DIR, TEST_DATA_ZIP, TEST_DATA_DIR
-# from pathlib import Path
-
-# PROJECT_DIR = Path(__file__).resolve().parents[1]
-# DATA_DIR = PROJECT_DIR / "data"
-# TEST_DATA_ZIP = DATA_DIR / "PrePd_Data.zip"
-# TEST_DATA_DIR = DATA_DIR / "PrePd_Data"
-
-
-TEST_DATA_PIPELINE_ZIP = DATA_DIR / "Pipeline_Test_Dataz020_day-2016-06-02.pckl.zip"
-TEST_DATA_PIPELINE_PCKL = DATA_DIR / "Pipeline_Test_Dataz020_day-2016-06-02.pckl"
-
-TEST_DATA_PRAAT_UTILS_ZIP = DATA_DIR / "praat_utils_test_data.zip"
-TEST_DATA_PRAAT_UTILS_DIR = DATA_DIR / "Chunk_TextGrids_Final"
-
-# For Travis There needs the config file must be created for further tests
-# local_data_path = input("What is the path to the data folder on your local computer?)")
-#
-# # Verify that this local path exists
-# verify = Path(local_data_path)
-# verify.resolve()
-#
-# if verify.exists():
-#     # Create the setting.pckl file
-#     default_path.resolve()
-#     with default_path.open(mode='wb') as settings_file:
-#         pk.dump(local_data_path, settings_file,
-#                 protocol=0)  # Protocol 0 is human readable and backwards compatible
-
-@pytest.mark.run(order=0)
-def test_download_data():
-    if not TEST_DATA_DIR.exists():
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-        gdd.download_file_from_google_drive(file_id='18rzzBSSIIIHOL8Ot27bCqipTdYZlxBbO',
-                                            dest_path=TEST_DATA_ZIP.as_posix(),
-                                            unzip=True)
-    # Test for Test Data
-    assert TEST_DATA_DIR.exists()
+from google_drive_downloader import GoogleDriveDownloader as GdD
 
 # TODO: Fix confusion between parameter name Features (Epoch_Analysis_Tools) and Channels (PreProcessClass) [They are the same and refer to Neural objects of the Pipeline() Class]
 # TODO: Update the Pipeline() test data to follow a standard pre-process framework to standardize tests
 # TODO: Write test scripts for Epoch_Analysis_Tools using a updated Version of the Pipeline test data
 
+
 @pytest.mark.run(order=0)
-def test_download_data_instance_of_pipeline_class():
+def test_download_data(data_path, PrePd_data_dir_path):
+    PrePd_data_zip_path = data_path / "PrePd_Data.zip"
+
+    if not PrePd_data_dir_path.exists():
+        data_path.mkdir(parents=True, exist_ok=True)
+        GdD.download_file_from_google_drive(file_id='18rzzBSSIIIHOL8Ot27bCqipTdYZlxBbO',
+                                            dest_path=PrePd_data_zip_path.as_posix(),
+                                            unzip=True)
+    # Test for Test Data
+    assert PrePd_data_dir_path.exists()
+
+@pytest.mark.run(order=0)
+def test_download_data_instance_of_pipeline_class(data_path, data_pipeline_class_pckl_path):
     """
     Code Used To Generate Data:
 
@@ -78,22 +53,28 @@ def test_download_data_instance_of_pipeline_class():
 
     """
 
-    if not TEST_DATA_PIPELINE_PCKL.is_file():
-        gdd.download_file_from_google_drive(file_id='1d6KScMOawxATEQL8sqQzcKDvRgKSCOJQ',
-                                            dest_path=TEST_DATA_PIPELINE_ZIP.as_posix(),
+    data_pipeline_class_zip_path = data_path / "Pipeline_Test_Dataz020_day-2016-06-02.pckl.zip"
+
+    if not data_pipeline_class_pckl_path.is_file():
+        GdD.download_file_from_google_drive(file_id='1d6KScMOawxATEQL8sqQzcKDvRgKSCOJQ',
+                                            dest_path=data_pipeline_class_zip_path.as_posix(),
                                             unzip=True)
-        # Test for Pipeline() Test Data
-        assert TEST_DATA_DIR.exists()
+    # Test for Pipeline() Test Data
+    assert data_pipeline_class_pckl_path.exists()
+
 
 @pytest.mark.run(order=0)
-def test_download_data_chunk_textgrid_directory():
+def test_download_data_chunk_textgrid_directory(data_path, data_praat_utils_dir_path):
     """Download Data for testing the praat_utils module"""
-    if not TEST_DATA_PRAAT_UTILS_DIR.exists():
-        gdd.download_file_from_google_drive(file_id='1G8cGCJzczptIon9kus0m1X417HUA5QUE',
-                                            dest_path=TEST_DATA_PRAAT_UTILS_ZIP.as_posix(),
+
+    data_praat_utils_zip_path = data_path / "praat_utils_test_data.zip"
+
+    if not data_praat_utils_dir_path.exists():
+        GdD.download_file_from_google_drive(file_id='1G8cGCJzczptIon9kus0m1X417HUA5QUE',
+                                            dest_path=data_praat_utils_zip_path.as_posix(),
                                             unzip=True)
-        # Test for annotate module Test Data
-        assert TEST_DATA_PRAAT_UTILS_DIR.exists()
+    # Test for annotate module Test Data
+    assert data_praat_utils_dir_path.exists()
 
 @pytest.mark.run(order=0)
 def test_download_data_chunk_data_demo_directory(data_path, chunk_data_path):
@@ -103,9 +84,9 @@ def test_download_data_chunk_data_demo_directory(data_path, chunk_data_path):
     # test_data_chunk_data_demo_dir = data_path / "Chunk_Data_Demo"
     test_data_chunk_data_demo_dir = chunk_data_path
 
-    if not test_data_chunk_data_demo_dir.exists():
-        gdd.download_file_from_google_drive(file_id='1GLREIG8zaW3-4MJLVg9OibfLBBKV28pp',
+    if not chunk_data_path.exists():
+        GdD.download_file_from_google_drive(file_id='1GLREIG8zaW3-4MJLVg9OibfLBBKV28pp',
                                             dest_path=test_data_chunk_data_demo_zip.as_posix(),
                                             unzip=True)
-        # Test for annotate module Test Data
-        assert test_data_chunk_data_demo_dir.exists()
+    # Test for annotate module Test Data
+    assert chunk_data_path.exists()

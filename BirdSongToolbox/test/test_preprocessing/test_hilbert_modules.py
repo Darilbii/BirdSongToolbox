@@ -1,6 +1,5 @@
 from BirdSongToolbox.ImportClass import Import_PrePd_Data
 from BirdSongToolbox.PreProcessClass import BPF_Master, BPF_Module, hilbert_module
-from BirdSongToolbox.config.settings import TEST_DATA_DIR
 
 import numpy as np
 import pytest
@@ -11,8 +10,8 @@ date = 'day-2016-06-02'
 
 
 @pytest.mark.run(order=1)
-def test_hilbert_module_phase():
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+def test_hilbert_module_phase(PrePd_data_dir_path):
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural
     Freq_Bands = ([10], [1])
@@ -42,8 +41,8 @@ def test_hilbert_module_phase():
     assert isinstance(hilbert_results[0][0], np.ndarray)
     assert np.shape(hilbert_results) == (Num_Trials, number_channels, song_length, num_freq)
 
-def test_hilbert_module_amplitude():
-    PreP_Data = Import_PrePd_Data(bird_id, date, location=TEST_DATA_DIR)
+def test_hilbert_module_amplitude(PrePd_data_dir_path):
+    PreP_Data = Import_PrePd_Data(bird_id, date, location=PrePd_data_dir_path)
 
     Channels = PreP_Data.Song_Neural
     Freq_Bands = ([10], [1])
