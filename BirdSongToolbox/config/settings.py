@@ -19,10 +19,10 @@ USER_HOME = Path.home()
 INTERMEDIATE_DATA_PATH = USER_HOME / "data"
 
 # User Designated Configuration Paths
-CHUNKED_DATA_PATH = get_spec_config_path(specific_path="Chunked_Data_Path")
-PREPD_DATA_PATH = get_spec_config_path(specific_path="PrePd_Data_Path")
-RAW_DATA_PATH = get_spec_config_path(specific_path="Raw_Data_Path")
-INTERMEDIATE_DATA_PATH2 = get_spec_config_path(specific_path="Intermediate_Path")
+CHUNKED_DATA_PATH = Path(get_spec_config_path(specific_path="Chunked_Data_Path"))
+PREPD_DATA_PATH = Path(get_spec_config_path(specific_path="PrePd_Data_Path"))
+RAW_DATA_PATH = Path(get_spec_config_path(specific_path="Raw_Data_Path"))
+INTERMEDIATE_DATA_PATH2 = Path(get_spec_config_path(specific_path="Intermediate_Path"))
 USER_DEFINED_PATHS = get_spec_config_path(specific_path="User_Defined_Paths")
 
 

@@ -48,7 +48,9 @@ def get_spec_config_path(specific_path: str):
         warnings.warn('There is currently No default Paths for BirdSongToolbox. Please update the configuration if '
                       'you want to use the default paths convenience api of BirdSongToolbox')
 
-    return Path(configuration[specific_path])
+    spec_path = configuration[specific_path]
+    assert isinstance(spec_path, str) or isinstance(spec_path, dict)  # Make sure it is a string or dictionary
+    return spec_path
 
 
 def update_config_path(specific_path: str, new_path):

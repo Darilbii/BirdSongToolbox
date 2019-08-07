@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io as sio
 from pathlib import Path
 import warnings
-from .config.settings import PREPD_DATA_PATH
+from BirdSongToolbox.config.settings import PREPD_DATA_PATH
 
 # Class function for Importing PrePd Data
 ### Confirm this works as intended
