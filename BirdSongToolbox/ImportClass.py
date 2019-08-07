@@ -1,11 +1,8 @@
 import numpy as np
-import os
 import scipy.io as sio
 from pathlib import Path
-# import BirdSongToolbox.config.settings as settings
-from .config.settings import DATA_PATH
-
-# TODO: Convert Pathing to be through Pathlib and Centralized like Songbird-Repository
+import warnings
+from .config.settings import PREPD_DATA_PATH
 
 # Class function for Importing PrePd Data
 ### Confirm this works as intended
@@ -124,7 +121,7 @@ class Import_PrePd_Data():
             data_type: string
                 String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
             location: str or Path object, (Optional)
-                Location to search for the data other than default DATA_PATH (Optional)
+                Location to search for the data other than default PREPD_DATA_PATH (Optional)
         """
         assert isinstance(bird_id, str)
         assert isinstance(sess_name, str)
@@ -138,7 +135,10 @@ class Import_PrePd_Data():
 
         # Basic Setup for path Creation
         if location is None:
-            experiment_folder = DATA_PATH
+            if PREPD_DATA_PATH == '':
+                warnings.warn('There is currently No default Paths for BirdSongToolbox. Please update the configuration'
+                              ' if you want to use the default paths convenience api of BirdSongToolbox')
+            experiment_folder = PREPD_DATA_PATH
         else:
             experiment_folder = location
 
@@ -227,7 +227,6 @@ class Import_PrePd_Data():
         else:
             print('Invalid Neural Data Type')
 
-    ###
     def _get_specified_data(self, prepd_ss_data_folder, data_type: str, epoch_type: str):
         """ Gets the data as specified by the data_specified parameter
 
@@ -263,6 +262,7 @@ class Import_PrePd_Data():
 
         # Import the Data
         specified_data = []
+        data_file_path.resolve(strict=True)
         mat_file = sio.loadmat(str(data_file_path))  # Open and Import the specified Matlab File
         mat_file_filt = mat_file[desig_data_type]  # make the data easier to work with in python
 

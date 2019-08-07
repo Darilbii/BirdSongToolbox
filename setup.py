@@ -16,7 +16,8 @@ setup(
     author='Daril Brown II',
     author_email='',
     description='',
-    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'h5py', 'scikit-learn', 'decorator', 'praatio'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'h5py', 'scikit-learn', 'decorator', 'praatio',
+                      'PyYAML'],
     keywords=['neuroscience', 'neural oscillations', 'bird song', 'spectral analysis', 'LFP'],
     tests_require=['pytest', 'googledrivedownloader', 'pytest-ordering'],
     extra_requires={

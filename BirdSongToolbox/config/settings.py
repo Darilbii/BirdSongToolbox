@@ -3,6 +3,8 @@ import platform
 import pickle as pk
 from pathlib import Path
 
+from BirdSongToolbox.config.utils import get_spec_config_path
+
 # TODO: handle paths for lintu and txori
 lab_servers = ['crunch', 'lintu', 'txori']
 lab_paths = {'crunch': '/net/expData/birdSong/'}  # Dictionary of Lab Servers
@@ -16,6 +18,12 @@ DATA_PATH = ''
 USER_HOME = Path.home()
 INTERMEDIATE_DATA_PATH = USER_HOME / "data"
 
+# User Designated Configuration Paths
+CHUNKED_DATA_PATH = get_spec_config_path(specific_path="Chunked_Data_Path")
+PREPD_DATA_PATH = get_spec_config_path(specific_path="PrePd_Data_Path")
+RAW_DATA_PATH = get_spec_config_path(specific_path="Raw_Data_Path")
+INTERMEDIATE_DATA_PATH2 = get_spec_config_path(specific_path="Intermediate_Path")
+USER_DEFINED_PATHS = get_spec_config_path(specific_path="User_Defined_Paths")
 
 
 def using_lab_server():
@@ -111,6 +119,7 @@ def create_local_config_interactive():
 
             print("That path doesn't work. Try again. Number of Attempts left: ", str(4 - counter))
 
+
 # TODO: Make a Test Function to test the creation of this path as well as changing it from a pckl to json
 # def create_local_config():
 #     """ Create a local_config file from user input
@@ -158,3 +167,4 @@ def main():
 # Intermediate_Path:
 # User_Dedfined_Paths: {} # Dictionary of optional Paths if User wants something beyond what is given
 ## If Optionally Path is given then there will be a check to see if it is in the keys of this path.
+

@@ -1,7 +1,3 @@
-
-# local package
-#-e .
-
 # Package Dependencies
 numpy
 pandas
@@ -12,6 +8,7 @@ numpy
 neurodsp
 decorator
 praatio
+PyYAML
 
 # Optional
 # mne
