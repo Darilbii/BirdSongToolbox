@@ -262,7 +262,7 @@ class Import_PrePd_Data():
 
         # Import the Data
         specified_data = []
-        data_file_path.resolve(strict=True)
+        data_file_path.resolve()
         mat_file = sio.loadmat(str(data_file_path))  # Open and Import the specified Matlab File
         mat_file_filt = mat_file[desig_data_type]  # make the data easier to work with in python
 
