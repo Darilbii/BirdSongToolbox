@@ -244,6 +244,7 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
                                                         **kwargs))
     return multi_filt_epochs
 
+
 def hilbert_module(neural_data, output: str, smooth=False):
     """ Use the Hilbert Transform to get either the Amplitude or Phase of the Input Neural Data
 
@@ -264,7 +265,7 @@ def hilbert_module(neural_data, output: str, smooth=False):
 
     Parameters:
     -----------
-    neural_data : list | shape (..., Samples)
+    neural_data : ndarray | shape (..., Samples)
         Input Neural Activity during all Trials
     output : str
         String that instructs what information to extract from the analytical signal, options: 'phase', 'amplitude'
@@ -273,9 +274,9 @@ def hilbert_module(neural_data, output: str, smooth=False):
 
     Returns:
     --------
-    hilbert_results: list | shape (..., Samples)
+    hilbert_results: ndarray | shape (..., Samples)
         Depending on the output parameter:
-            'phase': Instantaneous Phase of the Input Neural Activity
+            'phase': Instantaneous Phase of the Input Neural Activity in radians
             'amplitude': Envelope (Amplitude) of the Input Neural Activity
     """
 
@@ -288,7 +289,7 @@ def hilbert_module(neural_data, output: str, smooth=False):
     if output == 'phase':
         # The phase is given by the angle of the analytic signal (complex argument)
         hilbert_results = np.angle(analytic_signal, deg=False)
-        if smooth == True:
+        if smooth:
             hilbert_results = np.sin(hilbert_results)
             #TODO: Make this function optionally pass through a cos or sine function
         # TODO: Investigate if this should switch between sin or cos depending on the starting slope
