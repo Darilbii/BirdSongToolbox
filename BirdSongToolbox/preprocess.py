@@ -1,6 +1,7 @@
 """ Suite of Functions for Pre-Processing Chunked Neural Data """
 
 import numpy as np
+from scipy.signal import hilbert
 
 from neurodsp import filt
 try:
@@ -242,4 +243,59 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
                                                         h_freq=h_freq, remove_edges=remove_edges, verbose=verbose,
                                                         **kwargs))
     return multi_filt_epochs
+
+def hilbert_module(neural_data, output: str, smooth=False):
+    """ Use the Hilbert Transform to get either the Amplitude or Phase of the Input Neural Data
+
+    Notes
+    -----
+    The analytic signal ``x_a(t)`` of signal ``x(t)`` is:
+
+    .. math:: x_a = F^{-1}(F(x) 2U) = x + i y
+
+    where `F` is the Fourier transform, `U` the unit step function,
+    and `y` the Hilbert transform of `x`. [1]_
+
+    In other words, the negative half of the frequency spectrum is zeroed
+    out, turning the real-valued signal into a complex signal.  The Hilbert
+    transformed signal can be obtained from ``np.imag(hilbert(x))``, and the
+    original signal from ``np.real(hilbert(x))``.
+
+
+    Parameters:
+    -----------
+    neural_data : list | shape (..., Samples)
+        Input Neural Activity during all Trials
+    output : str
+        String that instructs what information to extract from the analytical signal, options: 'phase', 'amplitude'
+    smooth : bool, optional
+        If True the instantaneous phase will be passed through a sine function, defaults to False
+
+    Returns:
+    --------
+    hilbert_results: list | shape (..., Samples)
+        Depending on the output parameter:
+            'phase': Instantaneous Phase of the Input Neural Activity
+            'amplitude': Envelope (Amplitude) of the Input Neural Activity
+    """
+
+    # TODO: Verify that the axis parameter allows for hilbert of the frequencies seperately not as a single channel
+    assert output == 'amplitude' or output == 'phase', \
+        "output parameter can only be 'amplitude' or 'phase' not {output}".format(output=output)
+
+    analytic_signal = hilbert(neural_data, axis=-1)
+
+    if output == 'phase':
+        # The phase is given by the angle of the analytic signal (complex argument)
+        hilbert_results = np.angle(analytic_signal, deg=False)
+        if smooth == True:
+            hilbert_results = np.sin(hilbert_results)
+            #TODO: Make this function optionally pass through a cos or sine function
+        # TODO: Investigate if this should switch between sin or cos depending on the starting slope
+    if output == 'amplitude':
+        # The amplitude envelope is given by magnitude of the analytic signal
+        hilbert_results = np.abs(analytic_signal)
+
+    return hilbert_results
+
 
