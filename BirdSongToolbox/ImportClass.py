@@ -112,16 +112,16 @@ class Import_PrePd_Data():
     def __init__(self, bird_id, sess_name, data_type='LPF_DS', location=None):
         """Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug
 
-        Parameters:
-        -----------
-            bird_id: string
-                Bird Indentifier to Locate Specified Bird's data folder
-            sess_name: str
-                Experiment Day to Locate it's Folder
-            data_type: string
-                String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
-            location: str or Path object, (Optional)
-                Location to search for the data other than default PREPD_DATA_PATH (Optional)
+        Parameters
+        ----------
+        bird_id : string
+            Bird Indentifier to Locate Specified Bird's data folder
+        sess_name : str
+            Experiment Day to Locate it's Folder
+        data_type : string
+            String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
+        location : str or Path object, (Optional)
+            Location to search for the data other than default PREPD_DATA_PATH (Optional)
         """
         assert isinstance(bird_id, str)
         assert isinstance(sess_name, str)
