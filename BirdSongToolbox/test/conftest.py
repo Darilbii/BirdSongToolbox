@@ -44,21 +44,21 @@ def data_praat_utils_dir_path(data_path):
     path = data_path / "Chunk_TextGrids_Final"
     return path
 
-@pytest.mark.run(order=1)
-@pytest.fixture(scope="module")
-def chunk_data_path_name():
-    return "Chunked_Data_Path"
-
-@pytest.mark.run(order=1)
-@pytest.fixture(scope="module")
-def create_dummy_config(chunk_data_path_name, chunk_data_path, ):
-    from BirdSongToolbox.config.utils import update_config_path
-    from BirdSongToolbox.config.utils import _make_default_config_file
-    from BirdSongToolbox.config.utils import CONFIG_PATH
-
-    _make_default_config_file()  # Make default Config File
-    update_config_path(specific_path=chunk_data_path_name, new_path=chunk_data_path)  # Make Default path for Chunk Data
-
-    yield
-
-    CONFIG_PATH.unlink()  # Remove the dummy config file
+# @pytest.mark.run(order=0)
+# @pytest.fixture(scope="module")
+# def chunk_data_path_name():
+#     return "Chunked_Data_Path"
+#
+# @pytest.mark.run(order=0)
+# @pytest.fixture(scope="module")
+# def create_test_config(chunk_data_path_name, chunk_data_path ):
+#     from BirdSongToolbox.config.utils import update_config_path
+#     from BirdSongToolbox.config.utils import _make_default_config_file
+#     from BirdSongToolbox.config.utils import CONFIG_PATH
+#
+#     _make_default_config_file()  # Make default Config File
+#     update_config_path(specific_path=chunk_data_path_name, new_path=chunk_data_path)  # Make Default path for Chunk Data
+#
+#     yield
+#
+#     CONFIG_PATH.unlink()  # Remove the dummy config file
