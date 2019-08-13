@@ -63,8 +63,8 @@ class ImportData:
         self.song_ledger = self._get_data_from_pckl(data_name="Epochs_Ledger", behave_type="Song")  # Ledger of Events
 
         # Import Old Song Epoch MetaData
-        self.kwe_times = self._get_data_from_pckl(data_name="AbsoluteTimes", behave_type="Song")  # KWE Times
-        self.kwe_epoch_times = self._get_data_from_pckl(data_name="EpochTimes", behave_type="Song")  # KWE Epoch Times
+        self.kwe_times = self._get_data_from_npy(data_name="AbsoluteTimes", behave_type="Song")  # KWE Times
+        self.kwe_epoch_times = self._get_data_from_npy(data_name="EpochTimes", behave_type="Song")  # KWE Epoch Times
 
     def _resolve_source(self, location=None):
         """Resolve Source of Data"""
@@ -83,9 +83,7 @@ class ImportData:
             assert experiment_folder.exists(), "Directory pointed by location parameter does not exist"
             experiment_folder.resolve()
 
-        data_folder = experiment_folder / 'ss_data_Processed'
-
-        return data_folder
+        return experiment_folder
 
     def _get_data_from_pckl(self, data_name: str, behave_type: str):
         """Convenience Function to Pull Relevant Data"""
@@ -95,6 +93,14 @@ class ImportData:
         full_data_name = data_name + '_' + behave_type
         return _load_pckl_data(data_name=full_data_name, bird_id=self.bird_id, session=self.date,
                                source=self._data_folder)
+    def _get_data_from_npy(self, data_name: str, behave_type: str):
+        """Convenience Function to Pull Relevant Data"""
+
+        assert behave_type in ["Song", "Silence"]
+
+        full_data_name = data_name + '_' + behave_type
+        return _load_numpy_data(data_name=full_data_name, bird_id=self.bird_id, session=self.date,
+                                source=self._data_folder)
 
 
 
