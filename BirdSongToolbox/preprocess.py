@@ -299,4 +299,3 @@ def hilbert_module(neural_data, output: str, smooth=False):
 
     return hilbert_results
 
-
