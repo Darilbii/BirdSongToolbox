@@ -32,26 +32,8 @@ class ContextLabels(object):
     def _get_bout_state(self, current_label):
         return self.bout_states[current_label]
 
-    #     def bout_level(self, labels: list):
-    #         "Returns list of the Start and End of the Bout"
-    #         motif_results = []
-    #         # Make a padded list assuming no transitions at edges
-    #         labels_padded = [labels[0]] + labels[:-1]
-
-    #         # For Each Label
-    #         for index, current_label in enumerate(labels):
-    #             previous_state = self._get_bout_state(labels_padded[index])  # Transition depends on previous state
-
-    #             # If the current label is the transition for the previous state
-    #             if current_label == self.bout_transitions[previous_state]:
-    #                 motif_results.append(self.bout_breaks[previous_state])
-    #             else:
-    #                 motif_results.append(0)
-
-    #         return motif_results
-
     def bout_array(self, labels: list):
-        """Returns and array that has 1 for every bout and a 0 for everything else for one epoch"""
+        """Returns an array that has 1 for every bout and a 0 for everything else for one chunk"""
 
         bout_results = []
 
@@ -61,25 +43,11 @@ class ContextLabels(object):
 
             # If the current state is bout
             if current_state == 'bout':
-                bout_results.append(1)  # Motif
+                bout_results.append(1)  # Song
             else:
                 bout_results.append(0)  # Everything else
 
         return bout_results
-
-    def _edge_corrections(self, starts: list, ends: list):
-        """Eliminate labels of bouts that can't be resolved within the Epoch"""
-
-        # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
-        if len(ends) < 1:
-            starts = []
-        else:
-            # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
-            if starts[0] > ends[0]:
-                ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
-            if starts[-1] > ends[-1]:
-                starts = np.delete(starts, -1)  # Delete start of Bout that continues beyond the labeled Epoch
-        return starts, ends
 
     def bout_index(self, labels: list):
         """ Gets the index for the labels that are the start and end of each Bout for one epoch
@@ -100,7 +68,8 @@ class ContextLabels(object):
         return starts, ends
 
     def motif_array(self, labels: list):
-        """Returns an array that has 1 for every motif and 2 for every intra-motif silence for one epoch"""
+        """Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk
+        """
         motif_results = []
 
         labels_padded = labels + [labels[-1]]  # Make a padded list assuming no transitions at edges
@@ -121,7 +90,7 @@ class ContextLabels(object):
         return motif_results
 
     def _motif_index(self, labels: list):
-        """ Gets the index for the labels that are the start and end of each Motif for one epoch
+        """ Gets the index for the labels that are the start and end of each Motif for one chunk
         """
 
         motif_results = self.motif_array(labels=labels)
@@ -134,7 +103,7 @@ class ContextLabels(object):
 
         # Get Ends
         post_padded = motif_results[1:] + [motif_results[-1]]  # Pad with the last label
-        ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2 or labels[index] == self.bout_end_syllable]
+        ends = [index for index in ones if post_padded[index] == 0 or post_padded[index] == 2]
 
         # Cut Out Motif Indexes that can't be resolved within the labeled Epoch (Edge Cases)
         if starts[0] > ends[0]:
@@ -144,9 +113,25 @@ class ContextLabels(object):
 
         return starts, ends
 
+    def _edge_corrections(self, starts: list, ends: list):
+        """Eliminate labels of bouts that can't be resolved within the Epoch (kwe)
+        """
+
+        # Check for Worst Case Scenario: The Center Bout extends Beyound the Epoch
+        if len(ends) < 1:
+            starts = []
+        else:
+            # Cut Out Bout Indexes that can't be resolved within the labeled Epoch (Edge Cases)
+            if starts[0] > ends[0]:
+                ends = np.delete(ends, 0)  # Delete end of Bout that continues beyond the labeled Epoch
+            if starts[-1] > ends[-1]:
+                starts = np.delete(starts, -1)  # Delete start of Bout that continues beyond the labeled Epoch
+        return starts, ends
+
     def _motif_sequence_in_bout_array(self, labels: list, bout_starts: list, bout_ends: list, motif_starts: list,
                                       motif_ends: list):
-        """Makes an array that indexes the Motif Seqeunce Number within Bout (Based on the Label Identity)"""
+        """Makes an array that indexes the Motif Seqeunce Number within Bout (Based on the Label Identity)
+        """
 
         motif_array = np.zeros((len(labels)))
 
@@ -160,7 +145,8 @@ class ContextLabels(object):
         return motif_array
 
     def _first_motif_in_bout_array(self, labels: list, bout_starts: list, motif_starts: list, motif_ends: list):
-        """Makes an array that indexes the labels that occur during All First Motifs that are resolved in one Epoch"""
+        """Makes an array that indexes the labels that occur during All First Motifs that are resolved in one Chunk
+        """
 
         motif_array = np.zeros((len(labels)))
 
@@ -185,7 +171,8 @@ class ContextLabels(object):
 
     def _last_syllable_dropped_in_bout_array(self, labels: list, bout_starts: list, bout_ends: list, motif_starts: list,
                                              motif_ends: list):
-        """Makes an array that indexes the Motif with syllables skipped within Bout (Based on the Label Identity)"""
+        """Makes an array that indexes the Motif with syllables skipped within Bout (Based on the Label Identity)
+        """
 
         # TODO: If there is more variation in which syllable is dropped then use list comprehension to see if any ...
         # syllables labels of a full list are not in the labels between the start and end of the motif ...
