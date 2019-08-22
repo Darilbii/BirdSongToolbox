@@ -62,6 +62,9 @@ class ImportData:
         self.song_index = self._get_data_from_pckl(data_name="Large_Epochs_Times", behave_type="Song")  # Absolute Times
         self.song_ledger = self._get_data_from_pckl(data_name="Epochs_Ledger", behave_type="Song")  # Ledger of Events
 
+        # Import Song Handlabels
+        self.song_handlabels = self._get_data_from_pckl(data_name="chunk_handlabels", behave_type="Song")  # handlabels
+
         # Import Old Song Epoch MetaData
         self.kwe_times = self._get_data_from_npy(data_name="AbsoluteTimes", behave_type="Song")  # KWE Times
         self.kwe_epoch_times = self._get_data_from_npy(data_name="EpochTimes", behave_type="Song")  # KWE Epoch Times
