@@ -249,7 +249,8 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     return chunk_array, chunk_index, worst_case, reduced_buffer
 
 
-def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool = False):
+def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, filter_buffer: int = 10, data_buffer: int = 30,
+                    verbose: bool = False):
     """Chunk the Audio and Bandpass Filter to remove noise
 
     Parameters
@@ -265,6 +266,10 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
         array of the automated motif labels to use as benchmarks for the long epochs
     audio_chan: list
         list of the channel(s)[column(s)] of the .kwd file that are audio channels
+    filter_buffer : int, optional
+        Time buffer in secs to be sacrificed for filtering, defaults to 10 secs
+    data_buffer : int, optional
+        Time buffer around time of interest to chunk data, defaults to 30 secs
     verbose : bool
         If True the Function prints out useful statements, defaults to False
 
@@ -282,8 +287,8 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
     """
 
     fs = 30000  # Sampling Rate
-    filt_buffer = 10 * fs  # 10 sec Buffer for the Bandpass Filter
-    chunk_buffer = 30 * fs  # 30 sec Buffer for the Epoch(Chunk)
+    filt_buffer = filter_buffer * fs  # 10 sec Buffer for the Lowpass Filter
+    chunk_buffer = data_buffer * fs  # 30 sec Buffer for Epoching
 
     audio_chunks = []
 
