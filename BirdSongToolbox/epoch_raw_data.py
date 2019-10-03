@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from neurodsp import filt
+# from neurodsp import filt
 # TODO: implement Version that utilizes neurodsp
 try:
     import mne
