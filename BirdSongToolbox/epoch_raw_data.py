@@ -1,7 +1,15 @@
 """ Functions for creating Larger Epochs that contain the smaller labeled epochs"""
 
 import numpy as np
-import mne
+
+from neurodsp import filt
+# TODO: implement Version that utilizes neurodsp
+try:
+    import mne
+    # from mne.filter import filter_data
+    _has_mne = True
+except ImportError:
+    _has_mne = False
 
 
 def determine_chunks_for_epochs(times):
@@ -325,7 +333,9 @@ def epoch_bpf_audio(kwd_file, kwe_data, chunks, audio_chan: list, verbose: bool 
 
 # TODO: Make a Test for index to check there aren't any numbers less than 0 or greator than the Total len of recording
 
-def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: bool = False):
+
+def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, filter_buffer: int = 10, data_buffer: int = 30,
+                      verbose: bool = False):
     """ Epochs Neural Data from the KWD File and converts it to µV, Low-Pass Filters and Downsamples to 1 KHz
 
         Parameters
@@ -341,6 +351,10 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: b
             array of the automated motif labels to use as benchmarks for the long epochs
         neural_chans: list
             list of the channels(columns) of the .kwd file are neural channels
+        filter_buffer : int, optional
+            Time buffer in secs to be sacrificed for filtering, defaults to 10 secs
+        data_buffer : int, optional
+            Time buffer around time of interest to chunk data, defaults to 30 secs
         verbose : bool
             If True the Function prints out useful statements, defaults to False
 
@@ -368,8 +382,8 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, verbose: b
     # Save the Chunks into a list of arrays [Chunks] -> (channels, Samples)
 
     fs = 30000  # Sampling Rate
-    lpf_buffer = 10 * fs  # 10 sec Buffer for the Lowpass Filter
-    chunk_buffer = 30 * fs  # 30 sec Buffer for Epoching
+    lpf_buffer = filter_buffer * fs  # 10 sec Buffer for the Lowpass Filter
+    chunk_buffer = data_buffer * fs  # 30 sec Buffer for Epoching
 
     neural_chunks = []
     chunk_index = []
