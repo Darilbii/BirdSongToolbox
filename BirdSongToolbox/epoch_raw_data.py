@@ -12,13 +12,15 @@ except ImportError:
     _has_mne = False
 
 
-def determine_chunks_for_epochs(times):
+def determine_chunks_for_epochs(times, search_buffer=30):
     """ Epochs the Raw Data into Long Chunks that contain the handlabeled epochs (from .kwe)
 
     Parameters
     ----------
     times : array
         array of the absolute start of the labels
+    search_buffer : int
+        Buffer in seconds to group relatively close epochs
 
     Returns
     -------
@@ -62,7 +64,7 @@ def determine_chunks_for_epochs(times):
             candidate = roster.pop(0)  # Update to the new candidate
             counter = counter + 1  # Count the Number of Motifs Contained in the Motif
 
-        elif distance < 30:
+        elif distance < search_buffer:
             ledger_focus.extend([competitor])  # Add the competitor to this Chunk's Ledger
             candidate = roster.pop(0)  # Update to the new candidate
             counter = counter + 1  # Count the Number of Motifs Contained in the Motif
