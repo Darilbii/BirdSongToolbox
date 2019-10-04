@@ -141,12 +141,19 @@ def get_chunk_from_kwd(start, end, chunk_buffer, lpf_buffer, kwd_file, kwe_data,
     epoch_start = kwe_data['motif_st'][start]  # Start Time of Epoch(Chunk) in its Specific Recording
     epoch_end = kwe_data['motif_st'][end]  # End Time of Epoch (Chunk) in its Specific Recording
     rec_num = kwe_data['motif_rec_num'][start]  # Recording Number Epoch(Chunk) Occurs During
+    rec_num_end = kwe_data['motif_rec_num'][end]  # Recording Number End Epoch(Chunk) Occurs During
     kwd_rec_raw_data = kwd_file['recordings'][str(rec_num)]['data']  # Raw Data for this Recording Number
 
     rec_start = kwd_file['recordings'][str(rec_num)].attrs.get('start_sample')  # Start Sample of Rec (.attrs of hdf)
 
     chunk_start = int(epoch_start - (chunk_buffer + lpf_buffer))
     chunk_end = int(epoch_end + chunk_buffer + lpf_buffer)
+
+    if rec_num_end > rec_num:
+        if rec_num_end == rec_num + 1:
+            chunk_end = chunk_end + kwd_rec_raw_data.shape[0]
+        else:
+            raise ValueError('The Chunk Occurs Across more than 2 Recording and there is no function for that yet')
 
     worst_case = 0  # Hack Solution to keeping tabs of whether a worst case has occurred
 
