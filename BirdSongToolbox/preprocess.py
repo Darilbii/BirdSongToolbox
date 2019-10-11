@@ -3,7 +3,13 @@
 import numpy as np
 from scipy.signal import hilbert
 
-from neurodsp import filt
+try:
+    from neurodsp import filt
+    # from mne.filter import filter_data
+    _has_neurodsp = True
+except ImportError:
+    _has_neurodsp = False
+
 try:
     import mne
     # from mne.filter import filter_data
