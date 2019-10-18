@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.signal import hilbert
+from scipy import fftpack
 
 try:
     from neurodsp import filt
@@ -250,6 +251,50 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
                                                         **kwargs))
     return multi_filt_epochs
 
+def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbose=False, **kwargs):
+    """
+
+    Parameters:
+    -----------
+    chunk_neural_data : list, shape (channels, samples)
+        A Single Chunk of Neural Data to be Bandpass Filtered
+    fs : float
+        The sample frequency in Hz.
+    l_freqs : array-like | None
+        For FIR filters, the lower pass-band edge; for IIR filters, the upper cutoff frequency.
+        If None the data are only low-passed.
+    h_freqs : array-like | None
+        For FIR filters, the upper pass-band edge; for IIR filters, the upper cutoff frequency.
+        If None the data are only low-passed.
+    remove_edges : bool, optional, default: False
+        If True, replace samples within half the kernel length to be np.nan.
+        Only used for FIR filters when using neurodsp.
+    vebose : bool, optional, default: False
+        If True it will print out information about the filter used, (mne only)
+
+    Returns
+    -------
+    multi_filt_chunk : list, shape [Freq]->(channels, samples)
+        The Chunk of Neural Data Bandpass Filtered
+
+    """
+
+    assert len(l_freqs) == len(
+        h_freqs), 'l_freqs and h_freqs must be the same length, {l_f} not equal to {h_f}'.format(l_f=len(l_freqs),
+                                                                                                 h_f=len(h_freqs))
+        # f'l_freqs and h_freqs must be the same length, {len(l_freqs)} not equal to {len(h_freqs)}'
+
+    multi_filt_chunk = []
+    for l_freq, h_freq in zip(l_freqs, h_freqs):
+        multi_filt_chunk.append(bandpass_filter(epoch_neural_data=chunk_neural_data, fs=fs, l_freq=l_freq,
+                                                h_freq=h_freq, remove_edges=remove_edges, verbose=verbose, **kwargs))
+    return multi_filt_chunk
+
+
+def hilbert3(signal, axis=-1):
+    """ Fast Speed-Up of the Hilbert Transform"""
+    return hilbert(signal, fftpack.next_fast_len(signal.shape[-1]), axis=axis)[:signal.shape[-1]]
+
 
 def hilbert_module(neural_data, output: str, smooth=False):
     """ Use the Hilbert Transform to get either the Amplitude or Phase of the Input Neural Data
@@ -290,7 +335,7 @@ def hilbert_module(neural_data, output: str, smooth=False):
     assert output == 'amplitude' or output == 'phase', \
         "output parameter can only be 'amplitude' or 'phase' not {output}".format(output=output)
 
-    analytic_signal = hilbert(neural_data, axis=-1)
+    analytic_signal = hilbert3(neural_data, axis=-1)
 
     if output == 'phase':
         # The phase is given by the angle of the analytic signal (complex argument)
