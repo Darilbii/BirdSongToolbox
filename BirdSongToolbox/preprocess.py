@@ -292,8 +292,26 @@ def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbo
 
 
 def hilbert3(signal, axis=-1):
-    """ Fast Speed-Up of the Hilbert Transform"""
-    return hilbert(signal, fftpack.next_fast_len(signal.shape[-1]), axis=axis)[:signal.shape[-1]]
+    """ Efficient implementation of the Hilbert Transform (Fast)
+
+    Note
+    ----
+    This will only work on a 3-Dimensional array due to the buffer reducing step
+
+    Parameters
+    ----------
+    signal : ndarray
+        signal to be transformed
+    axis : int
+        defaults to -1
+    """
+
+    def trim_padding(padded, trim):
+        return padded[:trim]
+
+    hilbert_signal = hilbert(signal, fftpack.next_fast_len(signal.shape[axis]), axis=axis)
+
+    return np.apply_along_axis(trim_padding, axis=axis, arr=hilbert_signal, trim=signal.shape[axis])
 
 
 def hilbert_module(neural_data, output: str, smooth=False):
