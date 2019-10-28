@@ -261,6 +261,47 @@ def get_event_related_2d(data, indices, fs, window, subtract_mean=None, overlapp
     return events_matrix
 
 
+def get_event_related_nd(data, indices, fs, window, subtract_mean=None, overlapping=None, **kwargs):
+    """ Take an input ndarray of time series data, vector of event indices, and window sizes, and return a nd matrix
+    of windowed trials around the event indices.
+
+    Parameters
+    ----------
+    data: list, shape (Channels, Samples) or (Frequencies, Channels, Samples)
+        Neural Data
+    indices : list, shape [Events]
+        Onsets of the Labels to be Clipped for one Chunk
+    fs : int
+            Sampling Frequency
+    indices : array-like 1d of integers
+            Indices of event onset indices
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+    overlapping : list, optional
+        Samples that overlap with another Epoch (overlapping_samples - epoch_abs_start)
+
+    Returns
+    -------
+    events_matrix : ndarray | shape (Instances, Channels, Samples) or (Instances, Frequencies, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+    """
+
+    all_channel_events = np.apply_along_axis(func1d=get_event_related_1d, axis=-1, arr=data, fs=fs, indices=indices,
+                                             window=window, subtract_mean=subtract_mean, overlapping=overlapping,
+                                             **kwargs)
+    if len(all_channel_events.shape) < 4:
+        events_matrix = np.transpose(all_channel_events, axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
+
+    else:
+        events_matrix = np.transpose(all_channel_events,
+                                     axes=[2, 0, 1, 3])  # Reshape to (Events, Frequencies, Ch, Samples)
+
+    return events_matrix
+
+
 def get_event_related(data, indices, fs, window, subtract_mean=None, **kwargs):
     """ Get all Instances of 1 Label from all Chunks
 
@@ -367,4 +408,41 @@ def event_clipper_freqs(filt_data, label_events, fs, window, subtract_mean=None,
 
     return chunk_events
 
+
+def get_event_related_nd_chunk(chunk_data, chunk_indices, fs, window, subtract_mean=None, overlapping=None, **kwargs):
+    """ Run the get_event_related_nd across all chunks
+
+    Parameters
+    ----------
+    chunk_data: list | shape [Chunks]->(Channels, Samples)
+        Neural Data
+    chunk_indices : list, shape [Label]->[Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+
+    Returns
+    -------
+    chunk_instances : ndarray | shape (Instances, Channels, Samples) or (Instances, Frequencies, Channels, Samples)
+        event related data
+    """
+    chunk_instances = []
+
+    for data, indices, in zip(chunk_data, chunk_indices):
+        # TODO: Check if this needs to account for chunks that have no instances
+
+        instances = get_event_related_nd(data=data, indices=indices, fs=fs, window=window,
+                                         subtract_mean=subtract_mean, overlapping=overlapping, **kwargs)
+
+        if len(instances) == 1:
+            chunk_instances.extend(instances)
+        else:
+            chunk_instances.append(instances)
+
+    return chunk_instances
 
