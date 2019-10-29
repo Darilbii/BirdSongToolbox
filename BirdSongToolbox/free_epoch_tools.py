@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def get_chunk_handlabels(handlabels_list):
     """ Get all of the Hand-labels from all of the 'labels' tiers from the handlabels_list
 
@@ -446,3 +447,14 @@ def get_event_related_nd_chunk(chunk_data, chunk_indices, fs, window, subtract_m
 
     return chunk_instances
 
+
+def event_shape_correction(chunk_events):
+    """ Reshape the output of get_event_related_nd_chunk to be shape of [Instances]->( Freqs, Channels, Samples)"""
+    corrected = []
+    for chunk in chunk_events:
+        if len(chunk.shape) == 4:
+            for instances in chunk:
+                corrected.append(instances)
+        else:
+            corrected.append(chunk)
+    return corrected
