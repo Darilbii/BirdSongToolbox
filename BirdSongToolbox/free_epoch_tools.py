@@ -294,7 +294,7 @@ def get_event_related_nd(data, indices, fs, window, subtract_mean=None, overlapp
                                              window=window, subtract_mean=subtract_mean, overlapping=overlapping,
                                              **kwargs)
     if len(all_channel_events.shape) < 4:
-        events_matrix = np.transpose(all_channel_events, axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
+        events_matrix = all_channel_events  # Reshape to (Frequencies, Ch, Samples)
 
     else:
         events_matrix = np.transpose(all_channel_events,
