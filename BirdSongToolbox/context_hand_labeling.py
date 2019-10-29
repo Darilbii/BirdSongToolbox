@@ -255,3 +255,60 @@ class ContextLabels(object):
             motif_array_list.append(self.get_context_index_array(labels=labels))
 
         return motif_array_list
+
+
+# Copied from Inter-Tiral Coherence Notebook
+# TODO: Write Tests for label_focus_context and the Sub Functions
+
+def label_focus_context(focus, labels, starts, contexts, context_func):
+    """ Create a list of every instance of the User defined User Label (Focus on One Label)
+
+    Parameters
+    -----------
+    focus : str or int
+        User defined Label to focus on
+    labels : list
+        List of all Labels corresponding to each Epoch in Full_Trials
+        [Epochs]->[Labels]
+    starts : list
+        List of all Start Times corresponding to each Epoch in Full_Trials (Note: sampled at 30KHz)
+        [Epochs]->[Start Time]
+    contexts : list
+        list of arrays of context labels for each Epoch.
+        [Epoch #] -> (labels, 4)
+            col: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
+    context_func : func
+        function that returns a bool based on some criterion from the context labels
+
+    Returns
+    --------
+    Label_Index : list
+        List of all start frames of every instances of the label of focus
+        [Num_Trials]->[Num_Exs]
+    """
+    Label_Index = []
+
+    # for i in range(len(Labels)):
+    #     Trial_Labels = [int(Starts[i][x] / 30) for x in range(len(Labels[i])) if Labels[i][x] == Focus]
+
+    for start, epoch, context in zip(starts, labels, contexts):
+        trial_labels = [start[i] for i, (x, order, first, last, ls_drop) in
+                        enumerate(zip(epoch, context[:, 0], context[:, 1], context[:, 2], context[:, 3])) if
+                        x == focus and context_func(order, first, last, ls_drop)]
+        Label_Index.append(trial_labels)
+    return Label_Index
+
+
+# Define a Function that evaulates labels based on the Context Specified
+def first_context_func(order, first, last, ls_drop):
+    return first == 1 and last == 0
+
+
+# Define a Function that evaulates labels based on the Context Specified
+def last_context_func(order, first, last, ls_drop):
+    return first == 0 and last == 1
+
+
+# Define a Function that evaulates labels based on the Context Specified
+def mid_context_func(order, first, last, ls_drop):
+    return first == 0 and last == 0
