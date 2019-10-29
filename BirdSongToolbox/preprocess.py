@@ -251,6 +251,7 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
                                                         **kwargs))
     return multi_filt_epochs
 
+
 def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbose=False, **kwargs):
     """
 
@@ -286,7 +287,7 @@ def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbo
 
     multi_filt_chunk = []
     for l_freq, h_freq in zip(l_freqs, h_freqs):
-        multi_filt_chunk.append(bandpass_filter(epoch_neural_data=chunk_neural_data, fs=fs, l_freq=l_freq,
+        multi_filt_chunk.append(bandpass_filter(neural_data=chunk_neural_data, fs=fs, l_freq=l_freq,
                                                 h_freq=h_freq, remove_edges=remove_edges, verbose=verbose, **kwargs))
     return multi_filt_chunk
 
