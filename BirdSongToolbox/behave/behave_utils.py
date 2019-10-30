@@ -107,3 +107,40 @@ def get_events_rasters(data, indices, fs, window, subtract_mean=None, **kwargs):
     chunk_events = np.asarray(chunk_events)
 
     return chunk_events
+
+
+def repeat_events(labels_array):
+    """ Repeat Instances for creating visualization of Behavior
+
+    Parameters
+    ----------
+    labels_array : ndarray | (instances, samples)
+        Array of the Events to be repeated for Visualization
+
+    Returns
+    -------
+    set_array : ndarray | shape (~400, Samples)
+        Array of the Events ready for visualization
+    """
+
+    set_width = 400
+
+    num_inst, window_width = labels_array.shape  # Get the Shape of the Array
+    num_repeats = int(set_width / num_inst)  # Caculate the Number of Repeats
+    steps = np.arange(0, set_width, num_repeats)  # Calculate the Width of each Instance
+    print(steps)
+
+    print(steps[-1] + num_repeats)
+
+    set_array = np.zeros((set_width, window_width))  # Create Empty Array
+    print(np.shape(set_array))
+
+    for inst, start in zip(labels_array, steps):
+        set_array[start:start + num_repeats, :] = inst[None, :]
+
+    if steps[num_inst] + num_repeats != set_width:
+        extra = np.arange(steps[num_inst], set_width)
+        set_array = np.delete(set_array, extra, axis=0)  # Trim Extra Rows
+
+    return set_array
+
