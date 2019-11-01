@@ -458,3 +458,40 @@ def event_shape_correction(chunk_events):
         else:
             corrected.append(chunk)
     return corrected
+
+def long_silence_finder(silence, all_labels, all_starts, all_ends, window):
+    """ Checks if the Duration of the Silence Label is longer than the window and sets start equal to the middle of event
+
+    Parameters
+    ----------
+    silence : str or int
+        User defined Label to focus on
+    all_labels : list
+        List of all Labels corresponding to each Chunk in Full_Trials
+        [Epochs]->[Labels]
+    all_starts : list
+        List of all Start Times corresponding to each Chunk in Full_Trials
+        [Epochs]->[Start Time]
+    all_ends : list
+        List of all End Times corresponding to each Chunk in Full_Trials
+        [Epochs]->[End Time]
+    window : tuple | shape (start, end)
+            Window (in ms) around event onsets, window components must be integer values
+
+    Returns
+    -------
+    label_index : list
+        List of all start frames of every instances of the label of focus
+        [Num_Trials]->[Num_Exs]
+    """
+
+    label_index = []
+    fs = 30  # Originally Sammpling is 30Khz
+
+    window_len = len(np.arange(window[0], window[1]))* fs  # Length of the Window
+
+    for starts, ends, labels in zip(all_starts, all_ends, all_labels):
+        mid_starts = [start + ((end - start) / 2) for start, end, label in zip(starts, ends, labels) if
+                      label == silence and (end - start) > window_len]
+        label_index.append(mid_starts)
+    return label_index
