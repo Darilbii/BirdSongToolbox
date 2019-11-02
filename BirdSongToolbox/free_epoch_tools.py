@@ -476,7 +476,10 @@ def event_clipper_nd(data, label_events, fs, window, subtract_mean=None, **kwarg
     for events in label_events:
         event_related_matrix = get_event_related_nd_chunk(chunk_data=data, chunk_indices=events, fs=fs,
                                                           window=window, subtract_mean=subtract_mean, **kwargs)
-        chunk_events.append(event_related_matrix)  # Append to List
+
+        corr_shape = event_shape_correction(event_related_matrix)  # Format shape of list to be ndarray indexible
+
+        chunk_events.append(corr_shape)  # Append to List
 
     return chunk_events
 
