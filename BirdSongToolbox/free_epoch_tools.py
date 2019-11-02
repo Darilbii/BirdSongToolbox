@@ -479,7 +479,7 @@ def event_clipper_nd(data, label_events, fs, window, subtract_mean=None, **kwarg
 
         corr_shape = event_shape_correction(event_related_matrix)  # Format shape of list to be ndarray indexible
 
-        chunk_events.append(corr_shape)  # Append to List
+        chunk_events.append(np.asarray(corr_shape))  # Append to List
 
     return chunk_events
 
