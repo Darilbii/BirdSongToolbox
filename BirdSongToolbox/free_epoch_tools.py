@@ -415,9 +415,9 @@ def get_event_related_nd_chunk(chunk_data, chunk_indices, fs, window, subtract_m
 
     Parameters
     ----------
-    chunk_data: list | shape [Chunks]->(Channels, Samples)
+    chunk_data: list | shape [Chunks]->(Channels, Samples) or (Frequencies, Channels, Samples)
         Neural Data
-    chunk_indices : list, shape [Label]->[Chunks]->[Events]
+    chunk_indices : list, shape [Chunks]->[Events]
         Onsets of the Labels to be Clipped
     fs : int
         Sampling Frequency
@@ -446,6 +446,39 @@ def get_event_related_nd_chunk(chunk_data, chunk_indices, fs, window, subtract_m
             chunk_instances.append(instances)
 
     return chunk_instances
+
+def event_clipper_nd(data, label_events, fs, window, subtract_mean=None, **kwargs):
+    """Get all of the Instances for all Labels given for one set of chunks
+
+    Parameters
+    ----------
+    data: list | shape [Chunks]->(Channels, Samples) or (Freqs, Channels, Samples)
+        Neural Data
+    label_events : list, shape [Label]->[Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    window : tuple | shape (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+    subtract_mean : tuple, optional | shape (start, end)
+        if present, subtract the mean value in the subtract_mean window for each
+        trial from that trial's time series (this is a trial-by-trial baseline)
+
+    Returns
+    -------
+    chunk_events : list | shape [Labels]->(Instances, Channels, Samples) or (Instances, Frequencies, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+
+    """
+
+    chunk_events = []
+
+    for events in label_events:
+        event_related_matrix = get_event_related_nd_chunk(chunk_data=data, chunk_indices=events, fs=fs,
+                                                          window=window, subtract_mean=subtract_mean, **kwargs)
+        chunk_events.append(event_related_matrix)  # Append to List
+
+    return chunk_events
 
 
 def event_shape_correction(chunk_events):
