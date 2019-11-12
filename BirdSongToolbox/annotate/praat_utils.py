@@ -67,7 +67,7 @@ def _sanity_check_labels_tier(tier_list: list, chunk_num: int):
         elif label == '':
             raise ValueError("Empty Label in The Current Chunks's TextGrid: ", chunk_num, "Starts at: ", start)
         elif len(label) > 1:
-            if label == 10:
+            if label == "10":
                 pass
             else:
                 raise ValueError("Incorrect Label in the Current Chunks's TextGrid: ", chunk_num, "Starts at: ", start)
