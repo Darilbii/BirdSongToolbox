@@ -46,6 +46,7 @@ def ml_selector(event_data, identity_index, label_index, sel_instances):
          ndarray containing the Segments (aka clippings) designated by the sel_index parameter.
          Note: the number of instances aren't necessarily equal even if they are balanced prior to running this function
     """
+
     sel_id_index = identity_index[sel_instances]
     sel_label_index = label_index[sel_instances]
 
@@ -60,6 +61,7 @@ def ml_selector(event_data, identity_index, label_index, sel_instances):
         sel_data.append(label_data)
 
     return np.array(sel_data)
+
 
 def create_discrete_index(event_data):
     """
@@ -553,12 +555,12 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
 
         # 4.) Use INDEX to Break into corresponding [template/training set| test set] : ml_selector()
         # 4.1) Get template set/training : ml_selector(event_data, identity_index, label_index, sel_instances)
-        sel_train = ml_selector(event_data=event_data, identity_index=label_identities, sel_instances=X_train,
-                                label_index=y_train)
+        sel_train = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
+                                sel_instances=X_train,)
 
         # 4.1) Get test set : ml_selector()
-        sel_test = ml_selector(event_data=event_data, identity_index=label_identities, sel_instances=X_test,
-                               label_index=y_test)
+        sel_test = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
+                               sel_instances=X_test)
 
         # 5.) Use template/training set to make template : make_templates(event_data)
         templates = make_templates(event_data=event_data)
