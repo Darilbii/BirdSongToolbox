@@ -435,4 +435,172 @@ def epoch_lfp_ds_data(kwd_file, kwe_data, chunks, neural_chans: list, filter_buf
     return neural_chunks, chunk_index
 
 
+def epoch_neural_raw(kwd_file, kwe_data, chunks, neural_chans: list, filter_buffer: int = 10, data_buffer: int = 30,
+                     verbose: bool = False):
+    """ Epochs Neural Data from the KWD File and converts it to µV, It skips other pre-processing
+
+        Parameters
+        ----------
+        kwd_file : h5py.File
+            KWD file imported using h5py library
+        kwe_data : dict
+            dictionary of the events in the KWE file
+            Keys:
+                'motif_st': [# of Motifs]
+                'motif_rec_num': [# of Motifs]
+        chunks : list
+            array of the automated motif labels to use as benchmarks for the long epochs
+        neural_chans: list
+            list of the channels(columns) of the .kwd file are neural channels
+        filter_buffer : int, optional
+            Time buffer in secs to be sacrificed for filtering, defaults to 10 secs
+        data_buffer : int, optional
+            Time buffer around time of interest to chunk data, defaults to 30 secs
+        verbose : bool
+            If True the Function prints out useful statements, defaults to False
+
+        Returns
+        -------
+        neural_chunks : shape = [Chunk]->(channels, Samples)
+            Neural Data that is Low-Pass Filter at 400 Hz and Downsampled to 1 KHz, list of 2darrays
+        chunk_index : shape = [Chunk]->(absolute start, absolute end)
+            List of the Absolute Start and End of Each Chunk for that Recordings Day
+
+        Notes
+        -----
+            The raw data are saved as signed 16-bit integers, in the range -32768 to 32767. They don’t have a unit. To
+        convert to microvolts, just  multiply by 0.195. This scales the data into the range ±6.390 mV,
+        with 0.195 µV resolution (Intan chips have a ±5 mV input range).
+
+        """
+    # Get The LFP Data
+
+    # Steps
+    # Low Pass Filter All of the Data
+    # Grab Data Chunks Using Chunk Info
+    # *Seperate from the Song Data*
+    # Decimate all of the Chunk Data
+    # Save the Chunks into a list of arrays [Chunks] -> (channels, Samples)
+
+    fs = 30000  # Sampling Rate
+    lpf_buffer = filter_buffer * fs  # 10 sec Buffer for the Lowpass Filter
+    chunk_buffer = data_buffer * fs  # 30 sec Buffer for Epoching
+
+    neural_chunks = []
+    chunk_index = []
+
+    for index, (start, end) in enumerate(chunks):
+        if end is None:
+            end = start
+
+        if verbose:
+            # Print out info about motif
+            print('On Motif ', (index + 1), '/', len(chunks))
+
+        chunk_array, index_single, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end,
+                                                                                chunk_buffer=chunk_buffer,
+                                                                                lpf_buffer=lpf_buffer,
+                                                                                kwd_file=kwd_file,
+                                                                                kwe_data=kwe_data, index=neural_chans,
+                                                                                verbose=verbose)
+
+        chunk_index.append(index_single)  # Append the Absolute Index [Start, End] of the Chunk
+
+        # Remove the LPF Buffer and Downsample to 1KHz
+        if case_id == 0:
+            neural_chunks.append(chunk_array[:, lpf_buffer:-lpf_buffer:30])  # Base Case: It Fits in the entire Recording
+        elif case_id == 1:
+            neural_chunks.append(chunk_array[:, reduced_buffer:-lpf_buffer:30])  # Starting Filter buffer is clipped off
+        elif case_id == 1.1:
+            neural_chunks.append(chunk_array[:, :-lpf_buffer:30])  # the entire Starting Filter Buffer is gone
+        elif case_id == 2:
+            neural_chunks.append(chunk_array[:, lpf_buffer:-reduced_buffer:30])  # Ending filter buffer is clipped off
+        elif case_id == 2.1:
+            neural_chunks.append(chunk_array[:, lpf_buffer::30])  # the entire ending filter buffer is gone
+    return neural_chunks, chunk_index
+
+
+def epoch_audio_raw(kwd_file, kwe_data, chunks, audio_chan: list, filter_buffer: int = 10, data_buffer: int = 30,
+                    verbose: bool = False):
+    """Chunk the raw Audio
+    Parameters
+    ----------
+    kwd_file : h5py.File
+        KWD file imported using h5py library
+    kwe_data : dict
+        dictionary of the events in the KWE file
+        Keys:
+            'motif_st': [# of Motifs]
+            'motif_rec_num': [# of Motifs]
+    chunks : list
+        array of the automated motif labels to use as benchmarks for the long epochs
+    audio_chan: list
+        list of the channel(s)[column(s)] of the .kwd file that are audio channels
+    filter_buffer : int, optional
+        Time buffer in secs to be sacrificed for filtering, defaults to 10 secs
+    data_buffer : int, optional
+        Time buffer around time of interest to chunk data, defaults to 30 secs
+    verbose : bool
+        If True the Function prints out useful statements, defaults to False
+
+    Returns
+    -------
+    audio_chunks : list, shape = [Chunk]->(channels, Samples)
+        Raw Audio Data, list of 2darrays
+
+    Notes
+    -----
+        The raw data are saved as signed 16-bit integers, in the range -32768 to 32767. They don’t have a unit. To
+    convert to microvolts, just  multiply by 0.195. This scales the data into the range ±6.390 mV,
+    with 0.195 µV resolution (Intan chips have a ±5 mV input range).
+
+    """
+
+    fs = 30000  # Sampling Rate
+    filt_buffer = filter_buffer * fs  # 10 sec Buffer for the Lowpass Filter
+    chunk_buffer = data_buffer * fs  # 30 sec Buffer for Epoching
+
+    audio_chunks = []
+
+    for index, (start, end) in enumerate(chunks):
+        if end is None:
+            end = start
+
+        if verbose:
+            # Print out info about motif
+            print('On Motif ', (index + 1), '/', len(chunks), 'Duration: ', )
+
+        chunk_array, _, case_id, reduced_buffer = get_chunk_from_kwd(start=start, end=end, chunk_buffer=chunk_buffer,
+                                                                     lpf_buffer=filt_buffer, kwd_file=kwd_file,
+                                                                     kwe_data=kwe_data, index=audio_chan,
+                                                                     verbose=verbose)
+
+        if len(audio_chan) == 1:
+            # Remove The Extra filter Buffer
+            if case_id == 0:
+                audio_chunks.append(chunk_array[filt_buffer:-filt_buffer])  # Base Case: It Fits in the entire Recording
+            elif case_id == 1:
+                audio_chunks.append(chunk_array[reduced_buffer:-filt_buffer])  # Starting Filter buffer is clipped off
+            elif case_id == 1.1:
+                audio_chunks.append(chunk_array[:-filt_buffer])  # Entire Starting Filter Buffer is gone
+            elif case_id == 2:
+                audio_chunks.append(chunk_array[filt_buffer:-reduced_buffer])  # Ending filter buffer is clipped off
+            elif case_id == 2.1:
+                audio_chunks.append(chunk_array[filt_buffer:])  # Entire ending filter buffer is gone
+
+        else:  # Planning ahead for multiple Audio Channels
+            # Remove The Extra filter Buffer
+            if case_id == 0:
+                audio_chunks.append(
+                    chunk_array[:, filt_buffer:-filt_buffer])  # Base Case: It Fits in the entire Recording
+            elif case_id == 1:
+                audio_chunks.append(chunk_array[:, reduced_buffer:-filt_buffer])  # Starting Filter buffer is clipped off
+            elif case_id == 1.1:
+                audio_chunks.append(chunk_array[:, -filt_buffer])  # Entire Starting Filter Buffer is gone
+            elif case_id == 2:
+                audio_chunks.append(chunk_array[:, filt_buffer:-reduced_buffer])  # Ending filter buffer is clipped off
+            elif case_id == 2.1:
+                audio_chunks.append(chunk_array[:, filt_buffer:])  # Entire ending filter buffer is gone
+    return audio_chunks
+
 
