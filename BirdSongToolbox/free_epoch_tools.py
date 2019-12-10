@@ -290,15 +290,22 @@ def get_event_related_nd(data, indices, fs, window, subtract_mean=None, overlapp
         Neural Data in the User Defined Window for all Instances of each Label
     """
 
+
     all_channel_events = np.apply_along_axis(func1d=get_event_related_1d, axis=-1, arr=data, fs=fs, indices=indices,
                                              window=window, subtract_mean=subtract_mean, overlapping=overlapping,
                                              **kwargs)
-    if len(all_channel_events.shape) < 4:
-        events_matrix = all_channel_events  # Reshape to (Frequencies, Ch, Samples)
-
-    else:
-        events_matrix = np.transpose(all_channel_events,
-                                     axes=[2, 0, 1, 3])  # Reshape to (Events, Frequencies, Ch, Samples)
+    if len(data.shape) == 2:  # If (channels, samples)
+        if len(all_channel_events.shape) < 3:
+            events_matrix = all_channel_events  # Reshape to (Events, Ch, Samples)
+        else:
+            events_matrix = np.transpose(all_channel_events,
+                                         axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
+    if len(data.shape) == 3:  # If (Frequencies, Ch, Samples)
+        if len(all_channel_events.shape) < 4:
+            events_matrix = all_channel_events  # Reshape to (Frequencies, Ch, Samples)
+        else:
+            events_matrix = np.transpose(all_channel_events,
+                                         axes=[2, 0, 1, 3])  # Reshape to (Events, Frequencies, Ch, Samples)
 
     return events_matrix
 
@@ -447,6 +454,7 @@ def get_event_related_nd_chunk(chunk_data, chunk_indices, fs, window, subtract_m
 
     return chunk_instances
 
+
 def event_clipper_nd(data, label_events, fs, window, subtract_mean=None, **kwargs):
     """Get all of the Instances for all Labels given for one set of chunks
 
@@ -477,18 +485,19 @@ def event_clipper_nd(data, label_events, fs, window, subtract_mean=None, **kwarg
         event_related_matrix = get_event_related_nd_chunk(chunk_data=data, chunk_indices=events, fs=fs,
                                                           window=window, subtract_mean=subtract_mean, **kwargs)
 
-        corr_shape = event_shape_correction(event_related_matrix)  # Format shape of list to be ndarray indexible
+        corr_shape = event_shape_correction(event_related_matrix, len(data[0].shape))  # Format shape of list to be ndarray indexible
 
         chunk_events.append(np.asarray(corr_shape))  # Append to List
 
     return chunk_events
 
 
-def event_shape_correction(chunk_events):
-    """ Reshape the output of get_event_related_nd_chunk to be shape of [Instances]->( Freqs, Channels, Samples)"""
+def event_shape_correction(chunk_events, original_dim: int):
+    """ Reshape the output of get_event_related_nd_chunk to be shape of [Instances]->( Freqs, Channels, Samples)
+    or [Instances]->(Channels, Samples)"""
     corrected = []
     for chunk in chunk_events:
-        if len(chunk.shape) == 4:
+        if len(chunk.shape) == original_dim+1:  # 4 if (Frequencies, Channels, samples) | 3 if (Channels, Samples)
             for instances in chunk:
                 corrected.append(instances)
         else:
