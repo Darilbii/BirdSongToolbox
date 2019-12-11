@@ -25,20 +25,20 @@ def event_array_maker_1d(starts, ends, labels):
     abs_start = starts[0]
     abs_end = ends[-1]
     duration = abs_end - abs_start
-    labels_array = np.zeros((int(duration / 30), 1))
+    labels_array = np.zeros((duration, 1))
 
     for start, end, label in zip(starts, ends, labels):
         if label == 'BUFFER':
             pass
         elif isinstance(label, int):
-            labels_array[int(start / 30):int(end / 30)] = label
+            labels_array[start:end + 1] = label
         elif isinstance(label, str):
             correction = {'I': 9, 'C': 10, 'X': 20}  # Convert Str Labels to the correct int value
-            labels_array[int(start / 30):int(end / 30)] = correction[label]
+            labels_array[start:end + 1] = correction[label]
         else:
             raise TypeError
 
-    return labels_array
+    return labels_array[::30]
 
 
 def event_array_maker_chunk(onsets_list, labels_list):
