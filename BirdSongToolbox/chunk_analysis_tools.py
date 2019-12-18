@@ -563,7 +563,7 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
                                sel_instances=X_test)
 
         # 5.) Use template/training set to make template : make_templates(event_data)
-        templates = make_templates(event_data=event_data)
+        templates = make_templates(event_data=sel_train)
 
         # 6.1) Use template/training INDEX and template to create Training Pearson Features : pearson_extraction()
         train_pearson_features = pearson_extraction(event_data=sel_train, templates=templates)
