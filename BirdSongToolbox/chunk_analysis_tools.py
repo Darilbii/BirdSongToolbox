@@ -617,6 +617,5 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
     # std_curve = np.std(all_drop_curves, axis=0, ddof=1)  # ddof parameter is set to 1 to return the sample std
     std_curve = scipy.stats.sem(all_drop_curves, axis=0)
 
-
     return mean_curve, std_curve
 
