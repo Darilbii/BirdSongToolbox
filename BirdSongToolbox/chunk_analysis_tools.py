@@ -619,3 +619,91 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
 
     return mean_curve, std_curve
 
+
+def random_feature_drop_chunk(event_data, ClassObj, k_folds=5, seed=None, verbose=False):
+    """ Runs the Random Channel Feature Dropping algorithm on a set of pre-processed data (All Features Together)
+
+    Parameters
+    ----------
+    event_data : ndarray | (classes, instances, frequencies, channels, samples)
+        Randomly Rebalanced Neural Data (output of balance_classes)
+    ClassObj : class
+        classifier object from the scikit-learn package
+    k_folds : int
+        Number of Folds to Split between Template | Train/Test sets, defaults to 5,
+    seed : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is
+        the random number generator; If None, the random number generator is the RandomState instance used by np.random.
+    verbose : bool
+        If True the function will print out useful information for user as it runs, defaults to False.
+
+    Returns
+    -------
+    """
+
+    # 1.) Make Array for Holding all of the feature dropping curves
+    nested_dropping_curves = []  # np.zeros([])
+
+    # 2.) Create INDEX of all instances of interests : create_discrete_index()
+    label_identities, label_index = create_discrete_index(event_data=event_data)
+    identity_index = np.arange(len(label_index))
+    sss = StratifiedShuffleSplit(n_splits=k_folds, random_state=seed)
+    sss.get_n_splits(identity_index, label_index)
+
+    if verbose:
+        print(sss)
+
+    # --------- For Loop over possible Training Sets---------
+    for train_index, test_index in sss.split(identity_index, label_index):
+        if verbose:
+            print("TRAIN:", train_index, "TEST:", test_index)
+
+        X_train, X_test = identity_index[train_index], identity_index[test_index]
+        y_train, y_test = label_index[train_index], label_index[test_index]
+
+        # 4.) Use INDEX to Break into corresponding [template/training set| test set] : ml_selector()
+        # 4.1) Get template set/training : ml_selector(event_data, identity_index, label_index, sel_instances)
+        sel_train = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
+                                sel_instances=X_train,)
+
+        # 4.1) Get test set : ml_selector()
+        sel_test = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
+                               sel_instances=X_test)
+
+        # 5.) Use template/training set to make template : make_templates(event_data)
+        templates = make_templates(event_data=sel_train)
+
+        # 6.1) Use template/training INDEX and template to create Training Pearson Features : pearson_extraction()
+        train_pearson_features = pearson_extraction(event_data=sel_train, templates=templates)
+
+        # 6.2) Use test INDEX and template to create Test Pearson Features : pearson_extraction()
+        test_pearson_features = pearson_extraction(event_data=sel_test, templates=templates)
+
+        # 7.1) Reorganize Test Set into Machine Learning Format : ml_order_pearson()
+        ml_trials_train, ml_labels_train = ml_order(extracted_features_array=train_pearson_features)
+
+        # 7.2) Get Ledger of the Features
+        num_freqs, num_chans, num_temps = np.shape(train_pearson_features[0][0])  # Get the shape of the Feature data
+        ordered_index = make_feature_id_ledger(num_freqs=num_freqs, num_chans=num_chans, num_temps=num_temps)
+
+        # 7.3) Reorganize Training Set into Machine Learning Format : ml_order_pearson()
+        ml_trials_test, ml_labels_test = ml_order(extracted_features_array=test_pearson_features)
+
+        # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
+        nested_drop_curve = random_feature_dropping(train_set=ml_trials_train, train_labels=ml_labels_train,
+                                                    test_set=ml_trials_test, test_labels=ml_labels_test,
+                                                    ordered_index=ordered_index, drop_type='channel',
+                                                    Class_Obj=ClassObj, verbose=False)
+
+        nested_dropping_curves.append(nested_drop_curve)
+
+    # 9.) Combine all curve arrays to one array
+    all_drop_curves = np.array(nested_dropping_curves)  # (folds, frequencies, num_dropped, 1)
+
+
+    # 10.) Calculate curve metrics
+    mean_curve = np.mean(all_drop_curves, axis=0)
+    # std_curve = np.std(all_drop_curves, axis=0, ddof=1)  # ddof parameter is set to 1 to return the sample std
+    std_curve = scipy.stats.sem(all_drop_curves, axis=0)
+
+    return mean_curve, std_curve
