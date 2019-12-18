@@ -228,7 +228,7 @@ def ml_selector(clippings, identity_index, label_index, sel_instances, make_temp
 #         drop_feat_id = random.choice(features_list)  # Select the Designated Feature to be Dropped
 #         del features_list[drop_feat_id]  # Remove the Designated Drop Feature from feature array
 #         drop_list.append(drop_feat_id)  # Add Designated Drop Feature to Drop list
-#         remaining_features, _ = Drop_Features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
+#         remaining_features, _ = drop_features(dataset, feat_ids, drop_list)  # Remove sel feature from feature array
 #         acc, _, _, _ = kfold_wrapper(Data_Set=remaining_features, Data_Labels=labels, k_folds=k_folds,
 #                                      Class_Obj=Class_Obj, verbose=fold_verbose)  # Record Prediction Accuracy
 #
@@ -434,6 +434,7 @@ def random_feat_drop_analysis(full_trials, all_labels, starts, label_instruction
     Returns:
     -------
     mean_curve: ndarray
+
     std_curve: ndarray
 
     """
