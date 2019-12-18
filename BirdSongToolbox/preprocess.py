@@ -358,9 +358,9 @@ def hilbert_module(neural_data, output: str, smooth=False):
 
     if output == 'phase':
         # The phase is given by the angle of the analytic signal (complex argument)
-        hilbert_results = np.angle(analytic_signal, deg=False)
+        hilbert_results = np.apply_along_axis(func1d=np.angle, axis=-1, arr=analytic_signal, deg=False)
         if smooth:
-            hilbert_results = np.sin(hilbert_results)
+            hilbert_results = np.apply_along_axis(func1d=np.sin, axis=-1, arr=hilbert_results)
             #TODO: Make this function optionally pass through a cos or sine function
         # TODO: Investigate if this should switch between sin or cos depending on the starting slope
     if output == 'amplitude':
