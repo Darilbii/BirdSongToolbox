@@ -48,6 +48,8 @@ class ImportData:
 
     def __init__(self, bird_id: str, session: str, data_type='LPF_DS', location=None):
 
+        assert data_type in ['LPF_DS', 'Raw'], "Invalid data_type"
+
         # Initialize Session Identifiers
         self.bird_id = bird_id
         self.date = session
@@ -57,7 +59,8 @@ class ImportData:
         self._data_folder = self._resolve_source(location=location)   # Directory of Data to Import
 
         # Import Song Data
-        self.song_neural = self._get_data_from_pckl(data_name="Large_Epochs_Neural", behave_type="Song")  # Neural Data
+        self.song_neural = self._get_data_from_pckl(data_name="Large_Epochs_Neural", behave_type="Song",
+                                                    ts_data=True)  # Neural Data
         self.song_audio = self._get_data_from_pckl(data_name="Large_Epochs_Audio", behave_type="Song")  # Audio Data
         self.song_index = self._get_data_from_pckl(data_name="Large_Epochs_Times", behave_type="Song")  # Absolute Times
         self.song_ledger = self._get_data_from_pckl(data_name="Epochs_Ledger", behave_type="Song")  # Ledger of Events
@@ -88,14 +91,19 @@ class ImportData:
 
         return experiment_folder
 
-    def _get_data_from_pckl(self, data_name: str, behave_type: str):
+    def _get_data_from_pckl(self, data_name: str, behave_type: str, ts_data=False):
         """Convenience Function to Pull Relevant Data"""
 
         assert behave_type in ["Song", "Silence"]
 
         full_data_name = data_name + '_' + behave_type
+
+        if ts_data and self.data_type == "Raw":
+            full_data_name = full_data_name + '_' + "Raw"
+
         return _load_pckl_data(data_name=full_data_name, bird_id=self.bird_id, session=self.date,
                                source=self._data_folder)
+
     def _get_data_from_npy(self, data_name: str, behave_type: str):
         """Convenience Function to Pull Relevant Data"""
 
