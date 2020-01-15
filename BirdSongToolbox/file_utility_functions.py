@@ -7,7 +7,6 @@ from pathlib import Path
 
 
 def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None, make_parents=False):
-
     """ Modular Function to Resolve the path to the file to either be opened or saved
 
     Parameters
@@ -55,7 +54,7 @@ def _handle_data_path(data_name: str, bird_id: str, session: str, dir_path=None,
 
 
 def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
-                     verbose = False):
+                     verbose=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -82,7 +81,7 @@ def _save_numpy_data(data: np.ndarray, data_name: str, bird_id: str, session: st
     np.save(str(data_file_path), data)  # Save Data
 
 
-def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
+def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, verbose=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -102,7 +101,6 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, ve
 
     """
 
-
     file_name = data_name + '.npy'
 
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=source,
@@ -118,7 +116,7 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, ve
 
 
 def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
-                    verbose = False):
+                    verbose=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -148,8 +146,8 @@ def _save_pckl_data(data: np.ndarray, data_name: str, bird_id: str, session: str
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
         print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
-def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
+def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, verbose=False):
     """
 
     Parameters
@@ -183,7 +181,7 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, ver
 
 
 def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str, destination=None, make_parents=False,
-                    verbose = False):
+                    verbose=False):
     # TODO: Add *Args to allow for identifier information to be appended to the name of the file
 
     """
@@ -201,7 +199,6 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
 
     """
 
-
     file_name = data_name + '.json'
     data_file_path = _handle_data_path(data_name=file_name, bird_id=bird_id, session=session, dir_path=destination,
                                        make_parents=make_parents)  # Handle File Path and Directory Structure
@@ -213,8 +210,8 @@ def _save_json_data(data: np.ndarray, data_name: str, bird_id: str, session: str
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
         print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
-def _load_json_data(data_name: str, bird_id: str, session: str, source=None, verbose = False):
 
+def _load_json_data(data_name: str, bird_id: str, session: str, source=None, verbose=False):
     """
 
     Parameters
@@ -245,5 +242,3 @@ def _load_json_data(data_name: str, bird_id: str, session: str, source=None, ver
         print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     return data
-
-
