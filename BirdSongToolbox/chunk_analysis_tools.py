@@ -513,7 +513,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
 
 
 def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed=None, verbose=False):
-    """ Runs the Random Channel Feature Dropping algorithm on a set of pre-processed data
+    """ Runs the Random Channel Feature Dropping algorithm on a set of pre-processed data (defaults to 5K repeats)
 
     Parameters
     ----------
@@ -581,41 +581,45 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
         # 7.3) Reorganize Training Set into Machine Learning Format : ml_order_pearson()
         ml_trials_test, ml_labels_test = ml_order(extracted_features_array=test_pearson_features)
 
-        fold_frequency_curves = []
-        for freq in range(num_freqs):
-            if verbose:
-                print("On Frequency Band:", freq, " of:", num_freqs)
+        repeated_freq_curves = []
+        for index in range(5000):
+            fold_frequency_curves = []
+            for freq in range(num_freqs):
+                if verbose:
+                    print("On Frequency Band:", freq, " of:", num_freqs)
 
-            ml_trials_train_cp = ml_trials_train.copy()  # make a copy of the feature extracted Train data
-            ml_trials_test_cp = ml_trials_test.copy()  # make a copy of the feature extracted Test data
-            ordered_index_cp = ordered_index.copy()  # make a copy of the ordered_index
-            all_other_freqs = list(np.delete(np.arange(num_freqs), [freq])) # Make a index of the other frequencies
-            temp_feature_dict = make_feature_dict(ordered_index=ordered_index_cp, drop_type='frequency')  # Feature Dict
-            # reduce to selected frequency from the COPY of the training data
-            ml_trials_train_freq, full_drop = drop_features(features=ml_trials_train_cp, keys=temp_feature_dict,
-                                                 desig_drop_list=all_other_freqs)
-            # reduce to but the selected frequency from the COPY of test data
-            ml_trials_test_freq, _ = drop_features(features=ml_trials_test_cp, keys=temp_feature_dict,
-                                                desig_drop_list=all_other_freqs)
-            ordered_index_cp = np.delete(ordered_index_cp, full_drop, axis=0)  # Remove features from other frequencies
+                ml_trials_train_cp = ml_trials_train.copy()  # make a copy of the feature extracted Train data
+                ml_trials_test_cp = ml_trials_test.copy()  # make a copy of the feature extracted Test data
+                ordered_index_cp = ordered_index.copy()  # make a copy of the ordered_index
+                all_other_freqs = list(np.delete(np.arange(num_freqs), [freq])) # Make a index of the other frequencies
+                temp_feature_dict = make_feature_dict(ordered_index=ordered_index_cp, drop_type='frequency')  # Feature Dict
+                # reduce to selected frequency from the COPY of the training data
+                ml_trials_train_freq, full_drop = drop_features(features=ml_trials_train_cp, keys=temp_feature_dict,
+                                                     desig_drop_list=all_other_freqs)
+                # reduce to but the selected frequency from the COPY of test data
+                ml_trials_test_freq, _ = drop_features(features=ml_trials_test_cp, keys=temp_feature_dict,
+                                                    desig_drop_list=all_other_freqs)
+                ordered_index_cp = np.delete(ordered_index_cp, full_drop, axis=0)  # Remove features from other frequencies
 
-            # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
-            nested_drop_curve = random_feature_dropping(train_set=ml_trials_train_freq, train_labels=ml_labels_train,
-                                                        test_set=ml_trials_test_freq, test_labels=ml_labels_test,
-                                                        ordered_index=ordered_index_cp, drop_type='channel',
-                                                        Class_Obj=ClassObj, verbose=False)
-            fold_frequency_curves.append(nested_drop_curve)
+                # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
+                nested_drop_curve = random_feature_dropping(train_set=ml_trials_train_freq, train_labels=ml_labels_train,
+                                                            test_set=ml_trials_test_freq, test_labels=ml_labels_test,
+                                                            ordered_index=ordered_index_cp, drop_type='channel',
+                                                            Class_Obj=ClassObj, verbose=False)
+                fold_frequency_curves.append(nested_drop_curve)  # For each Individual Frequency Band
+            repeated_freq_curves.append(fold_frequency_curves)  # Exhaustive Feature Dropping
 
-        nested_dropping_curves.append(fold_frequency_curves)
+        nested_dropping_curves.append(repeated_freq_curves)  # All of the Curves
 
     # 9.) Combine all curve arrays to one array
-    all_drop_curves = np.array(nested_dropping_curves)  # (folds, frequencies, num_dropped, 1)
+    all_drop_curves = np.array(nested_dropping_curves)  # (folds, 5K Repeats, frequencies, num_dropped, 1)
 
 
     # 10.) Calculate curve metrics
-    mean_curve = np.mean(all_drop_curves, axis=0)
+    fold_mean_curve = np.mean(all_drop_curves, axis=0)
+    mean_curve = np.mean(fold_mean_curve, axis=0)
     # std_curve = np.std(all_drop_curves, axis=0, ddof=1)  # ddof parameter is set to 1 to return the sample std
-    std_curve = scipy.stats.sem(all_drop_curves, axis=0)
+    std_curve = scipy.stats.sem(fold_mean_curve, axis=0)
 
     return mean_curve, std_curve
 
