@@ -544,11 +544,14 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
 
     if verbose:
         print(sss)
+        fold_number = 0
 
     # --------- For Loop over possible Training Sets---------
     for train_index, test_index in sss.split(identity_index, label_index):
         if verbose:
             print("TRAIN:", train_index, "TEST:", test_index)
+            fold_number += 1
+            print("On Fold #" + str(fold_number) + ' of ' + str(k_folds))
 
         X_train, X_test = identity_index[train_index], identity_index[test_index]
         y_train, y_test = label_index[train_index], label_index[test_index]
@@ -585,8 +588,8 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
         for index in range(5000):
             fold_frequency_curves = []
             for freq in range(num_freqs):
-                if verbose:
-                    print("On Frequency Band:", freq, " of:", num_freqs)
+                # if verbose:
+                #     print("On Frequency Band:", freq, " of:", num_freqs)
 
                 ml_trials_train_cp = ml_trials_train.copy()  # make a copy of the feature extracted Train data
                 ml_trials_test_cp = ml_trials_test.copy()  # make a copy of the feature extracted Test data
