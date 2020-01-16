@@ -506,17 +506,17 @@ def epoch_neural_raw(kwd_file, kwe_data, chunks, neural_chans: list, filter_buff
 
         chunk_index.append(index_single)  # Append the Absolute Index [Start, End] of the Chunk
 
-        # Remove the LPF Buffer and Downsample to 1KHz
+        # Remove the LPF Buffer
         if case_id == 0:
-            neural_chunks.append(chunk_array[:, lpf_buffer:-lpf_buffer:30])  # Base Case: It Fits in the entire Recording
+            neural_chunks.append(chunk_array[:, lpf_buffer:-lpf_buffer])  # Base Case: It Fits in the entire Recording
         elif case_id == 1:
-            neural_chunks.append(chunk_array[:, reduced_buffer:-lpf_buffer:30])  # Starting Filter buffer is clipped off
+            neural_chunks.append(chunk_array[:, reduced_buffer:-lpf_buffer])  # Starting Filter buffer is clipped off
         elif case_id == 1.1:
-            neural_chunks.append(chunk_array[:, :-lpf_buffer:30])  # the entire Starting Filter Buffer is gone
+            neural_chunks.append(chunk_array[:, :-lpf_buffer])  # the entire Starting Filter Buffer is gone
         elif case_id == 2:
-            neural_chunks.append(chunk_array[:, lpf_buffer:-reduced_buffer:30])  # Ending filter buffer is clipped off
+            neural_chunks.append(chunk_array[:, lpf_buffer:-reduced_buffer])  # Ending filter buffer is clipped off
         elif case_id == 2.1:
-            neural_chunks.append(chunk_array[:, lpf_buffer::30])  # the entire ending filter buffer is gone
+            neural_chunks.append(chunk_array[:, lpf_buffer::])  # the entire ending filter buffer is gone
     return neural_chunks, chunk_index
 
 
