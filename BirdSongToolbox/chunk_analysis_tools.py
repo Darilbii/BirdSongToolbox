@@ -412,13 +412,13 @@ def clip_classification(ClassObj, train_set, train_labels, test_set, test_labels
     test_pred = classifier.predict(test_set)  # Test the Classifier
     confusion = confusion_matrix(test_labels, test_pred).astype(float)  # Determine the Confusion mattrix
     num_test_trials = len(test_labels)  # Get the number of trials
-    acc = sum(np.diag(confusion)) / num_test_trials # accuracy = number_-right/ total_number
+    acc = sum(np.diag(confusion)) / num_test_trials  # accuracy = number_-right/ total_number
 
     return acc, classifier, confusion
 
 
 def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, test_set: np.ndarray,
-                            test_labels: np.ndarray, ordered_index, drop_type,  Class_Obj, verbose=False):
+                            test_labels: np.ndarray, ordered_index, drop_type, Class_Obj, verbose=False):
     """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
 
     Parameters
@@ -559,7 +559,7 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
         # 4.) Use INDEX to Break into corresponding [template/training set| test set] : ml_selector()
         # 4.1) Get template set/training : ml_selector(event_data, identity_index, label_index, sel_instances)
         sel_train = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
-                                sel_instances=X_train,)
+                                sel_instances=X_train, )
 
         # 4.1) Get test set : ml_selector()
         sel_test = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
@@ -594,29 +594,35 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
                 ml_trials_train_cp = ml_trials_train.copy()  # make a copy of the feature extracted Train data
                 ml_trials_test_cp = ml_trials_test.copy()  # make a copy of the feature extracted Test data
                 ordered_index_cp = ordered_index.copy()  # make a copy of the ordered_index
-                all_other_freqs = list(np.delete(np.arange(num_freqs), [freq])) # Make a index of the other frequencies
-                temp_feature_dict = make_feature_dict(ordered_index=ordered_index_cp, drop_type='frequency')  # Feature Dict
+                all_other_freqs = list(np.delete(np.arange(num_freqs), [freq]))  # Make a index of the other frequencies
+                temp_feature_dict = make_feature_dict(ordered_index=ordered_index_cp,
+                                                      drop_type='frequency')  # Feature Dict
                 # reduce to selected frequency from the COPY of the training data
                 ml_trials_train_freq, full_drop = drop_features(features=ml_trials_train_cp, keys=temp_feature_dict,
-                                                     desig_drop_list=all_other_freqs)
+                                                                desig_drop_list=all_other_freqs)
                 # reduce to but the selected frequency from the COPY of test data
                 ml_trials_test_freq, _ = drop_features(features=ml_trials_test_cp, keys=temp_feature_dict,
-                                                    desig_drop_list=all_other_freqs)
-                ordered_index_cp = np.delete(ordered_index_cp, full_drop, axis=0)  # Remove features from other frequencies
+                                                       desig_drop_list=all_other_freqs)
+                ordered_index_cp = np.delete(ordered_index_cp, full_drop,
+                                             axis=0)  # Remove features from other frequencies
 
                 # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
-                nested_drop_curve = random_feature_dropping(train_set=ml_trials_train_freq, train_labels=ml_labels_train,
+                nested_drop_curve = random_feature_dropping(train_set=ml_trials_train_freq,
+                                                            train_labels=ml_labels_train,
                                                             test_set=ml_trials_test_freq, test_labels=ml_labels_test,
                                                             ordered_index=ordered_index_cp, drop_type='channel',
                                                             Class_Obj=ClassObj, verbose=False)
                 fold_frequency_curves.append(nested_drop_curve)  # For each Individual Frequency Band
+            if verbose:
+                if index % 500 == 0:
+                    print('on loop' + str(index))
+
             repeated_freq_curves.append(fold_frequency_curves)  # Exhaustive Feature Dropping
 
         nested_dropping_curves.append(repeated_freq_curves)  # All of the Curves
 
     # 9.) Combine all curve arrays to one array
     all_drop_curves = np.array(nested_dropping_curves)  # (folds, 5K Repeats, frequencies, num_dropped, 1)
-
 
     # 10.) Calculate curve metrics
     fold_mean_curve = np.mean(all_drop_curves, axis=0)
@@ -671,7 +677,7 @@ def random_feature_drop_chunk(event_data, ClassObj, k_folds=5, seed=None, verbos
         # 4.) Use INDEX to Break into corresponding [template/training set| test set] : ml_selector()
         # 4.1) Get template set/training : ml_selector(event_data, identity_index, label_index, sel_instances)
         sel_train = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
-                                sel_instances=X_train,)
+                                sel_instances=X_train, )
 
         # 4.1) Get test set : ml_selector()
         sel_test = ml_selector(event_data=event_data, identity_index=label_identities, label_index=label_index,
@@ -706,7 +712,6 @@ def random_feature_drop_chunk(event_data, ClassObj, k_folds=5, seed=None, verbos
 
     # 9.) Combine all curve arrays to one array
     all_drop_curves = np.array(nested_dropping_curves)  # (folds, frequencies, num_dropped, 1)
-
 
     # 10.) Calculate curve metrics
     mean_curve = np.mean(all_drop_curves, axis=0)
