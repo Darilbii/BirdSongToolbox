@@ -512,7 +512,7 @@ def random_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, tes
     return dropping_curve
 
 
-def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed=None, verbose=False):
+def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, drop_temps, k_folds=5, seed=None, verbose=False):
     """ Runs the Random Channel Feature Dropping algorithm on a set of pre-processed data (defaults to 5K repeats)
 
     Parameters
@@ -521,6 +521,8 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
         Randomly Rebalanced Neural Data (output of balance_classes)
     ClassObj : class
         classifier object from the scikit-learn package
+    drop_temps : list
+        list of the indexes of templates to not use as features
     k_folds : int
         Number of Folds to Split between Template | Train/Test sets, defaults to 5,
     seed : int, RandomState instance or None, optional (default=None)
@@ -568,6 +570,9 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
         # 5.) Use template/training set to make template : make_templates(event_data)
         templates = make_templates(event_data=sel_train)
 
+        # 5.2) Remove Template that aren't needed from train
+        templates = np.delete(templates, drop_temps, axis=0)
+
         # 6.1) Use template/training INDEX and template to create Training Pearson Features : pearson_extraction()
         train_pearson_features = pearson_extraction(event_data=sel_train, templates=templates)
 
@@ -614,7 +619,7 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, k_folds=5, seed
                                                             Class_Obj=ClassObj, verbose=False)
                 fold_frequency_curves.append(nested_drop_curve)  # For each Individual Frequency Band
             if verbose:
-                if index % 500 == 0:
+                if index % 100 == 0:
                     print('on loop' + str(index))
 
             repeated_freq_curves.append(fold_frequency_curves)  # Exhaustive Feature Dropping
