@@ -108,7 +108,7 @@ def _load_numpy_data(data_name: str, bird_id: str, session: str, source=None, ve
 
     if verbose:
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
-        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
+        print("Loading from {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     data_file_path = str(data_file_path)  # Convert Path to String for backwards compatibility
 
@@ -175,7 +175,7 @@ def _load_pckl_data(data_name: str, bird_id: str, session: str, source=None, ver
 
     if verbose:
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
-        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
+        print("Loading from {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     return data
 
@@ -239,6 +239,6 @@ def _load_json_data(data_name: str, bird_id: str, session: str, source=None, ver
 
     if verbose:
         # print(f"Saving {data_name} Data to", data_file_path.name)  # Uncomment once py3.5 support Dropped
-        print("Saving {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
+        print("Loading from {data_name} Data to {file_path}".format(data_name=data_name, file_path=data_file_path.name))
 
     return data
