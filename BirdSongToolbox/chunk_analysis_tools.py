@@ -590,7 +590,10 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, drop_temps, k_f
         ml_trials_test, ml_labels_test = ml_order(extracted_features_array=test_pearson_features)
 
         repeated_freq_curves = []
+        test_list = list(np.arange(num_chans))
+        random.seed(0)
         for index in range(5000):
+            drop_order = random.sample(test_list, k=len(test_list))
             fold_frequency_curves = []
             for freq in range(num_freqs):
                 # if verbose:
@@ -612,11 +615,11 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, drop_temps, k_f
                                              axis=0)  # Remove features from other frequencies
 
                 # 8.) Perform Nested Feature Dropping with K-Fold Cross Validation
-                nested_drop_curve = random_feature_dropping(train_set=ml_trials_train_freq,
-                                                            train_labels=ml_labels_train,
-                                                            test_set=ml_trials_test_freq, test_labels=ml_labels_test,
-                                                            ordered_index=ordered_index_cp, drop_type='channel',
-                                                            Class_Obj=ClassObj, verbose=False)
+                nested_drop_curve = ordered_feature_dropping(train_set=ml_trials_train_freq,
+                                                             train_labels=ml_labels_train,
+                                                             test_set=ml_trials_test_freq, test_labels=ml_labels_test,
+                                                             ordered_index=ordered_index_cp, drop_type='channel',
+                                                             Class_Obj=ClassObj, order=drop_order, verbose=False)
                 fold_frequency_curves.append(nested_drop_curve)  # For each Individual Frequency Band
             if verbose:
                 if index % 100 == 0:
@@ -636,6 +639,101 @@ def random_feature_drop_multi_narrow_chunk(event_data, ClassObj, drop_temps, k_f
     std_curve = scipy.stats.sem(fold_mean_curve, axis=0)
 
     return mean_curve, std_curve
+
+
+def ordered_feature_dropping(train_set: np.ndarray, train_labels: np.ndarray, test_set: np.ndarray,
+                             test_labels: np.ndarray, ordered_index, drop_type, Class_Obj, order, verbose=False):
+    """ Repeatedly trains/test models to create a feature dropping curve (Originally for Pearson Correlation)
+
+    Parameters
+    ----------
+    train_set : ndarray | (n_samples, n_features)
+        Training data array that is structured to work with the SciKit-learn Package
+    train_labels : ndarray | (n_training_samples, )
+        1-d array of Labels of the Corresponding n_training_samples
+    test_set : ndarray  | (n_samples, n_features)
+        Testing data Array that is structured to work with the SciKit-learn Package
+    test_labels : ndarray | | (n_training_samples, )
+        1-d array of Labels of the Corresponding n_test_samples
+    ordered_index : ndarray | (num_total_features, [frequencies, channels, templates])
+        ledger of the feature identity for the scikit-learn data structure
+            Power:   (Num of Features, [frequencies, channels])
+            Pearson: (Num of Features, [frequencies, channels, templates])
+    drop_type : str
+        Controls whether the dictionary indexes the channel number of the frequency band
+    Class_Obj : class
+        classifier object from the scikit-learn package
+    verbose : bool
+        If True the funtion will print out useful information for user as it runs, defaults to False.
+
+    Returns
+    -------
+    dropping_curve : ndarray
+        ndarray of accuracy values from the feature dropping code (values are floats)
+        (Number of Features (Decreasing), Number of Nested Folds)
+    """
+
+    # 1.) Initiate Lists for Curve Components
+    feat_ids = make_feature_dict(ordered_index=ordered_index, drop_type=drop_type)  # Convert ordered_index to a dict
+    num_channels = len(feat_ids.keys())  # Determine the Number of Dropping indexes
+    dropping_curve = np.zeros([num_channels + 1, 1])  # Create Empty array for Dropping Curves
+    drop_list = []
+
+    # 2.) Print Information about the Feature Set to be Dropped
+    if verbose:
+        print("Number of columns dropped per cycle", len(feat_ids[0]))  # Print number of columns per dropped feature
+        print("Number of Channels total:", len(feat_ids))  # Print number of Features
+
+    temp = feat_ids.copy()  # Create a temporary internal *shallow? copy of the index dictionary
+
+    # 3.) Begin Feature Dropping steps
+    # Find the first Accuracy
+
+    first_acc, _, _ = clip_classification(ClassObj=Class_Obj, train_set=train_set, train_labels=train_labels,
+                                          test_set=test_set, test_labels=test_labels)
+
+    if verbose:
+        print("First acc: %s..." % first_acc)
+        # print("First Standard Error is: %s" % first_err_bars)  ###### I added this for the error bars
+
+    dropping_curve[0, :] = first_acc  # Append BDF's Accuracy to Curve List
+    # index = 1
+
+    # while num_channels > 2:  # Decrease once done with development
+    for index, channel in enumerate(order[:-1]):
+
+        ids_remaining = list(temp.keys())  # Make List of the Keys(Features) from those that remain
+        num_channels = len(ids_remaining)  # keep track of the number of Features
+        # Select the index for Feature to be Dropped from list of keys those remaining (using random.choice())
+        drop_feat_ids = channel
+
+        if verbose:
+            print("List of Channels Left: ", ids_remaining)
+            print("Number of Channels Left:", num_channels)
+            print("Channel to be Dropped:", drop_feat_ids)
+
+        # Remove Key and Index for Designated Feature
+        del temp[drop_feat_ids]  # Delete key for Feature Designated to be Dropped from overall list
+
+        drop_list.append(drop_feat_ids)  # Add Designated Drop Feature to Drop list
+
+        # Remove sel feature from train feature array
+        train_remaining_features, _ = drop_features(features=train_set, keys=feat_ids, desig_drop_list=drop_list)
+
+        # Remove sel feature from test feature array
+        test_remaining_features, _ = drop_features(features=test_set, keys=feat_ids, desig_drop_list=drop_list)
+
+        acc, _, _ = clip_classification(ClassObj=Class_Obj, train_set=train_remaining_features,
+                                        train_labels=train_labels, test_set=test_remaining_features,
+                                        test_labels=test_labels)
+
+        dropping_curve[index + 1, :] = acc  # Append Resulting Accuracy to Curve List
+
+        if verbose:
+            print("Drop accuracies: ", acc)
+            print("Dropping Feature was %s..." % drop_feat_ids)
+
+    return dropping_curve
 
 
 def random_feature_drop_chunk(event_data, ClassObj, k_folds=5, seed=None, verbose=False):
