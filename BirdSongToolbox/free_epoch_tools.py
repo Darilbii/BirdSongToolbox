@@ -294,12 +294,15 @@ def get_event_related_nd(data, indices, fs, window, subtract_mean=None, overlapp
     all_channel_events = np.apply_along_axis(func1d=get_event_related_1d, axis=-1, arr=data, fs=fs, indices=indices,
                                              window=window, subtract_mean=subtract_mean, overlapping=overlapping,
                                              **kwargs)
+
+    if len(data.shape) == 1:  # If (samples,)
+        events_matrix = all_channel_events  # shape either (Samples, ) or (Instances, Samples)
+
     if len(data.shape) == 2:  # If (channels, samples)
         if len(all_channel_events.shape) < 3:
             events_matrix = all_channel_events  # Reshape to (Events, Ch, Samples)
         else:
-            events_matrix = np.transpose(all_channel_events,
-                                         axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
+            events_matrix = np.transpose(all_channel_events, axes=[1, 0, 2])  # Reshape to (Events, Ch, Samples)
     if len(data.shape) == 3:  # If (Frequencies, Ch, Samples)
         if len(all_channel_events.shape) < 4:
             events_matrix = all_channel_events  # Reshape to (Frequencies, Ch, Samples)
