@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>&lt;no title&gt; &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <title>Dependencies &#8212; BirdSongToolbox 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -90,8 +90,112 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <p>Needs to describe how to install
-and include instructions on how to properly set up the package for importing data</p>
+  <div class="section" id="dependencies">
+<h1>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
+<p>BirdSongToolbox is written in Python, and requires Python &gt;= 3.5 to run.</p>
+<p>It has the following required dependencies:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/numpy/numpy">numpy</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scipy/scipy">scipy</a> &gt;= 0.19</p></li>
+<li><p><a class="reference external" href="https://github.com/h5py/h5py">h5py</a></p></li>
+<li><p><a href="#id1"><span class="problematic" id="id2">`decorator&lt;https://github.com/micheles/decorator&gt;`_</span></a></p></li>
+<li><p><a class="reference external" href="https://github.com/yaml/pyyaml">PyYAML</a></p></li>
+<li><p><a class="reference external" href="https://github.com/timmahrt/praatIO">praatio</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scikit-learn/scikit-learn">scikit-learn</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pandas-dev/pandas">pandas</a></p></li>
+<li><p><a class="reference external" href="https://github.com/matplotlib/matplotlib">matplotlib</a> is needed to visualize data and behavior</p></li>
+</ul>
+<p>There are also optional dependencies, which are not required for package to work, but offer extra functionality:</p>
+<p><strong>Alternative Signal Processing Back-end</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/mne-tools/mne-python">mne</a> is a alternative back-end for signal processing.</p></li>
+</ul>
+<p><strong>For Local Testing</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pytest-dev/pytest">pytest</a> is needed to run the test suite locally</p></li>
+<li><p><a class="reference external" href="https://github.com/ftobia/pytest-ordering">pytest-ordering</a> is needed for test suite to run in order locally</p></li>
+<li><p><a class="reference external" href="https://github.com/ndrplz/google-drive-downloader">googledrivedownloader</a> is needed to download test data locally</p></li>
+</ul>
+<p>We recommend using the <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda</a> distribution to manage these requirements.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p><strong>Stable Release Version</strong></p>
+<p><strong>Note:</strong> At Present there is no official Stable Release, however once there is, the below should be true:</p>
+<p>To install the latest release of BirdSongToolbox, you can install from pip:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pip install BirdSongToolbox
+</pre></div>
+</div>
+<p><strong>Development Version</strong></p>
+<p>To get the development version (updates that are not yet published to pip), you can clone this repo.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/Darilbii/BirdSongToolbox.git
+</pre></div>
+</div>
+<p>To install this cloned copy of BirdSongToolbox, move into the directory you just cloned, and run:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pip install .
+</pre></div>
+</div>
+<p><strong>Editable Version</strong></p>
+<p>If you want to install an editable version, for making contributions, download the development version as above,
+and run:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pip install -e .
+</pre></div>
+</div>
+<p>It is recommended that if you are using conda virtual environments, to first activate the specific environment you
+will be developing contributions on prior to running the above line</p>
+</div>
+<div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>BirdSongToolbox can handle choosing the proper path to import and save data. To do this you must first configure
+the config.yaml file. By default this file is empty and structured as shown below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Chunked_Data_Path</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+<span class="nt">Intermediate_Path</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+<span class="nt">PrePd_Data_Path</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+<span class="nt">Raw_Data_Path</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+<span class="nt">User_Defined_Paths</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+</pre></div>
+</div>
+<p>Although not necesary to run analysis on already imported and properly formated data it is convenient to use native
+import functions to ensure all data and meta-data are available for analysis. If this file is not configure
+BirdSongToolbox will give the user warnings when using functions that need thiss configuration. This configuration file
+will be used by BirdSongToolbox to determine where to read and write data. This file only needs to be configured one
+time to work, and there are several helper functions that will allow the user to update the paths.</p>
+<p>There are 5 default paths, which are as follows:</p>
+<ul class="simple">
+<li><p><strong>Chunked_Data_Path</strong>: Default path to the directory that contains derived data in the <em>Chunked</em> data format.</p></li>
+<li><p><strong>Intermediate_Path</strong>: Default path that BirdSongtoolbox will use when saving results or custom files. This
+path is for convenience and is not necessary to work with BirdSongToolbox.</p></li>
+<li><p><strong>PrePd_Data_Path</strong>: Default path to the directory that contains derived data in the <em>Epoched</em> Data format.</p></li>
+<li><p><strong>Raw_Data_Path</strong>: The default path to the directory that contains the contains raw data.</p></li>
+<li><p><strong>User_Defined_Paths</strong>: Dictionary of paths that the users can use to define there own set of custom paths. These
+paths are to the users discretion and for their own convenience.</p></li>
+</ul>
+<p><strong>Example Configuration Steps:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the helper functions for altering the config.yaml</span>
+<span class="kn">from</span> <span class="nn">BirdSongToolbox.config.utils</span> <span class="kn">import</span> <span class="n">update_config_path</span>
+
+<span class="c1"># Set the New Path</span>
+<span class="n">update_config_path</span><span class="p">(</span><span class="n">specific_path</span><span class="o">=</span><span class="s2">&quot;Chunked_Data_Path&quot;</span><span class="p">,</span> <span class="n">new_path</span><span class="o">=</span><span class="s1">&#39;&lt;Your-Default-Chunk-Path&gt;&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">&lt;Your-Default-Chunk-Path&gt;</span></code> with the path to the location of the directory containing derived data in the
+<em>Chunked</em> data format. If desired you can use the <code class="docutils literal notranslate"><span class="pre">update_config_path()</span></code> function for the other default paths. Once done
+restart your python kernel. BirdSongToolbox should now be properly configured. A simple test would be to print out the
+configuration’s current default paths. Such as in the lines below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the helper functions for altering the config.yaml</span>
+<span class="kn">from</span> <span class="nn">BirdSongToolbox.config.utils</span> <span class="kn">import</span> <span class="n">get_spec_config_path</span>
+
+<span class="c1"># Get the current path configuration for PrePd_Data_Path and print it</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">get_spec_config_path</span><span class="p">(</span><span class="s2">&quot;PrePd_Data_Path&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you face difficulty with this configuration</p>
+<p>Please use the <a class="reference external" href="https://github.com/Darilbii/BirdSongToolbox/issues">Github issue tracker</a> to file bug reports
+and/or ask questions about this project.</p>
+</div>
+</div>
 
 
     </div>
