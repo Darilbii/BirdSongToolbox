@@ -1,0 +1,29 @@
+BirdSongToolbox.context\_hand\_labeling.ContextLabels
+=====================================================
+
+.. currentmodule:: BirdSongToolbox.context_hand_labeling
+
+.. autoclass:: ContextLabels
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ContextLabels.__init__
+      ~ContextLabels.bout_array
+      ~ContextLabels.bout_index
+      ~ContextLabels.get_all_context_index_arrays
+      ~ContextLabels.get_context_index_array
+      ~ContextLabels.motif_array
+   
+   
+
+   
+   
+   
+
+.. include:: BirdSongToolbox.context_hand_labeling.ContextLabels.examples

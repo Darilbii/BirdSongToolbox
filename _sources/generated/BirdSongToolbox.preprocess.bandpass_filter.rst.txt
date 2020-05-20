@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.bandpass_filter
+==========================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: bandpass_filter
+
+.. include:: BirdSongToolbox.preprocess.bandpass_filter.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

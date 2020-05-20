@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.get_chunk_handlabels
+=====================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: get_chunk_handlabels
+
+.. include:: BirdSongToolbox.free_epoch_tools.get_chunk_handlabels.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

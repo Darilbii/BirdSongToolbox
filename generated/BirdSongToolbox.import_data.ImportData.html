@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BirdSongToolbox.import_data.ImportData &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/generated/BirdSongToolbox.import_data.ImportData.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="birdsongtoolbox-import-data-importdata">
+<h1>BirdSongToolbox.import_data.ImportData<a class="headerlink" href="#birdsongtoolbox-import-data-importdata" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="BirdSongToolbox.import_data.ImportData">
+<em class="property">class </em><code class="sig-prename descclassname">BirdSongToolbox.import_data.</code><code class="sig-name descname">ImportData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bird_id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">session</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">data_type</span><span class="o">=</span><span class="default_value">'LPF_DS'</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.import_data.ImportData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports Data Specified by user into a Object Oriented Structure</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bird_id</strong><span class="classifier">str</span></dt><dd><p>Bird identifier to locate specified bird’s data folder</p>
+</dd>
+<dt><strong>session</strong><span class="classifier">str</span></dt><dd><p>Experiment day to locate it’s Folder</p>
+</dd>
+<dt><strong>data_type</strong><span class="classifier">string</span></dt><dd><p>String directing the type of neural signal to import, (Options: ‘LPF_DS’, ‘LPF’, ‘Raw’)</p>
+</dd>
+<dt><strong>location</strong><span class="classifier">str or Path, optional</span></dt><dd><p>Location to search for the data other than default CHUNKED_DATA_PATH (Optional if default path configured)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl>
+<dt><strong>bird_id</strong><span class="classifier">str</span></dt><dd><p>Bird identifier to locate specified bird’s data folder</p>
+</dd>
+<dt><strong>date</strong><span class="classifier">str</span></dt><dd><p>Experiment day to locate it’s Folder</p>
+</dd>
+<dt><strong>song_neural</strong><span class="classifier">list | shape = [Chunk]-&gt;(channels, Samples)</span></dt><dd><p>Neural data that is Low-Pass Filter at 400 Hz and Downsampled to 1 KHz, list of 2darrays</p>
+</dd>
+<dt><strong>song_audio</strong><span class="classifier">list | shape = [Chunk]-&gt;(channels, Samples)</span></dt><dd><p>Audio data that is Bandpass Filtered between 300 and 10000 Hz, list of 2darrays</p>
+</dd>
+<dt><strong>song_index</strong><span class="classifier">list | shape = [Chunk]-&gt;(absolute start, absolute end)</span></dt><dd><p>List of the Absolute Start and End of Each Chunk for that Recordings Day</p>
+</dd>
+<dt><strong>song_ledger</strong><span class="classifier">list | shape = [Chunk]-&gt;(first epoch, …, last epoch)</span></dt><dd><p>Ledger of which epochs occur in each Chunk, Chunks that only contain one Epoch have a length of 1</p>
+</dd>
+<dt><strong>kwe_times</strong><span class="classifier">array</span></dt><dd><p>array of the absolute start of the labels</p>
+</dd>
+<dt><strong>kwe_epoch_times</strong><span class="classifier">array, | shape = (num_motifs, 2)</span></dt><dd><p>Absolute start and end time of the old epochs
+(Start Sample, End Sample)</p>
+</dd>
+<dt><strong>song_handlabels</strong><span class="classifier">list of dicts</span></dt><dd><p>List of all Dictionaries containing all of the handlabels for each chunk for one day
+shape: [chunk_num] -&gt; {‘labels’ : [labels, onsets],</p>
+<blockquote>
+<div><p>‘female’ : [labels, onsets],
+‘KWE’ : [time],
+‘old_epochs’ : {‘epoch_#’ : [labels, onsets]} # Only if Labeled the old way
+}</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="BirdSongToolbox.import_data.ImportData.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">bird_id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">session</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">data_type</span><span class="o">=</span><span class="default_value">'LPF_DS'</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.import_data.ImportData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.import_data.ImportData.__init__" title="BirdSongToolbox.import_data.ImportData.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, bird_id, session[, …])</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

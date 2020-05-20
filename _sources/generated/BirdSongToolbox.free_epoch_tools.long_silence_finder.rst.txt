@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.long_silence_finder
+====================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: long_silence_finder
+
+.. include:: BirdSongToolbox.free_epoch_tools.long_silence_finder.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

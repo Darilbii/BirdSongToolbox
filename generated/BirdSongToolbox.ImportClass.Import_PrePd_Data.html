@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BirdSongToolbox.ImportClass.Import_PrePd_Data &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/generated/BirdSongToolbox.ImportClass.Import_PrePd_Data.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="birdsongtoolbox-importclass-import-prepd-data">
+<h1>BirdSongToolbox.ImportClass.Import_PrePd_Data<a class="headerlink" href="#birdsongtoolbox-importclass-import-prepd-data" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="BirdSongToolbox.ImportClass.Import_PrePd_Data">
+<em class="property">class </em><code class="sig-prename descclassname">BirdSongToolbox.ImportClass.</code><code class="sig-name descname">Import_PrePd_Data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bird_id</span></em>, <em class="sig-param"><span class="n">sess_name</span></em>, <em class="sig-param"><span class="n">data_type</span><span class="o">=</span><span class="default_value">'LPF_DS'</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import Prepared (PrePd) Data and its accompanying meta-data into the workspace for analysis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bird_id</strong><span class="classifier">str</span></dt><dd><p>Bird Indentifier to Locate Specified Bird’s data folder</p>
+</dd>
+<dt><strong>sess_name</strong><span class="classifier">str</span></dt><dd><p>Experiment Day to Locate it’s Folder</p>
+</dd>
+<dt><strong>data_type</strong><span class="classifier">string</span></dt><dd><p>String Directing the Type of Neural Signal to Import, (Options: ‘LPF_DS’, ‘LPF’, ‘Raw’)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This data has been prepared using self created Matlab scripts that required hand labeling.</p></li>
+</ul>
+<p>Make sure that you have used the correct Data Preping script.</p>
+<ul class="simple">
+<li><p>Naming Convention: &lt;bird_id&gt;_day_&lt;#&gt;</p></li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl>
+<dt><strong>~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>Meta Data</strong></dt><dd></dd>
+<dt><strong>~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>.bird_id</strong><span class="classifier">str</span></dt><dd><p>Bird Indentifier to Locate Specified Bird’s data folder</p>
+</dd>
+<dt><strong>.date</strong><span class="classifier">str</span></dt><dd><p>Experiment Day to Locate it’s Folder</p>
+</dd>
+<dt><strong>.data_type</strong><span class="classifier">str</span></dt><dd><p>Description of the Type of Data being Imported
+Options:</p>
+<blockquote>
+<div><p>{‘LPF’: Low Pass Filter, ‘LPF_DS’: Low Pass Filtered &amp; Downsampled, ‘raw’: Raw Data}</p>
+</div></blockquote>
+</dd>
+<dt><strong>.Sn_Len</strong><span class="classifier">int</span></dt><dd><p>Time Duration of Birds Motif (in Samples)</p>
+</dd>
+<dt><strong>.Gap_Len</strong><span class="classifier">int</span></dt><dd><p>Duration of Buffer used for Trials (in Samples)</p>
+</dd>
+<dt><strong>.Fs</strong><span class="classifier">int</span></dt><dd><p>Sample Frequency of Data (in Samples)</p>
+</dd>
+<dt><strong>.Num_Chan</strong><span class="classifier">int</span></dt><dd><p>Number of Recording Channels used on Bird</p>
+</dd>
+<dt><strong>.Bad_Channels</strong><span class="classifier">list</span></dt><dd><p>List of Channels with Noise to be excluded from Common Average Referencing</p>
+</dd>
+<dt><strong>.Num_Motifs</strong><span class="classifier">int</span></dt><dd><p>Number of Motifs in data set</p>
+</dd>
+<dt><strong>.Num_Silence</strong><span class="classifier">int</span></dt><dd><p>Number of Examples of Silence</p>
+</dd>
+<dt><strong>~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>Epoch Data</strong></dt><dd></dd>
+<dt><strong>~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>.Song_Neural</strong><span class="classifier">list</span></dt><dd><p>User Designated Neural data during Song Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; User Designated Sample Rate) x Ch]</p>
+</dd>
+<dt><strong>.Silence_Neural</strong><span class="classifier">list</span></dt><dd><p>User Designated Neural Data during Silent Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; User Designated Sample Rate) x Ch]</p>
+</dd>
+<dt><strong>.Song_Audio</strong><span class="classifier">list</span></dt><dd><p>Audio of Trials, centered on motif
+[Number of Trials]-&gt; [Trial Length (Samples &#64; 30KHz) x 1]</p>
+</dd>
+<dt><strong>.Silence_Audio</strong><span class="classifier">list</span></dt><dd><p>Audio of Silents Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; 30KHz) x 1]</p>
+</dd>
+<dt><strong>~~~~~~~~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>Epoch Descriptors</strong></dt><dd></dd>
+<dt><strong>~~~~~~~~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>.Song_Quality</strong><span class="classifier">list</span></dt><dd><p>Describes the quality of the Motif. Options:[‘Good’, ‘Bad’, ‘NM’: Not Motif]
+[Number of Trials x 1 (<a href="#id1"><span class="problematic" id="id2">numpy.unicode_</span></a>)]</p>
+</dd>
+<dt><strong>.Song_Locations</strong><span class="classifier">list [Number of Trials x 1 (<a href="#id3"><span class="problematic" id="id4">numpy.unicode_</span></a>)]</span></dt><dd><p>Describes the Location of the Motif in the BOut, Options:[‘None’, ‘Beginning’: First Motif, ‘Ending’: Last Motif]
+[Number of Trials x 1 (<a href="#id5"><span class="problematic" id="id6">numpy.unicode_</span></a>)]</p>
+</dd>
+<dt><strong>.Song_Syl_Drop</strong><span class="classifier">list</span></dt><dd><p>Describes Identity of which Syllable is dropped, Options:[‘None’: Nothing Dropped, ‘First Syllable’, ‘Last Syllable’]
+[Number of Trials x 1 (<a href="#id7"><span class="problematic" id="id8">numpy.unicode_</span></a>)]
+<strong>* This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility*</strong></p>
+</dd>
+<dt><strong>~~~~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>Epoch Indexes</strong></dt><dd></dd>
+<dt><strong>~~~~~~~~~~~~~</strong></dt><dd></dd>
+<dt><strong>.Good_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Good Motifs, ‘Good’ is defined as having little noise and no dropped (or missing) syllables</p>
+</dd>
+<dt><strong>.First_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Good First Motifs, this motif is the first motif in a bout and is classified as ‘Good’</p>
+</dd>
+<dt><strong>.Last_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as ‘Good’</p>
+</dd>
+<dt><strong>.Bad_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise</p>
+</dd>
+<dt><strong>.LS_Drop</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad</p>
+</dd>
+<dt><strong>.All_First_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis</p>
+</dd>
+<dt><strong>.All_Last_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis</p>
+</dd>
+<dt><strong>.Good_Mid_Motifs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Index of All Good Motifs in the middle of a Bout Regardless of Quality label,
+This is Useful for Clip-wise (Series) Analysis</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 88%" />
+<col style="width: 12%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Describe(self): Prints Relevant information about the Imported Data</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.ImportClass.Import_PrePd_Data.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">bird_id</span></em>, <em class="sig-param"><span class="n">sess_name</span></em>, <em class="sig-param"><span class="n">data_type</span><span class="o">=</span><span class="default_value">'LPF_DS'</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bird_id</strong><span class="classifier">string</span></dt><dd><p>Bird Indentifier to Locate Specified Bird’s data folder</p>
+</dd>
+<dt><strong>sess_name</strong><span class="classifier">str</span></dt><dd><p>Experiment Day to Locate it’s Folder</p>
+</dd>
+<dt><strong>data_type</strong><span class="classifier">string</span></dt><dd><p>String Directing the Type of Neural Signal to Import, (Options: ‘LPF_DS’, ‘LPF’, ‘Raw’)</p>
+</dd>
+<dt><strong>location</strong><span class="classifier">str or Path object, (Optional)</span></dt><dd><p>Location to search for the data other than default PREPD_DATA_PATH (Optional)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.Describe" title="BirdSongToolbox.ImportClass.Import_PrePd_Data.Describe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Describe</span></code></a>(self)</p></td>
+<td><p>Describe relevant shorthand information about this particular trial</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.Help" title="BirdSongToolbox.ImportClass.Import_PrePd_Data.Help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Help</span></code></a>(self)</p></td>
+<td><p>Describe the Function and Revelant tools for using it</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.__init__" title="BirdSongToolbox.ImportClass.Import_PrePd_Data.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, bird_id, sess_name[, …])</p></td>
+<td><p>Entire class self-constructs using modularized functions from Import_Birds_PrePd_Data() Use as a referenc to debug</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.ImportClass.Import_PrePd_Data.Describe">
+<code class="sig-name descname">Describe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.Describe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe relevant shorthand information about this particular trial</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.ImportClass.Import_PrePd_Data.Help">
+<code class="sig-name descname">Help</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.ImportClass.Import_PrePd_Data.Help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe the Function and Revelant tools for using it</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

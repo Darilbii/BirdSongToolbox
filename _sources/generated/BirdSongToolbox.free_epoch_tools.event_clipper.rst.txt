@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.event_clipper
+==============================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: event_clipper
+
+.. include:: BirdSongToolbox.free_epoch_tools.event_clipper.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.event_shape_correction
+=======================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: event_shape_correction
+
+.. include:: BirdSongToolbox.free_epoch_tools.event_shape_correction.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

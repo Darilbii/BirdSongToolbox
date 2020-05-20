@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.label_extractor
+================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: label_extractor
+
+.. include:: BirdSongToolbox.free_epoch_tools.label_extractor.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

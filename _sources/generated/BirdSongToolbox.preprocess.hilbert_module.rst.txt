@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.hilbert_module
+=========================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: hilbert_module
+
+.. include:: BirdSongToolbox.preprocess.hilbert_module.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

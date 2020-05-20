@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BirdSongToolbox.context_hand_labeling.ContextLabels &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/generated/BirdSongToolbox.context_hand_labeling.ContextLabels.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="birdsongtoolbox-context-hand-labeling-contextlabels">
+<h1>BirdSongToolbox.context_hand_labeling.ContextLabels<a class="headerlink" href="#birdsongtoolbox-context-hand-labeling-contextlabels" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels">
+<em class="property">class </em><code class="sig-prename descclassname">BirdSongToolbox.context_hand_labeling.</code><code class="sig-name descname">ContextLabels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bout_states</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">bout_transitions</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">full_bout_length</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bout_array</span></code></a>(self, labels)</p></td>
+<td><p>Returns an array that has 1 for every bout and a 0 for everything else for one chunk</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index" title="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bout_index</span></code></a>(self, labels)</p></td>
+<td><p>Gets the index for the labels that are the start and end of each Bout for one epoch</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" title="BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_context_index_arrays</span></code></a>(self, all_labels)</p></td>
+<td><p>Get Context Arrays for all the Epoch for a day</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_context_index_array</span></code></a>(self, labels)</p></td>
+<td><p>Get Context array for one Epoch</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">motif_array</span></code></a>(self, labels)</p></td>
+<td><p>Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">bout_states</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">bout_transitions</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">full_bout_length</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Contextual Labels for the Handlabels based on the defined behavior of the birds song</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bout_states</strong><span class="classifier">dict</span></dt><dd><p>dictionary of all labels used for specified bird and their context for vocal behavior</p>
+</dd>
+<dt><strong>bout_transitions</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the transition label for each state (bout &amp; not)</p>
+</dd>
+<dt><strong>full_bout_length :</strong></dt><dd></dd>
+<dt><strong>:param full_bout_length:</strong></dt><dd></dd>
+<dt><strong># Example from z020:</strong></dt><dd></dd>
+<dt><strong>&gt;&gt;&gt;bout_states = {8:’not’, ‘I’:’not’,’C’:’not’, 1:’bout’,2:’bout’,3:’bout’,4:’bout’,5:’bout’,6:’bout’,7:’bout’}</strong></dt><dd></dd>
+<dt><strong>&gt;&gt;&gt;bout_transitions = {‘not’:1,’bout’:8}</strong></dt><dd></dd>
+<dt><strong>&gt;&gt;&gt;bout_syll_length = 4</strong></dt><dd></dd>
+<dt><strong>&gt;&gt;&gt;testclass = ContextLabels(bout_states, bout_transitions, full_bout_length = 4)</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.__init__" title="BirdSongToolbox.context_hand_labeling.ContextLabels.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, bout_states, …)</p></td>
+<td><p>Create Contextual Labels for the Handlabels based on the defined behavior of the birds song</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bout_array</span></code></a>(self, labels)</p></td>
+<td><p>Returns an array that has 1 for every bout and a 0 for everything else for one chunk</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index" title="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bout_index</span></code></a>(self, labels)</p></td>
+<td><p>Gets the index for the labels that are the start and end of each Bout for one epoch</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" title="BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_context_index_arrays</span></code></a>(self, all_labels)</p></td>
+<td><p>Get Context Arrays for all the Epoch for a day</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_context_index_array</span></code></a>(self, labels)</p></td>
+<td><p>Get Context array for one Epoch</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array" title="BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">motif_array</span></code></a>(self, labels)</p></td>
+<td><p>Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array">
+<code class="sig-name descname">bout_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array that has 1 for every bout and a 0 for everything else for one chunk</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index">
+<code class="sig-name descname">bout_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the index for the labels that are the start and end of each Bout for one epoch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays">
+<code class="sig-name descname">get_all_context_index_arrays</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">all_labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Context Arrays for all the Epoch for a day</p>
+<blockquote>
+<div><p>Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored</p>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>all_labels</strong><span class="classifier">list</span></dt><dd><p>list of all labels for one Epoch</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>motif_array_list</strong><span class="classifier">list</span></dt><dd><p>list of arrays of context labels for each Epoch.
+[Epoch #] -&gt; (labels, 4)</p>
+<blockquote>
+<div><p>col: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array">
+<code class="sig-name descname">get_context_index_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Context array for one Epoch</p>
+<p>Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>labels</strong><span class="classifier">list</span></dt><dd><p>list of all labels for one Epoch</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>motif_array</strong><span class="classifier">array</span></dt><dd><p>Array of context labels for one Epoch.
+columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array">
+<code class="sig-name descname">motif_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

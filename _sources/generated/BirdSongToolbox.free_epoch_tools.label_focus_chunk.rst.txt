@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.label_focus_chunk
+==================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: label_focus_chunk
+
+.. include:: BirdSongToolbox.free_epoch_tools.label_focus_chunk.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

@@ -1,0 +1,12 @@
+BirdSongToolbox.free_epoch_tools.get_event_related_nd_chunk
+===========================================================
+
+.. currentmodule:: BirdSongToolbox.free_epoch_tools
+
+.. autofunction:: get_event_related_nd_chunk
+
+.. include:: BirdSongToolbox.free_epoch_tools.get_event_related_nd_chunk.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

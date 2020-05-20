@@ -1,0 +1,12 @@
+BirdSongToolbox.context_hand_labeling.label_focus_context
+=========================================================
+
+.. currentmodule:: BirdSongToolbox.context_hand_labeling
+
+.. autofunction:: label_focus_context
+
+.. include:: BirdSongToolbox.context_hand_labeling.label_focus_context.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

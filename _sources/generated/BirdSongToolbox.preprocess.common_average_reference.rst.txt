@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.common_average_reference
+===================================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: common_average_reference
+
+.. include:: BirdSongToolbox.preprocess.common_average_reference.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

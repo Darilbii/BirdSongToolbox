@@ -1,0 +1,12 @@
+BirdSongToolbox.context_hand_labeling.get_motif_identifier
+==========================================================
+
+.. currentmodule:: BirdSongToolbox.context_hand_labeling
+
+.. autofunction:: get_motif_identifier
+
+.. include:: BirdSongToolbox.context_hand_labeling.get_motif_identifier.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>API Documentation &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="installation.html">Installation</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/api.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="api-documentation">
+<span id="id1"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<p>API reference for the BirdSongToolbox module.</p>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#import-data-objects" id="id2">Import Data Objects</a></p>
+<ul>
+<li><p><a class="reference internal" href="#chunked-data-object" id="id3">Chunked Data Object</a></p></li>
+<li><p><a class="reference internal" href="#epoched-data-object" id="id4">Epoched Data Object</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#file-i-o" id="id5">File I/O</a></p></li>
+<li><p><a class="reference internal" href="#preprocessing-chunks" id="id6">Preprocessing: Chunks</a></p>
+<ul>
+<li><p><a class="reference internal" href="#rereference" id="id7">Rereference</a></p></li>
+<li><p><a class="reference internal" href="#filter" id="id8">Filter</a></p></li>
+<li><p><a class="reference internal" href="#hilbert-transform" id="id9">Hilbert Transform</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#preprocessing-epochs" id="id10">Preprocessing: Epochs</a></p>
+<ul>
+<li><p><a class="reference internal" href="#pipeline-object" id="id11">Pipeline Object</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#song-behavior" id="id12">Song Behavior</a></p>
+<ul>
+<li><p><a class="reference internal" href="#basic-label-extraction" id="id13">Basic Label Extraction</a></p></li>
+<li><p><a class="reference internal" href="#contextual-labels" id="id14">Contextual Labels</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#restructure-data-using-behavior" id="id15">Restructure Data using Behavior</a></p></li>
+</ul>
+</div>
+<div class="section" id="import-data-objects">
+<h3><a class="toc-backref" href="#id2">Import Data Objects</a><a class="headerlink" href="#import-data-objects" title="Permalink to this headline">¶</a></h3>
+<p>Classes that import data and return objects that manage both neural and behavioral data and its corresponding metadata.</p>
+<div class="section" id="chunked-data-object">
+<h4><a class="toc-backref" href="#id3">Chunked Data Object</a><a class="headerlink" href="#chunked-data-object" title="Permalink to this headline">¶</a></h4>
+<p>The ImportData class imports the Chunked Data format and returns it as a object for analysis.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_data.ImportData</span></code></a>(bird_id, session[, …])</p></td>
+<td><p>Imports Data Specified by user into a Object Oriented Structure</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="epoched-data-object">
+<h4><a class="toc-backref" href="#id4">Epoched Data Object</a><a class="headerlink" href="#epoched-data-object" title="Permalink to this headline">¶</a></h4>
+<p>The Import_PrePd_Data object imports the Epoched Data format.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.ImportClass.Import_PrePd_Data.html#BirdSongToolbox.ImportClass.Import_PrePd_Data" title="BirdSongToolbox.ImportClass.Import_PrePd_Data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImportClass.Import_PrePd_Data</span></code></a>(bird_id, sess_name)</p></td>
+<td><p>Import Prepared (PrePd) Data and its accompanying meta-data into the workspace for analysis</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="file-i-o">
+<h3><a class="toc-backref" href="#id5">File I/O</a><a class="headerlink" href="#file-i-o" title="Permalink to this headline">¶</a></h3>
+<p>There Are internal Mechanisms for loading and saving files.</p>
+</div>
+<div class="section" id="preprocessing-chunks">
+<h3><a class="toc-backref" href="#id6">Preprocessing: Chunks</a><a class="headerlink" href="#preprocessing-chunks" title="Permalink to this headline">¶</a></h3>
+<p>Preprocessing functions for the Chunked Data Format must be selected based on the structure of the dataset used.
+Always check the shape information in the function documentation.</p>
+<div class="section" id="rereference">
+<h4><a class="toc-backref" href="#id7">Rereference</a><a class="headerlink" href="#rereference" title="Permalink to this headline">¶</a></h4>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.common_average_reference.html#BirdSongToolbox.preprocess.common_average_reference" title="BirdSongToolbox.preprocess.common_average_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">common_average_reference</span></code></a>(chunk_neural, …)</p></td>
+<td><p>Common Average References all Epochs(Chunk)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="filter">
+<h4><a class="toc-backref" href="#id8">Filter</a><a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h4>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.bandpass_filter.html#BirdSongToolbox.preprocess.bandpass_filter" title="BirdSongToolbox.preprocess.bandpass_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bandpass_filter</span></code></a>(neural_data, fs, l_freq, h_freq)</p></td>
+<td><p>Bandpass Filter Neural Data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.bandpass_filter_epochs.html#BirdSongToolbox.preprocess.bandpass_filter_epochs" title="BirdSongToolbox.preprocess.bandpass_filter_epochs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bandpass_filter_epochs</span></code></a>(epoch_neural_data, …)</p></td>
+<td><p>Bandpass Filter Epochs(Chunks)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.multi_bpf_epochs.html#BirdSongToolbox.preprocess.multi_bpf_epochs" title="BirdSongToolbox.preprocess.multi_bpf_epochs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_bpf_epochs</span></code></a>(epoch_neural_data, fs, …)</p></td>
+<td><p>Run multiple bandpass filters on multiple neural data Epochs(Chunks)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.multi_bpf.html#BirdSongToolbox.preprocess.multi_bpf" title="BirdSongToolbox.preprocess.multi_bpf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_bpf</span></code></a>(chunk_neural_data, fs, l_freqs, …)</p></td>
+<td><p>Run multiple bandpass filters on one neural data Epoch(Chunks)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hilbert-transform">
+<h4><a class="toc-backref" href="#id9">Hilbert Transform</a><a class="headerlink" href="#hilbert-transform" title="Permalink to this headline">¶</a></h4>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.preprocess.hilbert_module.html#BirdSongToolbox.preprocess.hilbert_module" title="BirdSongToolbox.preprocess.hilbert_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hilbert_module</span></code></a>(neural_data, output[, smooth])</p></td>
+<td><p>Use the Hilbert Transform to get either the Amplitude or Phase of the Input Neural Data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="preprocessing-epochs">
+<h3><a class="toc-backref" href="#id10">Preprocessing: Epochs</a><a class="headerlink" href="#preprocessing-epochs" title="Permalink to this headline">¶</a></h3>
+<p>The Epoched data format uses object-oriented interface which primarily uses the Pipeline class. You must first make a
+Pipeline instance, which is a hard copy of the imported data. You can now pre-process the data in place using the
+preprocessing methods. Once you have completed the pipeline you can close the pipe which will prevent the data from
+being preprocessed further by accident.</p>
+<div class="section" id="pipeline-object">
+<h4><a class="toc-backref" href="#id11">Pipeline Object</a><a class="headerlink" href="#pipeline-object" title="Permalink to this headline">¶</a></h4>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.PreProcessClass.Pipeline.html#BirdSongToolbox.PreProcessClass.Pipeline" title="BirdSongToolbox.PreProcessClass.Pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipeline</span></code></a>(Imported_Data)</p></td>
+<td><p>Class for Pre-Processing Neural Data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="song-behavior">
+<h3><a class="toc-backref" href="#id12">Song Behavior</a><a class="headerlink" href="#song-behavior" title="Permalink to this headline">¶</a></h3>
+<p>Suite of Functions for working with Song Behavioral Labels. To use these functions on the handlabels you must first
+convert the labels into a different format using this helper function.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.get_chunk_handlabels.html#BirdSongToolbox.free_epoch_tools.get_chunk_handlabels" title="BirdSongToolbox.free_epoch_tools.get_chunk_handlabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chunk_handlabels</span></code></a>(handlabels_list)</p></td>
+<td><p>Get all of the Hand-labels from all of the ‘labels’ tiers from the handlabels_list</p></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="basic-label-extraction">
+<h4><a class="toc-backref" href="#id13">Basic Label Extraction</a><a class="headerlink" href="#basic-label-extraction" title="Permalink to this headline">¶</a></h4>
+<p>The most basic operations to operate on the handlabels are as follows.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.label_focus_chunk.html#BirdSongToolbox.free_epoch_tools.label_focus_chunk" title="BirdSongToolbox.free_epoch_tools.label_focus_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_focus_chunk</span></code></a>(focus, labels, starts)</p></td>
+<td><p>Create a list of every instance of the User defined User Label (Focus on One Label)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.label_group_chunk.html#BirdSongToolbox.free_epoch_tools.label_group_chunk" title="BirdSongToolbox.free_epoch_tools.label_group_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_group_chunk</span></code></a>(Focuses, labels, starts)</p></td>
+<td><p>Group Selected labels together into One Label e.g.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.label_extractor.html#BirdSongToolbox.free_epoch_tools.label_extractor" title="BirdSongToolbox.free_epoch_tools.label_extractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_extractor</span></code></a>(all_labels, starts, …)</p></td>
+<td><p>Extracts all of the Neural Data Examples of User Selected Labels and return them in the designated manner.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="contextual-labels">
+<h4><a class="toc-backref" href="#id14">Contextual Labels</a><a class="headerlink" href="#contextual-labels" title="Permalink to this headline">¶</a></h4>
+<p>More advance Contextual functions can be added to the handlabels using a properly initialized instance of this object.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.context_hand_labeling.ContextLabels.html#BirdSongToolbox.context_hand_labeling.ContextLabels" title="BirdSongToolbox.context_hand_labeling.ContextLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextLabels</span></code></a>(bout_states, bout_transitions, …)</p></td>
+<td><p><p class="rubric">Methods</p>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Contextual Label Operations</strong></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.context_hand_labeling.label_focus_context.html#BirdSongToolbox.context_hand_labeling.label_focus_context" title="BirdSongToolbox.context_hand_labeling.label_focus_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_focus_context</span></code></a>(focus, labels, starts, …)</p></td>
+<td><p>Create a list of every instance of the User defined User Label (Focus on One Label)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.context_hand_labeling.get_motif_identifier.html#BirdSongToolbox.context_hand_labeling.get_motif_identifier" title="BirdSongToolbox.context_hand_labeling.get_motif_identifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_motif_identifier</span></code></a>(focus, context, labels)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param focus</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Long Silence Finder</strong>
+Helpful for finding long periods of silence</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.long_silence_finder.html#BirdSongToolbox.free_epoch_tools.long_silence_finder" title="BirdSongToolbox.free_epoch_tools.long_silence_finder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">long_silence_finder</span></code></a>(silence, all_labels, …)</p></td>
+<td><p>Checks if the Duration of the Silence Label is longer than the window and sets start equal to the middle of event</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="restructure-data-using-behavior">
+<h3><a class="toc-backref" href="#id15">Restructure Data using Behavior</a><a class="headerlink" href="#restructure-data-using-behavior" title="Permalink to this headline">¶</a></h3>
+<p>Using a selection of behavior event times you can restructure neural or behavioral data to run event related analysis.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.get_event_related_nd.html#BirdSongToolbox.free_epoch_tools.get_event_related_nd" title="BirdSongToolbox.free_epoch_tools.get_event_related_nd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_related_nd</span></code></a>(data, indices, fs, window)</p></td>
+<td><p>Take an input ndarray of time series data, vector of event indices, and window sizes, and return a nd matrix of windowed trials around the event indices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.get_event_related.html#BirdSongToolbox.free_epoch_tools.get_event_related" title="BirdSongToolbox.free_epoch_tools.get_event_related"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_related</span></code></a>(data, indices, fs, window)</p></td>
+<td><p>Get all Instances of 1 Label from all Chunks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.event_clipper.html#BirdSongToolbox.free_epoch_tools.event_clipper" title="BirdSongToolbox.free_epoch_tools.event_clipper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_clipper</span></code></a>(data, label_events, fs, window)</p></td>
+<td><p>Get all of the Instances for all Labels given for one set of chunks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.event_clipper_freqs.html#BirdSongToolbox.free_epoch_tools.event_clipper_freqs" title="BirdSongToolbox.free_epoch_tools.event_clipper_freqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_clipper_freqs</span></code></a>(filt_data, label_events, …)</p></td>
+<td><p>Get all of the Instances for all Labels given for all frequency bands for one set of chunks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.get_event_related_nd_chunk.html#BirdSongToolbox.free_epoch_tools.get_event_related_nd_chunk" title="BirdSongToolbox.free_epoch_tools.get_event_related_nd_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_related_nd_chunk</span></code></a>(chunk_data, …)</p></td>
+<td><p>Run the get_event_related_nd across all chunks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.event_clipper_nd.html#BirdSongToolbox.free_epoch_tools.event_clipper_nd" title="BirdSongToolbox.free_epoch_tools.event_clipper_nd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_clipper_nd</span></code></a>(data, label_events, fs, window)</p></td>
+<td><p>Get all of the Instances for all Labels given for one set of chunks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/BirdSongToolbox.free_epoch_tools.event_shape_correction.html#BirdSongToolbox.free_epoch_tools.event_shape_correction" title="BirdSongToolbox.free_epoch_tools.event_shape_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_shape_correction</span></code></a>(chunk_events, …)</p></td>
+<td><p>Reshape the output of get_event_related_nd_chunk to be shape of [Instances]-&gt;( Freqs, Channels, Samples) or [Instances]-&gt;(Channels, Samples)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

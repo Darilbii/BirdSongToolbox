@@ -1,0 +1,37 @@
+BirdSongToolbox.PreProcessClass.Pipeline
+========================================
+
+.. currentmodule:: BirdSongToolbox.PreProcessClass
+
+.. autoclass:: Pipeline
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Pipeline.Band_Pass_Filter
+      ~Pipeline.Define_Frequencies
+      ~Pipeline.Make_Backup
+      ~Pipeline.Pipe_Reopen
+      ~Pipeline.Pipe_Steps
+      ~Pipeline.Pipe_end
+      ~Pipeline.Re_Reference
+      ~Pipeline.Restore
+      ~Pipeline.Update_Log
+      ~Pipeline.Z_Score
+      ~Pipeline.__init__
+      ~Pipeline.hilbert_amplitude
+      ~Pipeline.hilbert_phase
+      ~Pipeline.identity
+   
+   
+
+   
+   
+   
+
+.. include:: BirdSongToolbox.PreProcessClass.Pipeline.examples

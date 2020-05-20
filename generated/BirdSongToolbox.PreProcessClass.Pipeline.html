@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BirdSongToolbox.PreProcessClass.Pipeline &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/generated/BirdSongToolbox.PreProcessClass.Pipeline.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="birdsongtoolbox-preprocessclass-pipeline">
+<h1>BirdSongToolbox.PreProcessClass.Pipeline<a class="headerlink" href="#birdsongtoolbox-preprocessclass-pipeline" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline">
+<em class="property">class </em><code class="sig-prename descclassname">BirdSongToolbox.PreProcessClass.</code><code class="sig-name descname">Pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Imported_Data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for Pre-Processing Neural Data</p>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>The Processing Functions all follow the same general Steps:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>[1] Validate proper steps have been made and Necessary Object Instances exist</dt><dd><ul>
+<li><p>[1.1] Check Pipeline is still Open</p></li>
+<li><p>[1.2] Check Dependencies Exist</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>[2] Back-up Neural Data in case of Mistake [Make_Backup(self)]</p></li>
+<li><p>[3] Do User Specified Processing on Song Neural Data</p></li>
+<li><p>[4] Do User Specified Processing on Silence Neural Data</p></li>
+<li><p>[5] Update the Process Log with User Defined Steps (Done Last Incase of Error)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl>
+<dt><strong>bird_id</strong><span class="classifier">str</span></dt><dd><p>Bird Indentifier to Locate Specified Bird’s data folder</p>
+</dd>
+<dt><strong>date</strong><span class="classifier">str</span></dt><dd><p>Experiment Day to Locate it’s Folder</p>
+</dd>
+<dt><strong>Sn_Len</strong><span class="classifier">int</span></dt><dd><p>Time Duration of Birds Motif (in Samples)</p>
+</dd>
+<dt><strong>Gap_Len</strong><span class="classifier">int</span></dt><dd><p>Duration of Buffer used for Trials (in Samples)</p>
+</dd>
+<dt><strong>Num_Chan</strong><span class="classifier">int</span></dt><dd><p>Number of Recording Channels used on Bird</p>
+</dd>
+<dt><strong>Bad_Channels</strong><span class="classifier">list</span></dt><dd><p>List of Channels with Noise to be excluded from Common Average Referencing</p>
+</dd>
+<dt><strong>Fs</strong><span class="classifier">int</span></dt><dd><p>Sample Frequency of Data (in Samples)</p>
+</dd>
+<dt><strong>Song_Neural</strong><span class="classifier">list</span></dt><dd><p>User Designated Neural data during Song Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; User Designated Sample Rate) x Ch]</p>
+<dl class="simple">
+<dt>If Bandpassed:</dt><dd><p>[Number of Trials]-&gt; [Ch] -&gt; [Trial Length (Samples &#64; User Designated Sample Rate) x Freq_Bands]</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>Song_Audio</strong><span class="classifier">list</span></dt><dd><p>Audio of Trials, centered on motif
+[Number of Trials]-&gt; [Trial Length (Samples &#64; 30KHz) x 1]</p>
+</dd>
+<dt><strong>Silence_Neural</strong><span class="classifier">list</span></dt><dd><p>User Designated Neural data during Silent Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; User Designated Sample Rate) x Ch]</p>
+</dd>
+<dt><strong>Silence_Audio</strong><span class="classifier">list</span></dt><dd><p>Audio of Silents Trials
+[Number of Trials]-&gt; [Trial Length (Samples &#64; 30KHz) x 1]</p>
+</dd>
+<dt><strong>Num_Motifs</strong><span class="classifier">int</span></dt><dd><p>Number of Motifs in data set</p>
+</dd>
+<dt><strong>Num_Silence</strong><span class="classifier">int</span></dt><dd><p>Number of Examples of Silence</p>
+</dd>
+<dt><strong>Good_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Good Motifs, ‘Good’ is defined as having little noise and no dropped (or missing) syllables</p>
+</dd>
+<dt><strong>First_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Good First Motifs, this motif is the first motif in a bout and is classified as ‘Good’</p>
+</dd>
+<dt><strong>Last_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as ‘Good’</p>
+</dd>
+<dt><strong>Bad_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise</p>
+</dd>
+<dt><strong>LS_Drop</strong><span class="classifier">list</span></dt><dd><p>Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad</p>
+</dd>
+<dt><strong>All_First_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis</p>
+</dd>
+<dt><strong>Good_Channels</strong><span class="classifier">list</span></dt><dd><p>List of Channels that are to be included in a Common Average Filter</p>
+</dd>
+<dt><strong>All_Last_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis</p>
+</dd>
+<dt><strong>Good_Mid_Motifs</strong><span class="classifier">list</span></dt><dd><p>Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
+Analysis</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>identity()</strong></p></td>
+<td><p>Desplay Bird ID and Recording Date</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Pipe_Steps()</strong></p></td>
+<td><p>Desplay Pre-Processing Steps and Relevant Parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Restore()</strong></p></td>
+<td><p>Undo Last Pre-Processing Step and Restore from Back-up</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Pipe_end()</strong></p></td>
+<td><p>Close Pipeline and Prevent Accidental Editing of Data</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Pipe_Reopen()</strong></p></td>
+<td><p>Re-Open Pipeline for Further Pre-Processing</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Define_Frequencies(*Param)</strong></p></td>
+<td><p>Define Method for Band Passing</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Band_Pass_Filter()</strong></p></td>
+<td><p>Band Pass Filter Data</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Re_Reference()</strong></p></td>
+<td><p>Re-Reference using a Common Average Reference Filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Z_Score()</strong></p></td>
+<td><p>Z-Score Input Data</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">Imported_Data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiallizes by hardcopying the input data for Pre-Processing</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Band_Pass_Filter" title="BirdSongToolbox.PreProcessClass.Pipeline.Band_Pass_Filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Band_Pass_Filter</span></code></a>(self[, order_num, …])</p></td>
+<td><p>Bandpass Filter Data using User Defined Frequency Bands</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Define_Frequencies" title="BirdSongToolbox.PreProcessClass.Pipeline.Define_Frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Define_Frequencies</span></code></a>(self, Instructions[, …])</p></td>
+<td><p>Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Make_Backup" title="BirdSongToolbox.PreProcessClass.Pipeline.Make_Backup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Make_Backup</span></code></a>(self)</p></td>
+<td><p>Quickly Backs Up Neural Data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Reopen" title="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Reopen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe_Reopen</span></code></a>(self)</p></td>
+<td><p>Re-Opens Pipeline for Further Processing</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Steps" title="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe_Steps</span></code></a>(self)</p></td>
+<td><p>Convenience Function: Prints Pipeline Steps Used</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_end" title="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_end"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe_end</span></code></a>(self)</p></td>
+<td><p>Marks end of Pipeline.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Re_Reference" title="BirdSongToolbox.PreProcessClass.Pipeline.Re_Reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Re_Reference</span></code></a>(self)</p></td>
+<td><p>Re-Reference Data using a Common Average Reference Filter that Excludes Channels Directed by User</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Restore" title="BirdSongToolbox.PreProcessClass.Pipeline.Restore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Restore</span></code></a>(self)</p></td>
+<td><p>Conveniece Function: Restores Neural Data to the Immediate Prior Step</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Update_Log" title="BirdSongToolbox.PreProcessClass.Pipeline.Update_Log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Update_Log</span></code></a>(self, step)</p></td>
+<td><p>Updates Log recording Processing Steps Implemented</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.Z_Score" title="BirdSongToolbox.PreProcessClass.Pipeline.Z_Score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Z_Score</span></code></a>(self)</p></td>
+<td><p>Z-Score Input Data based on Equal Number of Song and Silence Trials</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.__init__" title="BirdSongToolbox.PreProcessClass.Pipeline.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, Imported_Data)</p></td>
+<td><p>Initiallizes by hardcopying the input data for Pre-Processing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.hilbert_amplitude" title="BirdSongToolbox.PreProcessClass.Pipeline.hilbert_amplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hilbert_amplitude</span></code></a>(self)</p></td>
+<td><p>Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.hilbert_phase" title="BirdSongToolbox.PreProcessClass.Pipeline.hilbert_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hilbert_phase</span></code></a>(self)</p></td>
+<td><p>Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BirdSongToolbox.PreProcessClass.Pipeline.identity" title="BirdSongToolbox.PreProcessClass.Pipeline.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span></code></a>(self)</p></td>
+<td><p>Convenience Function: Displays the Bird ID and Recording Date</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Band_Pass_Filter">
+<code class="sig-name descname">Band_Pass_Filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">order_num</span><span class="o">=</span><span class="default_value">175</span></em>, <em class="sig-param"><span class="n">FiltFilt</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Band_Pass_Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bandpass Filter Data using User Defined Frequency Bands</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Define_Frequencies">
+<code class="sig-name descname">Define_Frequencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">Instructions</span></em>, <em class="sig-param"><span class="n">StepSize</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">Lowest</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">Slide</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">suppress</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Define_Frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Instructions</strong><span class="classifier">str or tuple</span></dt><dd><dl class="simple">
+<dt>Instructions on how to Bandpass Filter Neural Data, options are {tuple, ‘Stereotyped’ or ‘Sliding’}</dt><dd><ul class="simple">
+<li><p>tuple: Custom Frequency Bands must be structured as ([Bottoms],[Tops])</p></li>
+<li><p>‘Stereotyped’: Frequency Bands Previously defined in literature (From Wikipedia)</p></li>
+<li><p>‘Sliding’: Sliding Band pass Filter that are further described by Optional Variables</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt><strong>StepSize</strong><span class="classifier">int (Optional)</span></dt><dd><p>Required if Instructions set to ‘Sliding’
+Width of All Bandpass Filters (defaults to 20 Hz)</p>
+</dd>
+<dt><strong>Lowest</strong><span class="classifier">int (Optional)</span></dt><dd><p>Required if Instructions set to ‘Sliding’
+Lowest frequency to start (defaults to 0)</p>
+</dd>
+<dt><strong>Slide</strong><span class="classifier">bool (Optional)</span></dt><dd><p>Required if Instructions set to ‘Sliding’
+If True Bandpass Filters will have a stepsize of 1 Hz (Defaults to False)</p>
+</dd>
+<dt><strong>Suppress</strong><span class="classifier">bool (Optional)</span></dt><dd><p>Required if Instructions set to ‘Sliding’
+If True Function’s print statements will be ignored (Defaults to False) [Helps to reduce unnecesary printing steps]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Top</strong><span class="classifier">list</span></dt><dd><p>List of High Frequency Cuttoffs</p>
+</dd>
+<dt><strong>Bottom</strong><span class="classifier">list</span></dt><dd><p>List of Low Frequency Cutoffs</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Make_Backup">
+<code class="sig-name descname">Make_Backup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Make_Backup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly Backs Up Neural Data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Reopen">
+<code class="sig-name descname">Pipe_Reopen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Reopen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-Opens Pipeline for Further Processing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Steps">
+<code class="sig-name descname">Pipe_Steps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_Steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience Function: Prints Pipeline Steps Used</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Pipe_end">
+<code class="sig-name descname">Pipe_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Pipe_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks end of Pipeline. Prevents accidental steps after all Processing Steps are Implemented</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Re_Reference">
+<code class="sig-name descname">Re_Reference</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Re_Reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-Reference Data using a Common Average Reference Filter that Excludes Channels Directed by User</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Restore">
+<code class="sig-name descname">Restore</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conveniece Function: Restores Neural Data to the Immediate Prior Step</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Update_Log">
+<code class="sig-name descname">Update_Log</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Update_Log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates Log recording Processing Steps Implemented</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.Z_Score">
+<code class="sig-name descname">Z_Score</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.Z_Score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Z-Score Input Data based on Equal Number of Song and Silence Trials</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.hilbert_amplitude">
+<code class="sig-name descname">hilbert_amplitude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.hilbert_amplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.hilbert_phase">
+<code class="sig-name descname">hilbert_phase</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.hilbert_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hilbert Transform Input Data and take the Absolute Value based on Equal Number of Song and Silence Trials</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="BirdSongToolbox.PreProcessClass.Pipeline.identity">
+<code class="sig-name descname">identity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.PreProcessClass.Pipeline.identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience Function: Displays the Bird ID and Recording Date</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

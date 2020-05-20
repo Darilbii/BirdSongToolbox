@@ -1,0 +1,24 @@
+BirdSongToolbox.import\_data.ImportData
+=======================================
+
+.. currentmodule:: BirdSongToolbox.import_data
+
+.. autoclass:: ImportData
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImportData.__init__
+   
+   
+
+   
+   
+   
+
+.. include:: BirdSongToolbox.import_data.ImportData.examples

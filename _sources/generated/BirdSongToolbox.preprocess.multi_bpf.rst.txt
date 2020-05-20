@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.multi_bpf
+====================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: multi_bpf
+
+.. include:: BirdSongToolbox.preprocess.multi_bpf.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

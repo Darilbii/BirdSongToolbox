@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.multi_bpf_epochs
+===========================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: multi_bpf_epochs
+
+.. include:: BirdSongToolbox.preprocess.multi_bpf_epochs.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>

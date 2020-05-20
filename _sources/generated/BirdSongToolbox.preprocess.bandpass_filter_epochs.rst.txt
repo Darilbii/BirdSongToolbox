@@ -1,0 +1,12 @@
+BirdSongToolbox.preprocess.bandpass_filter_epochs
+=================================================
+
+.. currentmodule:: BirdSongToolbox.preprocess
+
+.. autofunction:: bandpass_filter_epochs
+
+.. include:: BirdSongToolbox.preprocess.bandpass_filter_epochs.examples
+
+.. raw:: html
+
+    <div style='clear:both'></div>
