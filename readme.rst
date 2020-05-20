@@ -6,7 +6,7 @@
 [![Python versions](https://img.shields.io/badge/python-3.5%7C3.6%7C3.7-blue.svg)](https://www.python.org/)
 
 
-A Package of Tools for Analysing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
+A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
 
 ## Documentation
 
