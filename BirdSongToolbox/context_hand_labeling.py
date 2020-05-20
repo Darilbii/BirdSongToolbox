@@ -9,7 +9,7 @@ class ContextLabels(object):
         """ Create Contextual Labels for the Handlabels based on the defined behavior of the birds song
 
         Parameters
-        -----------
+        ----------
         bout_states : dict
             dictionary of all labels used for specified bird and their context for vocal behavior
         bout_transitions : dict
@@ -312,3 +312,38 @@ def last_context_func(order, first, last, ls_drop):
 # Define a Function that evaulates labels based on the Context Specified
 def mid_context_func(order, first, last, ls_drop):
     return first == 0 and last == 0
+
+
+def get_motif_identifier(focus, context, labels):
+    """
+
+    :param focus: list
+    :param context:
+    :param labels:
+    :return:
+    """
+
+    focus_index = dict()
+
+    for i in focus:
+        focus_index[i] = []
+
+    sequential_counter = -1
+
+
+    for chunk_contexts, chunk_labels in zip(context, labels):
+        current_counter = 0  # Make sure to reset the Current Counter with each Chunk
+
+        for motif_seq_numb, curr_label in zip(chunk_contexts[:, 0], chunk_labels):
+
+            if motif_seq_numb != 0:  # For the Duration of this Motif
+
+                if motif_seq_numb != current_counter:  # If in a New Motif
+                    current_counter = motif_seq_numb  # Update the Current Motif Recognition
+                    sequential_counter += 1  # Increase Motif Counter
+                    print(motif_seq_numb)
+                    print(sequential_counter)
+
+                if curr_label in focus:
+                    focus_index[curr_label].append(sequential_counter)  # If the syll occurs in this Motif the index it
+    return

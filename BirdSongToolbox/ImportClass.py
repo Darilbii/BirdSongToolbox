@@ -9,19 +9,12 @@ from BirdSongToolbox.config.settings import PREPD_DATA_PATH
 class Import_PrePd_Data():
     """Import Prepared (PrePd) Data and its accompanying meta-data into the workspace for analysis
 
-    Note: This data has been prepared using self created Matlab scripts that required hand labeling.
-    Make sure that you have used the correct Data Preping script.
-
-    Naming Convention:
-    ------------------
-    <bird_id>_day_<#>
-
     Methods
     --------
     Describe(self): Prints Relevant information about the Imported Data
 
     Parameters
-    -----------
+    ----------
     bird_id : str
         Bird Indentifier to Locate Specified Bird's data folder
     sess_name : str
@@ -29,83 +22,94 @@ class Import_PrePd_Data():
     data_type : string
         String Directing the Type of Neural Signal to Import, (Options: 'LPF_DS', 'LPF', 'Raw')
 
-    Objects:
-    --------
-    > Meta Data
-    -----------
-    .bird_id: str
+    Attributes
+    ----------
+    ~~~~~~~~~
+    Meta Data
+    ~~~~~~~~~
+    .bird_id : str
         Bird Indentifier to Locate Specified Bird's data folder
-    .date: str
+    .date : str
         Experiment Day to Locate it's Folder
-    .data_type = str
+    .data_type : str
         Description of the Type of Data being Imported
         Options:
             {'LPF': Low Pass Filter, 'LPF_DS': Low Pass Filtered & Downsampled, 'raw': Raw Data}
-    .Sn_Len = int
+    .Sn_Len : int
         Time Duration of Birds Motif (in Samples)
-    .Gap_Len = int
+    .Gap_Len : int
         Duration of Buffer used for Trials (in Samples)
-    .Fs = int
+    .Fs : int
         Sample Frequency of Data (in Samples)
-    .Num_Chan = int
+    .Num_Chan : int
         Number of Recording Channels used on Bird
-    .Bad_Channels = list
+    .Bad_Channels : list
         List of Channels with Noise to be excluded from Common Average Referencing
-    .Num_Motifs: int
+    .Num_Motifs : int
         Number of Motifs in data set
-    .Num_Silence: int
+    .Num_Silence : int
         Number of Examples of Silence
 
-    > Epoch Data
-    ------------
-    .Song_Neural: list
+    ~~~~~~~~~~
+    Epoch Data
+    ~~~~~~~~~~
+    .Song_Neural : list
         User Designated Neural data during Song Trials
         [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
-    .Silence_Neural: list
+    .Silence_Neural : list
         User Designated Neural Data during Silent Trials
         [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
-    .Song_Audio: list
+    .Song_Audio : list
         Audio of Trials, centered on motif
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
-    .Silence_Audio: list
+    .Silence_Audio : list
         Audio of Silents Trials
         [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
 
-    > Epoch Descriptors
-    -------------------
-    .Song_Quality: list
+    ~~~~~~~~~~~~~~~~~
+    Epoch Descriptors
+    ~~~~~~~~~~~~~~~~~
+    .Song_Quality : list
         Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
         [Number of Trials x 1 (numpy.unicode_)]
-    .Song_Locations: list [Number of Trials x 1 (numpy.unicode_)]
+    .Song_Locations : list [Number of Trials x 1 (numpy.unicode_)]
         Describes the Location of the Motif in the BOut, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
         [Number of Trials x 1 (numpy.unicode_)]
-    .Song_Syl_Drop: list
+    .Song_Syl_Drop : list
         Describes Identity of which Syllable is dropped, Options:['None': Nothing Dropped, 'First Syllable', 'Last Syllable']
         [Number of Trials x 1 (numpy.unicode_)]
         *** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility***
 
-    > Epoch Indexes
-    ---------------
-    .Good_Motifs: np.ndarray
+    ~~~~~~~~~~~~~
+    Epoch Indexes
+    ~~~~~~~~~~~~~
+    .Good_Motifs : np.ndarray
         Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
-    .First_Motifs: np.ndarray
+    .First_Motifs : np.ndarray
         Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
-    .Last_Motifs: np.ndarray
+    .Last_Motifs : np.ndarray
         Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as 'Good'
-    .Bad_Motifs: np.ndarray
+    .Bad_Motifs : np.ndarray
         Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise
-    .LS_Drop: np.ndarray
+    .LS_Drop : np.ndarray
         Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
-    .All_First_Motifs: np.ndarray
+    .All_First_Motifs : np.ndarray
         Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .All_Last_Motifs: np.ndarray
+    .All_Last_Motifs : np.ndarray
         Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .Good_Mid_Motifs: np.ndarray
+    .Good_Mid_Motifs : np.ndarray
         Index of All Good Motifs in the middle of a Bout Regardless of Quality label,
         This is Useful for Clip-wise (Series) Analysis
 
-    Example:
-    --------
+    Notes
+    -----
+    - This data has been prepared using self created Matlab scripts that required hand labeling.
+    Make sure that you have used the correct Data Preping script.
+
+    - Naming Convention: <bird_id>_day_<#>
+
+    Example
+    -------
     >>>
     """
 
@@ -445,8 +449,8 @@ class Import_PrePd_Data():
     def _locate_all_good_motifs(self):
         """Create Index for All Good Motifs
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         .Song_Quality: list
             Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
             [Number of Trials x 1 (numpy.unicode_)]
@@ -458,8 +462,8 @@ class Import_PrePd_Data():
             [Number of Trials x 1 (numpy.unicode_)]
             ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
-        Returns:
-        --------
+        Returns
+        -------
         .Good_Motifs: list
             Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
         """
@@ -480,12 +484,12 @@ class Import_PrePd_Data():
     def _locate_good_first_motifs(self):
         """Create Index for All Good First Motifs
 
-        Parameters:
-        -----------
-        .Song_Quality: list
+        Parameters
+        ----------
+        .Song_Quality : list
             Describes the quality of the Motif. Options:['Good', 'Bad', 'NM': Not Motif]
             [Number of Trials x 1 (numpy.unicode_)]
-        .Song_Locations: list
+        .Song_Locations : list
             Describes the Location of the Motif in the Bout, Options:['None', 'Beginning': First Motif, 'Ending': Last Motif]
             [Number of Trials x 1 (numpy.unicode_)]
         .Song_Syl_Droplist
@@ -494,9 +498,9 @@ class Import_PrePd_Data():
             ** This Annotation is mainly used for z020, may be deprecated in the future or update for more flexibility**
 
 
-        Returns:
-        --------
-        .First_Motifs: list
+        Returns
+        -------
+        .First_Motifs : list
             Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
         """
         # 2. Good First Motifs

@@ -654,8 +654,84 @@ import copy
 class Pipeline():
     """Class for Pre-Processing Neural Data
 
-    Description:
-    ------------
+    Attributes
+    ----------
+    bird_id : str
+        Bird Indentifier to Locate Specified Bird's data folder
+    date : str
+        Experiment Day to Locate it's Folder
+    Sn_Len : int
+        Time Duration of Birds Motif (in Samples)
+    Gap_Len : int
+        Duration of Buffer used for Trials (in Samples)
+    Num_Chan : int
+        Number of Recording Channels used on Bird
+    Bad_Channels : list
+        List of Channels with Noise to be excluded from Common Average Referencing
+    Fs : int
+        Sample Frequency of Data (in Samples)
+    Song_Neural : list
+        User Designated Neural data during Song Trials
+        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
+
+        If Bandpassed:
+            [Number of Trials]-> [Ch] -> [Trial Length (Samples @ User Designated Sample Rate) x Freq_Bands]
+    Song_Audio : list
+        Audio of Trials, centered on motif
+        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
+    Silence_Neural : list
+        User Designated Neural data during Silent Trials
+        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
+    Silence_Audio : list
+        Audio of Silents Trials
+        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
+    Num_Motifs : int
+        Number of Motifs in data set
+    Num_Silence : int
+        Number of Examples of Silence
+    Good_Motifs : list
+        Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
+    First_Motifs : list
+        Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
+    Last_Motifs : list
+        Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as 'Good'
+    Bad_Motifs : list
+        Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise
+    LS_Drop : list
+        Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
+    All_First_Motifs : list
+        Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
+    Good_Channels : list
+        List of Channels that are to be included in a Common Average Filter
+    All_Last_Motifs : list
+        Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
+    Good_Mid_Motifs : list
+        Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
+        Analysis
+
+    Methods
+    -------
+    identity()
+        Desplay Bird ID and Recording Date
+    Pipe_Steps()
+        Desplay Pre-Processing Steps and Relevant Parameters
+    Restore()
+        Undo Last Pre-Processing Step and Restore from Back-up
+    Pipe_end()
+        Close Pipeline and Prevent Accidental Editing of Data
+    Pipe_Reopen()
+        Re-Open Pipeline for Further Pre-Processing
+    Define_Frequencies(*Param)
+        Define Method for Band Passing
+    Band_Pass_Filter()
+        Band Pass Filter Data
+    Re_Reference()
+        Re-Reference using a Common Average Reference Filter
+    Z_Score()
+        Z-Score Input Data
+
+    Notes
+    -----
     The Processing Functions all follow the same general Steps:
         - [1] Validate proper steps have been made and Necessary Object Instances exist
             - [1.1] Check Pipeline is still Open
@@ -664,90 +740,6 @@ class Pipeline():
         - [3] Do User Specified Processing on Song Neural Data
         - [4] Do User Specified Processing on Silence Neural Data
         - [5] Update the Process Log with User Defined Steps (Done Last Incase of Error)
-
-    Methods:
-    --------
-        Convenience:
-        ------------
-        .identity():
-            Desplay Bird ID and Recording Date
-        .Pipe_Steps():
-            Desplay Pre-Processing Steps and Relevant Parameters
-        .Restore():
-            Undo Last Pre-Processing Step and Restore from Back-up
-
-        Functional:
-        -----------
-        .Pipe_end():
-            Close Pipeline and Prevent Accidental Editing of Data
-        .Pipe_Reopen():
-            Re-Open Pipeline for Further Pre-Processing
-
-        Processing:
-        -----------
-        .Define_Frequencies(*Param):
-            Define Method for Band Passing
-        .Band_Pass_Filter():
-            Band Pass Filter Data
-        .Re_Reference():
-            Re-Reference using a Common Average Reference Filter
-        .Z_Score():
-            Z-Score Input Data
-
-    Objects:
-    --------
-    .bird_id: str
-        Bird Indentifier to Locate Specified Bird's data folder
-    .date: str
-        Experiment Day to Locate it's Folder
-    .Sn_Len = int
-        Time Duration of Birds Motif (in Samples)
-    .Gap_Len = int
-        Duration of Buffer used for Trials (in Samples)
-    .Num_Chan = int
-        Number of Recording Channels used on Bird
-    .Bad_Channels = list
-        List of Channels with Noise to be excluded from Common Average Referencing
-    .Fs = int
-        Sample Frequency of Data (in Samples)
-    .Song_Neural: list
-        User Designated Neural data during Song Trials
-        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
-
-        If Bandpassed:
-            [Number of Trials]-> [Ch] -> [Trial Length (Samples @ User Designated Sample Rate) x Freq_Bands]
-    .Song_Audio: list
-        Audio of Trials, centered on motif
-        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
-    .Silence_Neural: list
-        User Designated Neural data during Silent Trials
-        [Number of Trials]-> [Trial Length (Samples @ User Designated Sample Rate) x Ch]
-    .Silence_Audio: list
-        Audio of Silents Trials
-        [Number of Trials]-> [Trial Length (Samples @ 30KHz) x 1]
-    .Num_Motifs: int
-        Number of Motifs in data set
-    .Num_Silence: int
-        Number of Examples of Silence
-    .Good_Motifs: list
-        Index of All Good Motifs, 'Good' is defined as having little noise and no dropped (or missing) syllables
-    .First_Motifs: list
-        Index of All Good First Motifs, this motif is the first motif in a bout and is classified as 'Good'
-    .Last_Motifs: list
-        Index of All Good Last Motifs, this motif is the last motif in a bout and is classified as 'Good'
-    .Bad_Motifs: list
-        Index of All Bad Motifs with no dropped syllables, These motifs have interferring audio noise
-    .LS_Drop: list
-        Index of All Bad Motifs with the last syllable dropped, These motifs are classified as Bad
-    .All_First_Motifs: list
-        Index of All First Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .Good_Channels: list
-        List of Channels that are to be included in a Common Average Filter
-    .All_Last_Motifs: list
-        Index of All Last Motifs in a Bout Regardless of Quality label, This is Useful for Clip-wise (Series) Analysis
-    .Good_Mid_Motifs: list
-        Index of All Good Motifs in the middle of a Bout Regardless of Quality label, This is Useful for Clip-wise (Series)
-        Analysis
     """
 
     def __init__(self, Imported_Data):
@@ -855,31 +847,31 @@ class Pipeline():
     def Define_Frequencies(self, Instructions, StepSize=20, Lowest=0, Slide=False, suppress=False):
         """Creates Index for Frequency Pass Band Boundaries (High and Low Cuttoff Frequencies)
 
-        Parameters:
-        -----------
-        Instructions: str or tuple
+        Parameters
+        ----------
+        Instructions : str or tuple
             Instructions on how to Bandpass Filter Neural Data, options are {tuple, 'Stereotyped' or 'Sliding'}
              - tuple: Custom Frequency Bands must be structured as ([Bottoms],[Tops])
              - 'Stereotyped': Frequency Bands Previously defined in literature (From Wikipedia)
              - 'Sliding': Sliding Band pass Filter that are further described by Optional Variables
-        StepSize: int (Optional)
+        StepSize : int (Optional)
             Required if Instructions set to 'Sliding'
             Width of All Bandpass Filters (defaults to 20 Hz)
-        Lowest: int (Optional)
+        Lowest : int (Optional)
             Required if Instructions set to 'Sliding'
             Lowest frequency to start (defaults to 0)
-        Slide: bool (Optional)
+        Slide : bool (Optional)
             Required if Instructions set to 'Sliding'
             If True Bandpass Filters will have a stepsize of 1 Hz (Defaults to False)
-        Suppress: bool (Optional)
+        Suppress : bool (Optional)
             Required if Instructions set to 'Sliding'
             If True Function's print statements will be ignored (Defaults to False) [Helps to reduce unnecesary printing steps]
 
-        Returns:
-        --------
-        .Top: list
+        Returns
+        -------
+        Top : list
             List of High Frequency Cuttoffs
-        .Bottom: list
+        Bottom : list
             List of Low Frequency Cutoffs
         """
         assert self.Status == True, 'Pipe is Closed. This Function SHOULD NOT be run on its own'

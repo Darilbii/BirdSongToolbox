@@ -20,10 +20,10 @@ def get_chunk_handlabels(handlabels_list):
     -------
     labels_list : list
         list of labels for all epochs for one day
-        [Epoch] -> [Labels]
+        [Chunks] -> [Labels]
     onsets_list : list
         list of start and end times for all labels for one day
-        [[Epochs]->[Start TIme] , [Epochs]->[End Time]]
+        [[Chunks]->[Start Time] , [Chunks]->[End Time]]
     """
     labels_list = []
     starts_list = []

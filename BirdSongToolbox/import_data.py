@@ -43,6 +43,13 @@ class ImportData:
     kwe_epoch_times : array, | shape = (num_motifs, 2)
         Absolute start and end time of the old epochs
         (Start Sample, End Sample)
+    song_handlabels : list of dicts
+        List of all Dictionaries containing all of the handlabels for each chunk for one day
+        shape: [chunk_num] -> {'labels' : [labels, onsets],
+                               'female' : [labels, onsets],
+                               'KWE' : [time],
+                               'old_epochs' : {'epoch_#' : [labels, onsets]} # Only if Labeled the old way
+                               }
 
     """
 

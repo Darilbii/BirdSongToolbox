@@ -79,8 +79,6 @@ def get_events_rasters(data, indices, fs, window, subtract_mean=None, **kwargs):
         Onsets of the Labels to be Clipped
     fs : int
         Sampling Frequency
-    indices : array-like 1d of integers
-        Indices of event onset indices
     window : tuple | shape (start, end)
         Window (in ms) around event onsets, window components must be integer values
     subtract_mean : tuple, optional | shape (start, end)
@@ -89,7 +87,7 @@ def get_events_rasters(data, indices, fs, window, subtract_mean=None, **kwargs):
 
     Returns
     -------
-    events_matrix : ndarray | shape (Instances, Channels, Samples)
+    events_matrix : ndarray | shape (Instances, Samples)
         Neural Data in the User Defined Window for all Instances of each Label
     """
 
@@ -140,3 +138,28 @@ def repeat_events(labels_array):
 
     return set_array
 
+
+def get_events_rasters_multi(data, label_events, fs, window):
+    """
+    Parameters
+    ----------
+    data: list | shape: [Chunks]->(Samples, 1)
+        Neural Data
+    label_events : list | shape: [labels]->[Chunks]->[Events]
+        Onsets of the Labels to be Clipped
+    fs : int
+        Sampling Frequency
+    window : tuple | shape: (start, end)
+        Window (in ms) around event onsets, window components must be integer values
+
+    Returns
+    -------
+    events_matrix : ndarray | shape: [labels]->(Instances, Channels, Samples)
+        Neural Data in the User Defined Window for all Instances of each Label
+    """
+    all_events = []
+    for indices in label_events:
+        label_events = get_events_rasters(data=data, indices=indices, fs=fs, window=window)
+
+        all_events.append(label_events)
+    return all_events

@@ -142,8 +142,8 @@ def bandpass_filter_array_ndsp(neural_data, fs, l_freq: float, h_freq: float, re
 def bandpass_filter(neural_data, fs, l_freq, h_freq, remove_edges=False, verbose=False, **kwargs):
     """ Bandpass Filter Neural Data
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     neural_data : 2d array, shape (channels, samples)
         The Epoched Neural Data to be Bandpass Filtered
     fs : float
@@ -180,8 +180,8 @@ def bandpass_filter(neural_data, fs, l_freq, h_freq, remove_edges=False, verbose
 def bandpass_filter_epochs(epoch_neural_data, fs, l_freq, h_freq, remove_edges=False, verbose=False, **kwargs):
     """ Bandpass Filter Epochs(Chunks)
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     epoch_neural_data : list, shape [Epoch]->(channels, samples)
         The Epoched Neural Data to be Bandpass Filtered
     fs : float
@@ -195,7 +195,7 @@ def bandpass_filter_epochs(epoch_neural_data, fs, l_freq, h_freq, remove_edges=F
     remove_edges : bool, optional, default: False
         If True, replace samples within half the kernel length to be np.nan.
         Only used for FIR filters when using neurodsp.
-    vebose : bool, optional, default: False
+    verbose : bool, optional, default: False
         If True it will print out information about the filter used, (mne only)
 
     Returns
@@ -212,10 +212,10 @@ def bandpass_filter_epochs(epoch_neural_data, fs, l_freq, h_freq, remove_edges=F
 
 
 def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbose=False, **kwargs):
-    """
+    """ Run multiple bandpass filters on multiple neural data Epochs(Chunks)
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     epoch_neural_data : list, shape [Epoch]->(channels, samples)
         The Epoched Neural Data to be Bandpass Filtered
     fs : float
@@ -229,7 +229,7 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
     remove_edges : bool, optional, default: False
         If True, replace samples within half the kernel length to be np.nan.
         Only used for FIR filters when using neurodsp.
-    vebose : bool, optional, default: False
+    verbose : bool, optional, default: False
         If True it will print out information about the filter used, (mne only)
 
     Returns
@@ -253,10 +253,10 @@ def multi_bpf_epochs(epoch_neural_data, fs, l_freqs, h_freqs, remove_edges=False
 
 
 def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbose=False, **kwargs):
-    """
+    """ Run multiple bandpass filters on one neural data Epoch(Chunks)
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     chunk_neural_data : list, shape (channels, samples)
         A Single Chunk of Neural Data to be Bandpass Filtered
     fs : float
@@ -270,7 +270,7 @@ def multi_bpf(chunk_neural_data, fs, l_freqs, h_freqs, remove_edges=False, verbo
     remove_edges : bool, optional, default: False
         If True, replace samples within half the kernel length to be np.nan.
         Only used for FIR filters when using neurodsp.
-    vebose : bool, optional, default: False
+    verbose : bool, optional, default: False
         If True it will print out information about the filter used, (mne only)
 
     Returns
@@ -333,8 +333,8 @@ def hilbert_module(neural_data, output: str, smooth=False):
     original signal from ``np.real(hilbert(x))``.
 
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     neural_data : ndarray | shape (..., Samples)
         Input Neural Activity during all Trials
     output : str
@@ -342,8 +342,8 @@ def hilbert_module(neural_data, output: str, smooth=False):
     smooth : bool, optional
         If True the instantaneous phase will be passed through a sine function, defaults to False
 
-    Returns:
-    --------
+    Returns
+    -------
     hilbert_results: ndarray | shape (..., Samples)
         Depending on the output parameter:
             'phase': Instantaneous Phase of the Input Neural Activity in radians
