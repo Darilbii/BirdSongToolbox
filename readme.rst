@@ -41,6 +41,39 @@ A **Basic Introduction Tutorial** can be found `here <https://github.com/Darilbi
 If you have a question about using BirdSongToolbox that doesn't seem to be covered by the documentation, feel free to
 open an `issue <https://github.com/Darilbii/BirdSongToolbox/issues>`_ and ask!
 
+Dependencies
+------------
+
+BirdSongToolbox is written in Python, and requires Python >= 3.5 to run.
+
+It has the following required dependencies:
+
+- `numpy <https://github.com/numpy/numpy>`_
+- `scipy <https://github.com/scipy/scipy>`_ >= 0.19
+- `h5py <https://github.com/h5py/h5py>`_
+- `decorator<https://github.com/micheles/decorator>`_
+- `PyYAML <https://github.com/yaml/pyyaml>`_
+- `praatio <https://github.com/timmahrt/praatIO>`_
+- `scikit-learn <https://github.com/scikit-learn/scikit-learn>`_
+- `pandas <https://github.com/pandas-dev/pandas>`_
+- `matplotlib <https://github.com/matplotlib/matplotlib>`_ is needed to visualize data and behavior
+
+
+There are also optional dependencies, which are not required for package to work, but offer extra functionality:
+
+**Alternative Signal Processing Back-end**
+
+- `mne <https://github.com/mne-tools/mne-python>`_ is a alternative back-end for signal processing.
+
+**For Local Testing**
+
+- `pytest <https://github.com/pytest-dev/pytest>`_ is needed to run the test suite locally
+- `pytest-ordering <https://github.com/ftobia/pytest-ordering>`_ is needed for test suite to run in order locally
+- `googledrivedownloader <https://github.com/ndrplz/google-drive-downloader>`_ is needed to download test data locally
+
+
+We recommend using the `Anaconda <https://www.anaconda.com/distribution/>`_ distribution to manage these requirements.
+
 Install
 -------
 
