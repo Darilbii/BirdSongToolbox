@@ -3,6 +3,9 @@ import numpy as np
 
 
 class ContextLabels(object):
+    """ Class which adds additional labels on top of the handlables to allow for flexible selection of events using
+    context
+    """
     #     bout_breaks = {'not': 'start', 'bout': 'end'}
 
     def __init__(self, bout_states: dict, bout_transitions: dict, full_bout_length: int):
@@ -14,15 +17,18 @@ class ContextLabels(object):
             dictionary of all labels used for specified bird and their context for vocal behavior
         bout_transitions : dict
             dictionary of the transition label for each state (bout & not)
-        full_bout_length :
+        full_bout_length : int
+            Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)
 
-        :param full_bout_length:
+        Examples
+        --------
 
-        # Example from z020:
-        >>>bout_states = {8:'not', 'I':'not','C':'not', 1:'bout',2:'bout',3:'bout',4:'bout',5:'bout',6:'bout',7:'bout'}
-        >>>bout_transitions = {'not':1,'bout':8}
-        >>>bout_syll_length = 4
-        >>>testclass = ContextLabels(bout_states, bout_transitions, full_bout_length = 4)
+        Using behavior from subject z020:
+
+        >>> bout_states = {8:'not', 'I':'not','C':'not', 1:'bout',2:'bout',3:'bout',4:'bout',5:'bout',6:'bout',7:'bout'}
+        >>> bout_transitions = {'not':1,'bout':8}
+        >>> bout_syll_length = 4
+        >>> testclass = ContextLabels(bout_states, bout_transitions, bout_syll_length)
 
         """
         self.bout_states = bout_states
@@ -33,7 +39,18 @@ class ContextLabels(object):
         return self.bout_states[current_label]
 
     def bout_array(self, labels: list):
-        """Returns an array that has 1 for every bout and a 0 for everything else for one chunk"""
+        """Returns an array that has 1 for every bout and a 0 for everything else for one chunk
+
+        Parameters
+        ----------
+        labels : list | [Labels]
+            list of all labels for one Epoch
+
+        Returns
+        -------
+        bout_results : list
+            Array that encodes each label as either bout or not bout using 1 or 0, respectively.
+        """
 
         bout_results = []
 
@@ -51,6 +68,18 @@ class ContextLabels(object):
 
     def bout_index(self, labels: list):
         """ Gets the index for the labels that are the start and end of each Bout for one epoch
+
+        Parameters
+        ----------
+        labels : list | [Labels]
+            list of all labels for one Epoch
+
+        Returns
+        -------
+        starts : list
+            List of all Start Times corresponding to each motif in one chunk
+        ends : list
+            List of all End Times corresponding to each motif in one chunk
         """
 
         bout_results = self.bout_array(labels=labels)
@@ -69,6 +98,17 @@ class ContextLabels(object):
 
     def motif_array(self, labels: list):
         """Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk
+
+        Parameters
+        ----------
+        labels : list | [Labels]
+            list of all labels for one Epoch
+
+        Returns
+        -------
+        motif_results : ndarray
+            array that segments motifs using both the labels and the initialized parameters for the bird's song
+            structure
         """
         motif_results = []
 
@@ -191,11 +231,13 @@ class ContextLabels(object):
     def get_context_index_array(self, labels: list):
         """ Get Context array for one Epoch
 
-        Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
+        Note
+        ----
+        This can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
 
         Parameters
         ----------
-        labels : list
+        labels : list | [Labels]
             list of all labels for one Epoch
 
         Returns
@@ -234,11 +276,13 @@ class ContextLabels(object):
     def get_all_context_index_arrays(self, all_labels: list):
         """Get Context Arrays for all the Epoch for a day
 
-                Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
+        Note
+        ----
+        this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored
 
         Parameters
         ----------
-        all_labels : list
+        all_labels : list | [Labels]
             list of all labels for one Epoch
 
         Returns
@@ -247,7 +291,8 @@ class ContextLabels(object):
             list of arrays of context labels for each Epoch.
             [Epoch #] -> (labels, 4)
                 col: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
-            """
+
+        """
 
         motif_array_list = []
 
@@ -264,7 +309,7 @@ def label_focus_context(focus, labels, starts, contexts, context_func):
     """ Create a list of every instance of the User defined User Label (Focus on One Label)
 
     Parameters
-    -----------
+    ----------
     focus : str or int
         User defined Label to focus on
     labels : list
@@ -281,7 +326,7 @@ def label_focus_context(focus, labels, starts, contexts, context_func):
         function that returns a bool based on some criterion from the context labels
 
     Returns
-    --------
+    -------
     Label_Index : list
         List of all start frames of every instances of the label of focus
         [Num_Trials]->[Num_Exs]
