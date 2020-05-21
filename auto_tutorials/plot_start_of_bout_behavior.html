@@ -153,25 +153,19 @@ Dataformat has multiple tiers of information that include your main subjects beh
 co-occuring noise, and experimental peridigm metadata. For this reason there is a convenience
 function for converting the Chunked data behavioral data into the simple list structure.</p>
 <p>If you are using behavioral data in a different format you will need to convert them into two
-lists:</p>
-<blockquote>
-<div><ul>
-<li><p>chunk_labels_list</p></li>
-<li><p>chunk_onsets_list</p></li>
-<li><p>labels_list : list
-list of labels for all epochs for one day</p>
-<blockquote>
-<div><p>[Chunks] -&gt; [Labels]</p>
-</div></blockquote>
+lists:
+- chunk_labels_list
+- chunk_onsets_list</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">labels_list</span></code> : list</p>
+<p>list of labels for all epochs for one day</p>
+<p>[Chunks] -&gt; [Labels]</p>
 </li>
-<li><p>onsets_list : list
-list of start and end times for all labels for one day</p>
-<blockquote>
-<div><p>[[Chunks]-&gt;[Start Time] , [Chunks]-&gt;[End Time]]</p>
-</div></blockquote>
+<li><p><code class="docutils literal notranslate"><span class="pre">onsets_list</span></code> : list</p>
+<p>list of start and end times for all labels for one day</p>
+<p>[[Chunks]-&gt;[Start Time] , [Chunks]-&gt;[End Time]]</p>
 </li>
 </ul>
-</div></blockquote>
 <p>Reshape Handlabels into Useful Format</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chunk_labels_list</span><span class="p">,</span> <span class="n">chunk_onsets_list</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.free_epoch_tools.get_chunk_handlabels.html#BirdSongToolbox.free_epoch_tools.get_chunk_handlabels" title="BirdSongToolbox.free_epoch_tools.get_chunk_handlabels" class="sphx-glr-backref-module-BirdSongToolbox-free_epoch_tools sphx-glr-backref-type-py-function"><span class="n">fet</span><span class="o">.</span><span class="n">get_chunk_handlabels</span></a><span class="p">(</span><span class="n">handlabels_list</span><span class="o">=</span><a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zdata</span></a><span class="o">.</span><span class="n">song_handlabels</span><span class="p">)</span>
 </pre></div>
@@ -187,27 +181,27 @@ key information about the birds song structure.</p>
 <p><em>Note:</em> In the future I plan to have multiple child class that will be based on the structure
 of each songbird species structure, but at present the primary class is based on zebra finch song.</p>
 <p>These parameters are as follows:</p>
-<blockquote>
-<div><ul>
-<li><p>bout_states : dict
-dictionary of all labels used for specified bird and their context for vocal behavior
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bout_states</span></code> : dict</p>
+<p>dictionary of all labels used for specified bird and their context for vocal behavior
 value for each label can either be ‘not’ or ‘bout’ signifying that it is part of the
-bout or not</p></li>
-<li><p>bout_transitions : dict
-dictionary of the transition label for each state (bout &amp; not) the transition label is
-indicative of the label that signifies that you have transitioned away from your current state
-Example:</p>
-<blockquote>
-<div><p>using the configuration used in the code block below <em>1</em> would be the transition away
-from the state <em>not</em> being a bout:
-labels: [8, ‘I’, 8, ‘I’, 1, 7, 1, 3, 7, 4, 8]
-state: [‘not’, ‘not’, ‘not’, ‘not’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’,’not’]</p>
-</div></blockquote>
+bout or not</p>
 </li>
-<li><p>full_bout_length : int
-Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bout_transitions</span></code> : dict</p>
+<p>dictionary of the transition label for each state (bout &amp; not) the transition label is
+indicative of the label that signifies that you have transitioned away from your current state</p>
+<dl>
+<dt>Example:</dt><dd><p>using the configuration used in the code block below <code class="docutils literal notranslate"><span class="pre">1</span></code> would be the transition away
+from the state <em>not</em> being a bout:</p>
+<p><strong>labels</strong>: [8, ‘I’, 8, ‘I’, 1, 7, 1, 3, 7, 4, 8]</p>
+<p><strong>state</strong>: [‘not’, ‘not’, ‘not’, ‘not’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’,’not’]</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">full_bout_length</span></code> : int</p>
+<p>Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)</p>
+</li>
 </ul>
-</div></blockquote>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize and configure instance of ContextLabels object</span>
 <span class="n">bout_states</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;BUFFER&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span>
                <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">}</span>
@@ -231,16 +225,12 @@ Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)
 them using boolean operation. The easiest way to do this is to make a one line function
 and passing it into the <cite>label_focus_context</cite> helper function in BirdSongToolbox. To do
 this it helps to know the structure of the basic version of the contextual labels.</p>
-<blockquote>
-<div><ul class="simple">
-<li><dl class="simple">
-<dt>contextual array<span class="classifier">array | (labels, 4)</span></dt><dd><p>Array of context labels for one Epoch(Chunk).
-columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))</p>
-</dd>
-</dl>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">contextual_array</span></code> : array | (labels, 4)</p>
+<p>Array of context labels for one Epoch(Chunk).</p>
+<p>columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))</p>
 </li>
 </ul>
-</div></blockquote>
 <div class="section" id="define-rules-for-contextual-selection">
 <h3>Define Rules for Contextual Selection<a class="headerlink" href="#define-rules-for-contextual-selection" title="Permalink to this headline">¶</a></h3>
 <p>Now you must define a Function that evaulates labels based on the Context Specified.
@@ -337,7 +327,7 @@ However, the syllable will occur during the motif that starts a bout</p>
 </pre></div>
 </div>
 <img alt="../_images/sphx_glr_plot_start_of_bout_behavior_001.png" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_start_of_bout_behavior_001.png" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.278 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.276 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-tutorials-plot-start-of-bout-behavior-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/b5cab8f0292bddfeabec5a917692ad91/plot_start_of_bout_behavior.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_start_of_bout_behavior.py</span></code></a></p>

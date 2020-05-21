@@ -62,16 +62,21 @@ zdata = ImportData(bird_id=bird_id, session=session, location=data_dir)
 #
 # If you are using behavioral data in a different format you will need to convert them into two
 # lists:
-#   - chunk_labels_list
-#   - chunk_onsets_list
+# - chunk_labels_list
+# - chunk_onsets_list
 #
-#   - labels_list : list
-#     list of labels for all epochs for one day
-#         [Chunks] -> [Labels]
-#   - onsets_list : list
-#     list of start and end times for all labels for one day
-#         [[Chunks]->[Start Time] , [Chunks]->[End Time]]
+# - ``labels_list`` : list
 #
+#   list of labels for all epochs for one day
+#
+#   [Chunks] -> [Labels]
+#
+# - ``onsets_list`` : list
+#
+#   list of start and end times for all labels for one day
+#
+#   [[Chunks]->[Start Time] , [Chunks]->[End Time]]
+
 
 ###############################################################################
 # Reshape Handlabels into Useful Format
@@ -93,21 +98,29 @@ chunk_labels_list, chunk_onsets_list = fet.get_chunk_handlabels(handlabels_list=
 #
 # These parameters are as follows:
 #
-#   - bout_states : dict
-#     dictionary of all labels used for specified bird and their context for vocal behavior
-#     value for each label can either be 'not' or 'bout' signifying that it is part of the
-#     bout or not
-#   - bout_transitions : dict
-#     dictionary of the transition label for each state (bout & not) the transition label is
-#     indicative of the label that signifies that you have transitioned away from your current state
-#     Example:
-#         using the configuration used in the code block below *1* would be the transition away
-#         from the state *not* being a bout:
-#         labels: [8, 'I', 8, 'I', 1, 7, 1, 3, 7, 4, 8]
-#         state: ['not', 'not', 'not', 'not', 'bout', 'bout', 'bout', 'bout', 'bout', 'bout','not']
-#   - full_bout_length : int
-#     Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)
+# - ``bout_states`` : dict
 #
+#   dictionary of all labels used for specified bird and their context for vocal behavior
+#   value for each label can either be 'not' or 'bout' signifying that it is part of the
+#   bout or not
+#
+# - ``bout_transitions`` : dict
+#
+#   dictionary of the transition label for each state (bout & not) the transition label is
+#   indicative of the label that signifies that you have transitioned away from your current state
+#
+#   Example:
+#     using the configuration used in the code block below ``1`` would be the transition away
+#     from the state *not* being a bout:
+#
+#     **labels**: [8, 'I', 8, 'I', 1, 7, 1, 3, 7, 4, 8]
+#
+#     **state**: ['not', 'not', 'not', 'not', 'bout', 'bout', 'bout', 'bout', 'bout', 'bout','not']
+#
+# - ``full_bout_length`` : int
+#
+#   Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)
+
 
 ###############################################################################
 
@@ -137,9 +150,11 @@ test_context = testclass.get_all_context_index_arrays(chunk_labels_list)
 # and passing it into the `label_focus_context` helper function in BirdSongToolbox. To do
 # this it helps to know the structure of the basic version of the contextual labels.
 #
-#   - contextual array : array | (labels, 4)
-#         Array of context labels for one Epoch(Chunk).
-#         columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
+# - ``contextual_array`` : array | (labels, 4)
+#
+#   Array of context labels for one Epoch(Chunk).
+#
+#   columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))
 #
 # Define Rules for Contextual Selection
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
