@@ -76,7 +76,7 @@ It has the following required dependencies:
 - `numpy <https://github.com/numpy/numpy>`_
 - `scipy <https://github.com/scipy/scipy>`_ >= 0.19
 - `h5py <https://github.com/h5py/h5py>`_
-- `decorator<https://github.com/micheles/decorator>`_
+- `decorator <https://github.com/micheles/decorator>`_
 - `PyYAML <https://github.com/yaml/pyyaml>`_
 - `praatio <https://github.com/timmahrt/praatIO>`_
 - `scikit-learn <https://github.com/scikit-learn/scikit-learn>`_
