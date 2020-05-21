@@ -6,6 +6,9 @@
     <title>BirdSongToolbox.context_hand_labeling.ContextLabels &#8212; BirdSongToolbox 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
@@ -43,8 +46,12 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="../installation.html">Installation</a></li>
-                <li><a href="../api.html">API</a></li>
+                <li><a href="../overview/index.html">Overview</a></li>
+                <li><a href="../auto_tutorials/index.html">Tutorials</a></li>
+                <li><a href="../glossary.html">Glossary</a></li>
                 <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../auto_examples/index.html">Examples</a></li>
                 <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
             
             
@@ -95,7 +102,9 @@
 <dl class="py class">
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels">
 <em class="property">class </em><code class="sig-prename descclassname">BirdSongToolbox.context_hand_labeling.</code><code class="sig-name descname">ContextLabels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bout_states</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">bout_transitions</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">full_bout_length</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels" title="Permalink to this definition">¶</a></dt>
-<dd><p class="rubric">Methods</p>
+<dd><p>Class which adds additional labels on top of the handlables to allow for flexible selection of events using
+context</p>
+<p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
@@ -130,16 +139,19 @@
 </dd>
 <dt><strong>bout_transitions</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the transition label for each state (bout &amp; not)</p>
 </dd>
-<dt><strong>full_bout_length :</strong></dt><dd></dd>
-<dt><strong>:param full_bout_length:</strong></dt><dd></dd>
-<dt><strong># Example from z020:</strong></dt><dd></dd>
-<dt><strong>&gt;&gt;&gt;bout_states = {8:’not’, ‘I’:’not’,’C’:’not’, 1:’bout’,2:’bout’,3:’bout’,4:’bout’,5:’bout’,6:’bout’,7:’bout’}</strong></dt><dd></dd>
-<dt><strong>&gt;&gt;&gt;bout_transitions = {‘not’:1,’bout’:8}</strong></dt><dd></dd>
-<dt><strong>&gt;&gt;&gt;bout_syll_length = 4</strong></dt><dd></dd>
-<dt><strong>&gt;&gt;&gt;testclass = ContextLabels(bout_states, bout_transitions, full_bout_length = 4)</strong></dt><dd></dd>
+<dt><strong>full_bout_length</strong><span class="classifier">int</span></dt><dd><p>Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)</p>
+</dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Using behavior from subject z020:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bout_states</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span><span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span><span class="s1">&#39;not&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">5</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">6</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">,</span><span class="mi">7</span><span class="p">:</span><span class="s1">&#39;bout&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bout_transitions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;not&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;bout&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bout_syll_length</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testclass</span> <span class="o">=</span> <span class="n">ContextLabels</span><span class="p">(</span><span class="n">bout_states</span><span class="p">,</span> <span class="n">bout_transitions</span><span class="p">,</span> <span class="n">bout_syll_length</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -173,25 +185,52 @@
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array">
 <code class="sig-name descname">bout_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an array that has 1 for every bout and a 0 for everything else for one chunk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>labels</strong><span class="classifier">list | [Labels]</span></dt><dd><p>list of all labels for one Epoch</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>bout_results</strong><span class="classifier">list</span></dt><dd><p>Array that encodes each label as either bout or not bout using 1 or 0, respectively.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index">
 <code class="sig-name descname">bout_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.bout_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the index for the labels that are the start and end of each Bout for one epoch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>labels</strong><span class="classifier">list | [Labels]</span></dt><dd><p>list of all labels for one Epoch</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>starts</strong><span class="classifier">list</span></dt><dd><p>List of all Start Times corresponding to each motif in one chunk</p>
+</dd>
+<dt><strong>ends</strong><span class="classifier">list</span></dt><dd><p>List of all End Times corresponding to each motif in one chunk</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays">
 <code class="sig-name descname">get_all_context_index_arrays</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">all_labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Context Arrays for all the Epoch for a day</p>
-<blockquote>
-<div><p>Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored</p>
-</div></blockquote>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>all_labels</strong><span class="classifier">list</span></dt><dd><p>list of all labels for one Epoch</p>
+<dt><strong>all_labels</strong><span class="classifier">list | [Labels]</span></dt><dd><p>list of all labels for one Epoch</p>
 </dd>
 </dl>
 </dd>
@@ -212,11 +251,10 @@
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array">
 <code class="sig-name descname">get_context_index_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.get_context_index_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Context array for one Epoch</p>
-<p>Note: this can only get information that can be resolved within the Epoch. Bout Edge-cases are ignored</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>labels</strong><span class="classifier">list</span></dt><dd><p>list of all labels for one Epoch</p>
+<dt><strong>labels</strong><span class="classifier">list | [Labels]</span></dt><dd><p>list of all labels for one Epoch</p>
 </dd>
 </dl>
 </dd>
@@ -234,10 +272,32 @@ columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last 
 <dt id="BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array">
 <code class="sig-name descname">motif_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">labels</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#BirdSongToolbox.context_hand_labeling.ContextLabels.motif_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an array that has 1 for every motif and 2 for every intra-motif silence for one chunk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>labels</strong><span class="classifier">list | [Labels]</span></dt><dd><p>list of all labels for one Epoch</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>motif_results</strong><span class="classifier">ndarray</span></dt><dd><p>array that segments motifs using both the labels and the initialized parameters for the bird’s song
+structure</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
+<div class="section" id="examples-using-birdsongtoolbox-context-hand-labeling-contextlabels">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">BirdSongToolbox.context_hand_labeling.ContextLabels</span></code><a class="headerlink" href="#examples-using-birdsongtoolbox-context-hand-labeling-contextlabels" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-thumbcontainer" tooltip="This example shows how to use the contextual labels to get specific event times"><div class="figure align-default" id="id1">
+<img alt="../_images/sphx_glr_plot_start_of_bout_behavior_thumb.png" src="../_images/sphx_glr_plot_start_of_bout_behavior_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="../auto_tutorials/plot_start_of_bout_behavior.html#sphx-glr-auto-tutorials-plot-start-of-bout-behavior-py"><span class="std std-ref">Get the First Syllable of Bout (Bout Duration greater than 1)</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div></div>
 </div>
 
 

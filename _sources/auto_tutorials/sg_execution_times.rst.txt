@@ -1,0 +1,14 @@
+
+:orphan:
+
+.. _sphx_glr_auto_tutorials_sg_execution_times:
+
+Computation times
+=================
+**00:00.735** total execution time for **auto_tutorials** files:
+
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_tutorials_plot_import_and_preprocess.py` (``plot_import_and_preprocess.py``)   | 00:00.446 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_tutorials_plot_start_of_bout_behavior.py` (``plot_start_of_bout_behavior.py``) | 00:00.289 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+

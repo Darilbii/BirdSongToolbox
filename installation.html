@@ -6,6 +6,9 @@
     <title>Dependencies &#8212; BirdSongToolbox 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -43,8 +46,12 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="#">Installation</a></li>
-                <li><a href="api.html">API</a></li>
+                <li><a href="overview/index.html">Overview</a></li>
+                <li><a href="auto_tutorials/index.html">Tutorials</a></li>
+                <li><a href="glossary.html">Glossary</a></li>
                 <li><a href="faq.html">FAQ</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="auto_examples/index.html">Examples</a></li>
                 <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
             
             
@@ -95,10 +102,11 @@
 <p>BirdSongToolbox is written in Python, and requires Python &gt;= 3.5 to run.</p>
 <p>It has the following required dependencies:</p>
 <ul class="simple">
+<li><p><a class="reference external" href="https://github.com/neurodsp-tools/neurodsp">neurodsp</a></p></li>
 <li><p><a class="reference external" href="https://github.com/numpy/numpy">numpy</a></p></li>
 <li><p><a class="reference external" href="https://github.com/scipy/scipy">scipy</a> &gt;= 0.19</p></li>
 <li><p><a class="reference external" href="https://github.com/h5py/h5py">h5py</a></p></li>
-<li><p><a href="#id1"><span class="problematic" id="id2">`decorator&lt;https://github.com/micheles/decorator&gt;`_</span></a></p></li>
+<li><p><a class="reference external" href="https://github.com/micheles/decorator">decorator</a></p></li>
 <li><p><a class="reference external" href="https://github.com/yaml/pyyaml">PyYAML</a></p></li>
 <li><p><a class="reference external" href="https://github.com/timmahrt/praatIO">praatio</a></p></li>
 <li><p><a class="reference external" href="https://github.com/scikit-learn/scikit-learn">scikit-learn</a></p></li>
@@ -186,7 +194,7 @@ configuration’s current default paths. Such as in the lines below.</p>
 <span class="kn">from</span> <span class="nn">BirdSongToolbox.config.utils</span> <span class="kn">import</span> <span class="n">get_spec_config_path</span>
 
 <span class="c1"># Get the current path configuration for PrePd_Data_Path and print it</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">get_spec_config_path</span><span class="p">(</span><span class="s2">&quot;PrePd_Data_Path&quot;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">get_spec_config_path</span><span class="p">(</span><span class="s2">&quot;PrePd_Data_Path&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 <div class="admonition note">

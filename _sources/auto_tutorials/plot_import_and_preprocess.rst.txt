@@ -1,0 +1,239 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_auto_tutorials_plot_import_and_preprocess.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_auto_tutorials_plot_import_and_preprocess.py:
+
+
+Import and Pre-process Data
+===========================
+
+This example shows how to import Data and do a basic preprocess pipeline
+
+
+.. code-block:: default
+
+    from BirdSongToolbox.import_data import ImportData
+    from BirdSongToolbox.preprocess import multi_bpf, hilbert_module, common_average_reference_array
+
+    import matplotlib
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from pathlib import Path
+    import inspect
+
+
+
+
+
+
+
+
+Basic Workflow
+--------------
+
+When using BirdSongToolbox you will need to have data in which you want to work on
+
+Although not required, it is convenient to use the Import Classes to import properly formated
+derived data this way you can guarantee that you have all of the data and meta data needed and
+that it is all synchronized with each other
+
+As this example assumes that you have not yet configured BirdSongToolbox to automatically know
+where to look for data we will go through the optional step of telling the toolbox where we
+would like it to impor from. In this case we will import data used for testing the package.
+(Don't worry about this if you are unfamiliar with pytest)
+
+
+
+.. code-block:: default
+
+
+
+    # Select bird_id and session
+    bird_id = 'z007'
+    session = 'day-2016-09-09'
+
+
+
+
+
+
+
+
+
+.. code-block:: default
+
+
+    src_file_path = inspect.getfile(lambda: None)
+    project_dir = Path(src_file_path).resolve().parents[1]
+    print(project_dir)
+    data_dir = project_dir / "BirdSongToolbox" / "data" / "Chunk_Data_Demo"
+
+    # Import Data
+    zdata = ImportData(bird_id=bird_id, session=session, location=data_dir)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /Users/darilbrown/PycharmProjects/BirdSongToolbox
+
+
+
+
+The neural and audio data files BirdSongToolbox works with are almost alway numpy ndarrays with
+their last dimension being samples. This allows for versitility in functionality and computational
+simplicity. However, to Demonstrate the most basic api functionality we are going to select a
+single chunk to preprocess.
+
+*Note:* This is not always necessary, as their are wrapper functions that can work the most common
+versions of various preprocessed data
+
+
+.. code-block:: default
+
+
+    neural_data = zdata.song_neural[0]
+
+
+
+
+
+
+
+
+Common Average Reference
+------------------------
+
+Typically it is useful to rereference neural data to remove noise or motion artifacts. For the test
+data it is convenient to use a Common Average Reference (CAR). Basically you subtract the mean of all
+of your neural channels from each channels. The logic here is that most of what is commone accross all
+of your channels would be dominated by noise and this would improve the Signal to Noise ratio.
+
+When doing a CAR it is best to exclude channels that are known to be noisy or unrealiable to prevent
+introducing noise into your other channels. So we are going to declare which channels to exclude from
+the CAR.
+
+
+.. code-block:: default
+
+
+    # Common Average Reference
+    bad_channels = [24, 28]  # Define Bad Channels
+    car_data = common_average_reference_array(neural_data=neural_data, bad_channels=bad_channels)  # CAR
+
+
+
+
+
+
+
+
+Band Pass Filter
+----------------
+
+Next we can bandpass filter the data to get out frequencies that we want. Depending on your own preference
+this filtering will be done using either neurodsp or mne (optional dependency). For this example we will
+be using mne.
+
+When using the multi_bpf function you can make as many band pass filters as you want. Each filtered data
+ndarray will be returned in a list
+
+No matter your preferred backend you can print out detailed reports on the filters used using the verbose
+parameter
+
+
+.. code-block:: default
+
+    fs = 1000  # Neural Data is sampled at 1 kHz
+    l_freqs = [10, 100]  # The lower bound of the band pass filters
+    h_freqs = [20, 200]  # The Upper bound of the band pass filter
+
+    filtered_data = multi_bpf(chunk_neural_data=car_data, fs=fs, l_freqs=l_freqs, h_freqs=h_freqs,
+                              verbose=True)
+    filtered_data = np.asarray(filtered_data)  # Make a view as a ndarray
+
+
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    Setting up band-pass filter from 10 - 20 Hz
+
+    FIR filter parameters
+    ---------------------
+    Designing a one-pass, zero-phase, non-causal bandpass filter:
+    - Windowed frequency-domain design (firwin2) method
+    - Hamming window
+    - Lower passband edge: 10.00
+    - Lower transition bandwidth: 2.50 Hz (-6 dB cutoff frequency: 8.75 Hz)
+    - Upper passband edge: 20.00 Hz
+    - Upper transition bandwidth: 5.00 Hz (-6 dB cutoff frequency: 22.50 Hz)
+    - Filter length: 2640 samples (2.640 sec)
+
+    Setting up band-pass filter from 1e+02 - 2e+02 Hz
+
+    FIR filter parameters
+    ---------------------
+    Designing a one-pass, zero-phase, non-causal bandpass filter:
+    - Windowed frequency-domain design (firwin2) method
+    - Hamming window
+    - Lower passband edge: 100.00
+    - Lower transition bandwidth: 25.00 Hz (-6 dB cutoff frequency: 87.50 Hz)
+    - Upper passband edge: 200.00 Hz
+    - Upper transition bandwidth: 50.00 Hz (-6 dB cutoff frequency: 225.00 Hz)
+    - Filter length: 264 samples (0.264 sec)
+
+
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  0.446 seconds)
+
+
+.. _sphx_glr_download_auto_tutorials_plot_import_and_preprocess.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: plot_import_and_preprocess.py <plot_import_and_preprocess.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: plot_import_and_preprocess.ipynb <plot_import_and_preprocess.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

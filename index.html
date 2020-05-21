@@ -6,6 +6,9 @@
     <title>BirdSongToolbox &#8212; BirdSongToolbox 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -43,8 +46,12 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="installation.html">Installation</a></li>
-                <li><a href="api.html">API</a></li>
+                <li><a href="overview/index.html">Overview</a></li>
+                <li><a href="auto_tutorials/index.html">Tutorials</a></li>
+                <li><a href="glossary.html">Glossary</a></li>
                 <li><a href="faq.html">FAQ</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="auto_examples/index.html">Examples</a></li>
                 <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
             
             
@@ -96,8 +103,28 @@
 <p>A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier</p>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
-<p>Documentation for the BirdSongToolbox module is underdevelopment.</p>
-<p>The documentation also intends to include a full set of <em>tutorials</em> covering the functionality of BirdSongToolbox.</p>
+<p>Documentation for the BirdSongToolbox module is underdevelopment, however it can be found at the
+<a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/index.html">documentation site</a></p>
+<p>The documentation intends to include a full set of <em>tutorials</em> covering the functionality of BirdSongToolbox.</p>
+<p>This documentation includes:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/overview/index.html">Overview</a>:
+with information that both motivates the importance of behavioral context and descriptions of
+important concepts when using BirdSongToolbox to analyze sequential vocal-motor behavior.</p></li>
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/auto_tutorials/index.html">Tutorials</a>:
+with a step-by-step guide through the various uses of the package</p></li>
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/glossary.html">Glossary</a>:
+which defines all the key terms that are useful in understanding the package</p></li>
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/faq.html">FAQ</a>:
+answering frequently asked questions</p></li>
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/api.html">API</a>:
+which lists and describes all the code and functionality available in the module</p></li>
+<li><p><a class="reference external" href="https://darilbii.github.io/BirdSongToolbox/auto_examples/index.html">Examples</a>:
+demonstrating example analyses and use cases, and other functionality</p></li>
+</ul>
+<p>At present BirdSongToolbox has infrastructure and documentation of two versions of derived data. The older
+version will likely be deprecated in the future however there is a early tutorial showing how to work with
+this data format</p>
 <p>A <strong>Basic Introduction Tutorial</strong> can be found <a class="reference external" href="https://github.com/Darilbii/BirdSongToolbox/blob/master/Tutorial/1-Introduction_to_BirdSongToolbox.ipynb">here</a></p>
 <p>If you have a question about using BirdSongToolbox that doesn’t seem to be covered by the documentation, feel free to
 open an <a class="reference external" href="https://github.com/Darilbii/BirdSongToolbox/issues">issue</a> and ask!</p>
@@ -107,6 +134,7 @@ open an <a class="reference external" href="https://github.com/Darilbii/BirdSong
 <p>BirdSongToolbox is written in Python, and requires Python &gt;= 3.5 to run.</p>
 <p>It has the following required dependencies:</p>
 <ul class="simple">
+<li><p><a class="reference external" href="https://github.com/neurodsp-tools/neurodsp">neurodsp</a></p></li>
 <li><p><a class="reference external" href="https://github.com/numpy/numpy">numpy</a></p></li>
 <li><p><a class="reference external" href="https://github.com/scipy/scipy">scipy</a> &gt;= 0.19</p></li>
 <li><p><a class="reference external" href="https://github.com/h5py/h5py">h5py</a></p></li>

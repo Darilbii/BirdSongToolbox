@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Import and Pre-process Data &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../overview/index.html">Overview</a></li>
+                <li><a href="index.html">Tutorials</a></li>
+                <li><a href="../glossary.html">Glossary</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../auto_examples/index.html">Examples</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/auto_tutorials/plot_import_and_preprocess.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-tutorials-plot-import-and-preprocess-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="import-and-pre-process-data">
+<span id="sphx-glr-auto-tutorials-plot-import-and-preprocess-py"></span><h1>Import and Pre-process Data<a class="headerlink" href="#import-and-pre-process-data" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to import Data and do a basic preprocess pipeline</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">BirdSongToolbox.import_data</span> <span class="k">import</span> <a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class"><span class="n">ImportData</span></a>
+<span class="kn">from</span> <span class="nn">BirdSongToolbox.preprocess</span> <span class="k">import</span> <a href="../generated/BirdSongToolbox.preprocess.multi_bpf.html#BirdSongToolbox.preprocess.multi_bpf" title="BirdSongToolbox.preprocess.multi_bpf" class="sphx-glr-backref-module-BirdSongToolbox-preprocess sphx-glr-backref-type-py-function"><span class="n">multi_bpf</span></a><span class="p">,</span> <span class="n">hilbert_module</span><span class="p">,</span> <span class="n">common_average_reference_array</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+</pre></div>
+</div>
+<div class="section" id="basic-workflow">
+<h2>Basic Workflow<a class="headerlink" href="#basic-workflow" title="Permalink to this headline">¶</a></h2>
+<p>When using BirdSongToolbox you will need to have data in which you want to work on</p>
+<p>Although not required, it is convenient to use the Import Classes to import properly formated
+derived data this way you can guarantee that you have all of the data and meta data needed and
+that it is all synchronized with each other</p>
+<p>As this example assumes that you have not yet configured BirdSongToolbox to automatically know
+where to look for data we will go through the optional step of telling the toolbox where we
+would like it to impor from. In this case we will import data used for testing the package.
+(Don’t worry about this if you are unfamiliar with pytest)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select bird_id and session</span>
+<span class="n">bird_id</span> <span class="o">=</span> <span class="s1">&#39;z007&#39;</span>
+<span class="n">session</span> <span class="o">=</span> <span class="s1">&#39;day-2016-09-09&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">src_file_path</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;BirdSongToolbox&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;Chunk_Data_Demo&quot;</span>
+
+<span class="c1"># Import Data</span>
+<a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zdata</span></a> <span class="o">=</span> <a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class"><span class="n">ImportData</span></a><span class="p">(</span><span class="n">bird_id</span><span class="o">=</span><span class="n">bird_id</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">data_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/Users/darilbrown/PycharmProjects/BirdSongToolbox
+</pre></div>
+</div>
+<p>The neural and audio data files BirdSongToolbox works with are almost alway numpy ndarrays with
+their last dimension being samples. This allows for versitility in functionality and computational
+simplicity. However, to Demonstrate the most basic api functionality we are going to select a
+single chunk to preprocess.</p>
+<p><em>Note:</em> This is not always necessary, as their are wrapper functions that can work the most common
+versions of various preprocessed data</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">neural_data</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zdata</span></a><span class="o">.</span><span class="n">song_neural</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="common-average-reference">
+<h2>Common Average Reference<a class="headerlink" href="#common-average-reference" title="Permalink to this headline">¶</a></h2>
+<p>Typically it is useful to rereference neural data to remove noise or motion artifacts. For the test
+data it is convenient to use a Common Average Reference (CAR). Basically you subtract the mean of all
+of your neural channels from each channels. The logic here is that most of what is commone accross all
+of your channels would be dominated by noise and this would improve the Signal to Noise ratio.</p>
+<p>When doing a CAR it is best to exclude channels that are known to be noisy or unrealiable to prevent
+introducing noise into your other channels. So we are going to declare which channels to exclude from
+the CAR.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common Average Reference</span>
+<span class="n">bad_channels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">24</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>  <span class="c1"># Define Bad Channels</span>
+<span class="n">car_data</span> <span class="o">=</span> <span class="n">common_average_reference_array</span><span class="p">(</span><span class="n">neural_data</span><span class="o">=</span><span class="n">neural_data</span><span class="p">,</span> <span class="n">bad_channels</span><span class="o">=</span><span class="n">bad_channels</span><span class="p">)</span>  <span class="c1"># CAR</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="band-pass-filter">
+<h2>Band Pass Filter<a class="headerlink" href="#band-pass-filter" title="Permalink to this headline">¶</a></h2>
+<p>Next we can bandpass filter the data to get out frequencies that we want. Depending on your own preference
+this filtering will be done using either neurodsp or mne (optional dependency). For this example we will
+be using mne.</p>
+<p>When using the multi_bpf function you can make as many band pass filters as you want. Each filtered data
+ndarray will be returned in a list</p>
+<p>No matter your preferred backend you can print out detailed reports on the filters used using the verbose
+parameter</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fs</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Neural Data is sampled at 1 kHz</span>
+<span class="n">l_freqs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>  <span class="c1"># The lower bound of the band pass filters</span>
+<span class="n">h_freqs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>  <span class="c1"># The Upper bound of the band pass filter</span>
+
+<span class="n">filtered_data</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.preprocess.multi_bpf.html#BirdSongToolbox.preprocess.multi_bpf" title="BirdSongToolbox.preprocess.multi_bpf" class="sphx-glr-backref-module-BirdSongToolbox-preprocess sphx-glr-backref-type-py-function"><span class="n">multi_bpf</span></a><span class="p">(</span><span class="n">chunk_neural_data</span><span class="o">=</span><span class="n">car_data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">l_freqs</span><span class="o">=</span><span class="n">l_freqs</span><span class="p">,</span> <span class="n">h_freqs</span><span class="o">=</span><span class="n">h_freqs</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">filtered_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">filtered_data</span><span class="p">)</span>  <span class="c1"># Make a view as a ndarray</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Setting up band-pass filter from 10 - 20 Hz
+
+FIR filter parameters
+---------------------
+Designing a one-pass, zero-phase, non-causal bandpass filter:
+- Windowed frequency-domain design (firwin2) method
+- Hamming window
+- Lower passband edge: 10.00
+- Lower transition bandwidth: 2.50 Hz (-6 dB cutoff frequency: 8.75 Hz)
+- Upper passband edge: 20.00 Hz
+- Upper transition bandwidth: 5.00 Hz (-6 dB cutoff frequency: 22.50 Hz)
+- Filter length: 2640 samples (2.640 sec)
+
+Setting up band-pass filter from 1e+02 - 2e+02 Hz
+
+FIR filter parameters
+---------------------
+Designing a one-pass, zero-phase, non-causal bandpass filter:
+- Windowed frequency-domain design (firwin2) method
+- Hamming window
+- Lower passband edge: 100.00
+- Lower transition bandwidth: 25.00 Hz (-6 dB cutoff frequency: 87.50 Hz)
+- Upper passband edge: 200.00 Hz
+- Upper transition bandwidth: 50.00 Hz (-6 dB cutoff frequency: 225.00 Hz)
+- Filter length: 264 samples (0.264 sec)
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.446 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-tutorials-plot-import-and-preprocess-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/b84be075fbeb8ad403c2c09230ffb8be/plot_import_and_preprocess.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_import_and_preprocess.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/174abe74935f2e2405d1b10eb75b9422/plot_import_and_preprocess.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_import_and_preprocess.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

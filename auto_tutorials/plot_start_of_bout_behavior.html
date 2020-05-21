@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Get the First Syllable of Bout (Bout Duration greater than 1) &#8212; BirdSongToolbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BirdSongToolbox</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation.html">Installation</a></li>
+                <li><a href="../overview/index.html">Overview</a></li>
+                <li><a href="index.html">Tutorials</a></li>
+                <li><a href="../glossary.html">Glossary</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../auto_examples/index.html">Examples</a></li>
+                <li><a href="https://github.com/Darilbii/BirdSongToolbox">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/auto_tutorials/plot_start_of_bout_behavior.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-tutorials-plot-start-of-bout-behavior-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="get-the-first-syllable-of-bout-bout-duration-greater-than-1">
+<span id="sphx-glr-auto-tutorials-plot-start-of-bout-behavior-py"></span><h1>Get the First Syllable of Bout (Bout Duration greater than 1)<a class="headerlink" href="#get-the-first-syllable-of-bout-bout-duration-greater-than-1" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to use the contextual labels to get specific event times</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">BirdSongToolbox.import_data</span> <span class="k">import</span> <a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class"><span class="n">ImportData</span></a>
+<span class="kn">import</span> <span class="nn">BirdSongToolbox.free_epoch_tools</span> <span class="k">as</span> <span class="nn">fet</span>
+<span class="kn">from</span> <span class="nn">BirdSongToolbox.context_hand_labeling</span> <span class="k">import</span> <a href="../generated/BirdSongToolbox.context_hand_labeling.ContextLabels.html#BirdSongToolbox.context_hand_labeling.ContextLabels" title="BirdSongToolbox.context_hand_labeling.ContextLabels" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-class"><span class="n">ContextLabels</span></a><span class="p">,</span> <a href="../generated/BirdSongToolbox.context_hand_labeling.label_focus_context.html#BirdSongToolbox.context_hand_labeling.label_focus_context" title="BirdSongToolbox.context_hand_labeling.label_focus_context" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-function"><span class="n">label_focus_context</span></a>
+<span class="kn">from</span> <span class="nn">BirdSongToolbox.behave.behave_utils</span> <span class="k">import</span> <span class="n">event_array_maker_chunk</span><span class="p">,</span> <span class="n">get_events_rasters</span><span class="p">,</span> <span class="n">repeat_events</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+</pre></div>
+</div>
+<div class="section" id="basic-workflow">
+<h2>Basic Workflow<a class="headerlink" href="#basic-workflow" title="Permalink to this headline">¶</a></h2>
+<p>When using BirdSongToolbox you will need to have data in which you want to work on</p>
+<p>Although not required, it is convenient to use the Import Classes to import properly formated
+derived data this way you can guarantee that you have all of the data and meta data needed and
+that it is all synchronized with each other</p>
+<p>As this example assumes that you have not yet configured BirdSongToolbox to automatically know
+where to look for data we will go through the optional step of telling the toolbox where we
+would like it to impor from. In this case we will import data used for testing the package.
+(Don’t worry about this if you are unfamiliar with pytest)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select bird_id and session</span>
+<span class="n">bird_id</span> <span class="o">=</span> <span class="s1">&#39;z007&#39;</span>
+<span class="n">session</span> <span class="o">=</span> <span class="s1">&#39;day-2016-09-09&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">src_file_path</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;BirdSongToolbox&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;Chunk_Data_Demo&quot;</span>
+
+<span class="c1"># Import Data</span>
+<a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zdata</span></a> <span class="o">=</span> <a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class"><span class="n">ImportData</span></a><span class="p">(</span><span class="n">bird_id</span><span class="o">=</span><span class="n">bird_id</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">data_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/Users/darilbrown/PycharmProjects/BirdSongToolbox
+</pre></div>
+</div>
+</div>
+<div class="section" id="select-male-specific-contextlabel">
+<h2>Select Male Specific ContextLabel<a class="headerlink" href="#select-male-specific-contextlabel" title="Permalink to this headline">¶</a></h2>
+<p>BirdSongToolbox assumes that your behavioral labels are a group of three lists that correspond
+to the start, end, and label of the vocalizations during a period of time. However, the Chunked
+Dataformat has multiple tiers of information that include your main subjects behavior, other
+co-occuring noise, and experimental peridigm metadata. For this reason there is a convenience
+function for converting the Chunked data behavioral data into the simple list structure.</p>
+<p>If you are using behavioral data in a different format you will need to convert them into two
+lists:</p>
+<blockquote>
+<div><ul>
+<li><p>chunk_labels_list</p></li>
+<li><p>chunk_onsets_list</p></li>
+<li><p>labels_list : list
+list of labels for all epochs for one day</p>
+<blockquote>
+<div><p>[Chunks] -&gt; [Labels]</p>
+</div></blockquote>
+</li>
+<li><p>onsets_list : list
+list of start and end times for all labels for one day</p>
+<blockquote>
+<div><p>[[Chunks]-&gt;[Start Time] , [Chunks]-&gt;[End Time]]</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Reshape Handlabels into Useful Format</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chunk_labels_list</span><span class="p">,</span> <span class="n">chunk_onsets_list</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.free_epoch_tools.get_chunk_handlabels.html#BirdSongToolbox.free_epoch_tools.get_chunk_handlabels" title="BirdSongToolbox.free_epoch_tools.get_chunk_handlabels" class="sphx-glr-backref-module-BirdSongToolbox-free_epoch_tools sphx-glr-backref-type-py-function"><span class="n">fet</span><span class="o">.</span><span class="n">get_chunk_handlabels</span></a><span class="p">(</span><span class="n">handlabels_list</span><span class="o">=</span><a href="../generated/BirdSongToolbox.import_data.ImportData.html#BirdSongToolbox.import_data.ImportData" title="BirdSongToolbox.import_data.ImportData" class="sphx-glr-backref-module-BirdSongToolbox-import_data sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zdata</span></a><span class="o">.</span><span class="n">song_handlabels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="contextual-labels-of-behavior">
+<h2>Contextual Labels of Behavior<a class="headerlink" href="#contextual-labels-of-behavior" title="Permalink to this headline">¶</a></h2>
+<p>One of the major uses of BirdSongToolbox is to add additional labels on top of behavioral
+labels. These additional labels can bee used to contextually sub-select labels based on their
+identity and context. To do this you must first initiate a <cite>ContextLabels</cite> instance that is
+configured to your specific birds behavior. To do this you need three parameters that carry
+key information about the birds song structure.</p>
+<p><em>Note:</em> In the future I plan to have multiple child class that will be based on the structure
+of each songbird species structure, but at present the primary class is based on zebra finch song.</p>
+<p>These parameters are as follows:</p>
+<blockquote>
+<div><ul>
+<li><p>bout_states : dict
+dictionary of all labels used for specified bird and their context for vocal behavior
+value for each label can either be ‘not’ or ‘bout’ signifying that it is part of the
+bout or not</p></li>
+<li><p>bout_transitions : dict
+dictionary of the transition label for each state (bout &amp; not) the transition label is
+indicative of the label that signifies that you have transitioned away from your current state
+Example:</p>
+<blockquote>
+<div><p>using the configuration used in the code block below <em>1</em> would be the transition away
+from the state <em>not</em> being a bout:
+labels: [8, ‘I’, 8, ‘I’, 1, 7, 1, 3, 7, 4, 8]
+state: [‘not’, ‘not’, ‘not’, ‘not’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’, ‘bout’,’not’]</p>
+</div></blockquote>
+</li>
+<li><p>full_bout_length : int
+Last syllable of the stereotyped portion of the Motif (Not the Intra-Motif note)</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize and configure instance of ContextLabels object</span>
+<span class="n">bout_states</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;BUFFER&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span>
+               <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;bout&#39;</span><span class="p">}</span>
+
+<span class="n">bout_transitions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;not&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;bout&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>
+
+<span class="n">full_bout_length</span> <span class="o">=</span> <span class="mi">5</span>
+
+<a href="../generated/BirdSongToolbox.context_hand_labeling.ContextLabels.html#BirdSongToolbox.context_hand_labeling.ContextLabels" title="BirdSongToolbox.context_hand_labeling.ContextLabels" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">testclass</span></a> <span class="o">=</span> <a href="../generated/BirdSongToolbox.context_hand_labeling.ContextLabels.html#BirdSongToolbox.context_hand_labeling.ContextLabels" title="BirdSongToolbox.context_hand_labeling.ContextLabels" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-class"><span class="n">ContextLabels</span></a><span class="p">(</span><span class="n">bout_states</span><span class="p">,</span> <span class="n">bout_transitions</span><span class="p">,</span> <span class="n">full_bout_length</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the Context Array for the Day&#39;s Data</span>
+
+<span class="n">test_context</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.context_hand_labeling.ContextLabels.html#BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" title="BirdSongToolbox.context_hand_labeling.ContextLabels.get_all_context_index_arrays" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-method"><span class="n">testclass</span><span class="o">.</span><span class="n">get_all_context_index_arrays</span></a><span class="p">(</span><span class="n">chunk_labels_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="select-behavior-using-contextual-information">
+<h2>Select Behavior using Contextual Information<a class="headerlink" href="#select-behavior-using-contextual-information" title="Permalink to this headline">¶</a></h2>
+<p>Now that you have contextual labels for your behavioral labels you can begin to sub-select
+them using boolean operation. The easiest way to do this is to make a one line function
+and passing it into the <cite>label_focus_context</cite> helper function in BirdSongToolbox. To do
+this it helps to know the structure of the basic version of the contextual labels.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>contextual array<span class="classifier">array | (labels, 4)</span></dt><dd><p>Array of context labels for one Epoch(Chunk).
+columns: (Motif Sequence in Bout, First Motif (1-hot), Last Motif (1-hot), Last Syllable Dropped (1-hot))</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="section" id="define-rules-for-contextual-selection">
+<h3>Define Rules for Contextual Selection<a class="headerlink" href="#define-rules-for-contextual-selection" title="Permalink to this headline">¶</a></h3>
+<p>Now you must define a Function that evaulates labels based on the Context Specified.
+Walking through the logic of the function below:</p>
+<p>Here we are trying to find syllables that occur during the First Motif in the bout,
+however we only want bouts that have at least two motifs in them.</p>
+<dl class="simple">
+<dt>This translates to the follow rules:</dt><dd><ul class="simple">
+<li><p>[1] 1 in the second column (Meaning the syllable occurs during the first Motif of the Bout)</p></li>
+<li><p>[2] 0 in the third column (Meaning the syllable does not occur during the last motif of the bout).</p></li>
+</ul>
+</dd>
+</dl>
+<p>This ensures that any label selected will be in motif that isn’t both the first and last motif of the bout.
+However, the syllable will occur during the motif that starts a bout</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a context based on the boolean structure of the contextual labels</span>
+<span class="k">def</span> <span class="nf">first_context_example</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">ls_drop</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">first</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">last</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select Labels Using Flexible Context Selection</span>
+<span class="n">first_syll</span> <span class="o">=</span> <a href="../generated/BirdSongToolbox.context_hand_labeling.label_focus_context.html#BirdSongToolbox.context_hand_labeling.label_focus_context" title="BirdSongToolbox.context_hand_labeling.label_focus_context" class="sphx-glr-backref-module-BirdSongToolbox-context_hand_labeling sphx-glr-backref-type-py-function"><span class="n">label_focus_context</span></a><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">chunk_labels_list</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="n">chunk_onsets_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">contexts</span><span class="o">=</span><span class="n">test_context</span><span class="p">,</span>
+                                 <span class="n">context_func</span><span class="o">=</span><span class="n">first_context_example</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the Context Windows</span>
+
+<span class="n">first_window</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># # Clip around Events of Interest</span>
+<span class="c1"># all_firsts = fet.get_event_related_nd_chunk(chunk_data=proc_data, chunk_indices=first_syll,</span>
+<span class="c1">#                                         fs=1000, window=first_window )</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># all_firsts = fet.event_shape_correction(all_firsts, original_dim=3)</span>
+<span class="c1">#</span>
+<span class="c1"># print(np.shape(all_firsts))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">first_event_times</span> <span class="o">=</span> <span class="n">fet</span><span class="o">.</span><span class="n">make_event_times_axis</span><span class="p">(</span><span class="n">first_window</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create timeseries representing the labeled Events For all Chunks</span>
+<span class="n">event_array_test2</span> <span class="o">=</span> <span class="n">event_array_maker_chunk</span><span class="p">(</span><span class="n">labels_list</span><span class="o">=</span><span class="n">chunk_labels_list</span><span class="p">,</span> <span class="n">onsets_list</span><span class="o">=</span><span class="n">chunk_onsets_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">first_events</span> <span class="o">=</span> <span class="n">get_events_rasters</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">event_array_test2</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">first_syll</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">first_window</span><span class="p">)</span>
+<span class="n">fill_events_first</span> <span class="o">=</span> <span class="n">repeat_events</span><span class="p">(</span><span class="n">first_events</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will need to wrapped into BirdSongToolbox in a more flexible and modular way</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_behavior_test</span><span class="p">(</span><span class="n">fill_events_context</span><span class="p">,</span> <span class="n">context_event_times</span><span class="p">,</span> <span class="n">context_events</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Setup the Colorbar</span>
+
+    <span class="n">cmap2</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;#000000&#39;</span><span class="p">,</span> <span class="s1">&#39;#B66DFF&#39;</span><span class="p">,</span> <span class="s1">&#39;#db6e00&#39;</span><span class="p">,</span> <span class="s1">&#39;#009292&#39;</span><span class="p">,</span> <span class="s1">&#39;#924900&#39;</span><span class="p">,</span> <span class="s1">&#39;#006DDB&#39;</span><span class="p">,</span> <span class="s1">&#39;#B6DBFF&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="s1">&#39;#feb4d9&#39;</span><span class="p">,</span> <span class="s1">&#39;#490092&#39;</span><span class="p">])</span>
+    <span class="n">cmap2</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+    <span class="n">cmap2</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="s1">&#39;#B6DBFF&#39;</span><span class="p">)</span>
+
+    <span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">,</span> <span class="mf">9.5</span><span class="p">,</span> <span class="mf">10.5</span><span class="p">]</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmap2</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="c1"># PlotBehavior Raster</span>
+    <span class="n">num_events</span> <span class="o">=</span> <span class="n">context_events</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">max_len</span> <span class="o">=</span> <span class="n">fill_events_context</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_len</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_events</span><span class="p">)</span>
+    <span class="n">y_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_events</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">y_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_labels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">bin_width</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_labels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">y_steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">y_steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">bin_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fill_events_context</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap2</span><span class="p">,</span> <span class="n">Norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">y_steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">labels</span><span class="o">=</span><span class="n">y_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_len</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fill_events_context</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap2</span><span class="p">,</span> <span class="n">Norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">y_steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">y_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_len</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot First Behavior Raster</span>
+<span class="n">plot_behavior_test</span><span class="p">(</span><span class="n">fill_events_context</span><span class="o">=</span><span class="n">fill_events_first</span><span class="p">,</span> <span class="n">context_event_times</span><span class="o">=</span><span class="n">first_event_times</span><span class="p">,</span>
+                   <span class="n">context_events</span><span class="o">=</span><span class="n">first_events</span><span class="p">)</span>
+
+<span class="c1"># ax[0].set_title(label=&quot;Start of Bout&quot;, fontsize=bigsize)</span>
+<span class="c1"># ax[0].set_ylabel(ylabel=&#39;Bout #&#39;, fontsize=subsize)</span>
+<span class="c1"># ax[0].tick_params(axis=&#39;both&#39;, which=&#39;major&#39;, labelsize=ticksize)</span>
+
+<span class="c1">###############################################################################</span>
+</pre></div>
+</div>
+<img alt="../_images/sphx_glr_plot_start_of_bout_behavior_001.png" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_start_of_bout_behavior_001.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.289 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-tutorials-plot-start-of-bout-behavior-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/b5cab8f0292bddfeabec5a917692ad91/plot_start_of_bout_behavior.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_start_of_bout_behavior.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8d36ef8679f6831259f65de9d578224c/plot_start_of_bout_behavior.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_start_of_bout_behavior.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2020, Daril E. Brown II.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
