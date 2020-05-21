@@ -15,8 +15,8 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 # import os
 # from os.path import dirname as up
-#
-# from datetime import date
+
+from datetime import date
 
 import sphinx_gallery
 import sphinx_bootstrap_theme
@@ -43,6 +43,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'numpydoc',
+    'sphinx_gallery.gen_gallery',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -79,8 +80,12 @@ html_theme_options = {
     'navbar_sidebarrel': False,
     'navbar_links': [
         ("Installation", 'installation'),
-        ("API", "api"),
+        ("Overview", "overview/index"),
+        ("Tutorials", "auto_tutorials/index"),
+        ("Glossary", "glossary"),
         ("FAQ", "faq"),
+        ("API", "api"),
+        ("Examples", "auto_examples/index"),
         ("GitHub", "https://github.com/Darilbii/BirdSongToolbox", True),
     ],
 
@@ -99,3 +104,17 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# -- Extension configuration -------------------------------------------------
+
+# Configurations for sphinx gallery
+sphinx_gallery_conf = {
+    'examples_dirs': ['../examples', '../tutorials'],
+    'gallery_dirs': ['auto_examples', 'auto_tutorials'],
+    'within_subsection_order': FileNameSortKey,
+    'default_thumb_file': 'img/bird_web_version.png',
+    'backreferences_dir': 'generated',   # Where to drop linking files between examples & API
+    'doc_module': ('BirdSongToolbox',),
+    'reference_url': {'BirdSongToolbox': None},
+    'remove_config_comments': True,
+}

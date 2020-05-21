@@ -48,6 +48,7 @@ BirdSongToolbox is written in Python, and requires Python >= 3.5 to run.
 
 It has the following required dependencies:
 
+- `neurodsp <https://github.com/neurodsp-tools/neurodsp>`_
 - `numpy <https://github.com/numpy/numpy>`_
 - `scipy <https://github.com/scipy/scipy>`_ >= 0.19
 - `h5py <https://github.com/h5py/h5py>`_
