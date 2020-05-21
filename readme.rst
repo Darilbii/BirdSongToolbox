@@ -32,9 +32,33 @@ A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, t
 Documentation
 -------------
 
-Documentation for the BirdSongToolbox module is underdevelopment.
+Documentation for the BirdSongToolbox module is underdevelopment, however it can be found at the
+`documentation site <https://darilbii.github.io/BirdSongToolbox/index.html>`_
 
-The documentation also intends to include a full set of *tutorials* covering the functionality of BirdSongToolbox.
+The documentation intends to include a full set of *tutorials* covering the functionality of BirdSongToolbox.
+
+
+This documentation includes:
+
+- `Overview <https://darilbii.github.io/BirdSongToolbox/overview/index.html>`_:
+  with information that both motivates the importance of behavioral context and descriptions of
+  important concepts when using BirdSongToolbox to analyze sequential vocal-motor behavior.
+- `Tutorials <https://darilbii.github.io/BirdSongToolbox/auto_tutorials/index.html>`_:
+  with a step-by-step guide through the various uses of the package
+- `Glossary <https://darilbii.github.io/BirdSongToolbox/glossary.html>`_:
+  which defines all the key terms that are useful in understanding the package
+- `FAQ <https://darilbii.github.io/BirdSongToolbox/faq.html>`_:
+  answering frequently asked questions
+- `API <https://darilbii.github.io/BirdSongToolbox/api.html>`_:
+  which lists and describes all the code and functionality available in the module
+- `Examples <https://darilbii.github.io/BirdSongToolbox/auto_examples/index.html>`_:
+  demonstrating example analyses and use cases, and other functionality
+
+
+
+At present BirdSongToolbox has infrastructure and documentation of two versions of derived data. The older
+version will likely be deprecated in the future however there is a early tutorial showing how to work with
+this data format
 
 A **Basic Introduction Tutorial** can be found `here <https://github.com/Darilbii/BirdSongToolbox/blob/master/Tutorial/1-Introduction_to_BirdSongToolbox.ipynb>`_
 
