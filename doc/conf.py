@@ -27,7 +27,7 @@ from sphinx_gallery.sorting import FileNameSortKey, ExplicitOrder
 # -- Project information -----------------------------------------------------
 
 project = 'BirdSongToolbox'
-copyright = '2020, Daril E. Brown II'
+copyright = '2018-{}, Gilja Group'.format(date.today().year)
 author = 'Daril E. Brown II'
 
 # The full version, including alpha/beta/rc tags
