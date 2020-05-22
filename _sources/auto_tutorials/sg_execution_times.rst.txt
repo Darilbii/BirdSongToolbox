@@ -5,10 +5,10 @@
 
 Computation times
 =================
-**00:00.899** total execution time for **auto_tutorials** files:
+**00:00.952** total execution time for **auto_tutorials** files:
 
 +----------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_tutorials_plot_import_and_preprocess.py` (``plot_import_and_preprocess.py``)   | 00:00.623 | 0.0 MB |
+| :ref:`sphx_glr_auto_tutorials_plot_import_and_preprocess.py` (``plot_import_and_preprocess.py``)   | 00:00.673 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_tutorials_plot_start_of_bout_behavior.py` (``plot_start_of_bout_behavior.py``) | 00:00.276 | 0.0 MB |
+| :ref:`sphx_glr_auto_tutorials_plot_start_of_bout_behavior.py` (``plot_start_of_bout_behavior.py``) | 00:00.279 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------+-----------+--------+
