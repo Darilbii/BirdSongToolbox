@@ -23,8 +23,8 @@ BirdSongToolbox
 .. |PythonVersions| image:: https://img.shields.io/badge/python-3.5%7C3.6%7C3.7-blue.svg
 .. _PythonVersions: https://www.python.org/
 
-.. |Preprint| image:: https://img.shields.io/badge/preprint-to%20be%20submitted-red
-.. _Preprint: https://img.shields.io/badge/preprint-to%20be%20submitted-red
+.. |Preprint| image:: https://img.shields.io/badge/preprint-submitted-green
+.. _Preprint: https://www.biorxiv.org/content/10.1101/2020.06.30.179861v2
 
 
 A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
