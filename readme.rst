@@ -156,7 +156,7 @@ Reference
 If you use this code in your project, please cite:
 
 ```
-Someday we shall get published and that reference will go here!
+Brown DE, Chavez JI, Nguyen DH, Kadwory A, Voytek B, Arneodo E, et al. Local Field Potentials in a Pre-motor Region Predict Learned Vocal Sequences. Neuroscience; 2020 Jun. doi:10.1101/2020.06.30.179861
 ```
 
 
