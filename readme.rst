@@ -27,7 +27,9 @@ BirdSongToolbox
 .. _Preprint: https://www.biorxiv.org/content/10.1101/2020.06.30.179861v2
 
 
-A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier
+A Package of Tools for Analyzing Electrophysiology Data in Free Singing birds, this package is intended to make Analysis of Sequential Vocal Motor Behavior Easier.
+
+Software written by the `Gilja Group <https://tnel.ucsd.edu/>`_
 
 Documentation
 -------------
@@ -156,7 +158,7 @@ Reference
 If you use this code in your project, please cite:
 
 ```
-Brown DE, Chavez JI, Nguyen DH, Kadwory A, Voytek B, Arneodo E, et al. Local Field Potentials in a Pre-motor Region Predict Learned Vocal Sequences. Neuroscience; 2020 Jun. doi:10.1101/2020.06.30.179861
+Brown DE, Chavez JI, Nguyen DH, Kadwory A, Voytek B, Arneodo E, Gentner T, Gilja V. Local Field Potentials in a Pre-motor Region Predict Learned Vocal Sequences. Neuroscience; 2020 Jun. doi:10.1101/2020.06.30.179861
 ```
 
 
