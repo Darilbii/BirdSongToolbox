@@ -38,7 +38,7 @@ def event_array_maker_1d(starts, ends, labels):
         else:
             raise TypeError
 
-    return labels_array[::30]
+    return labels_array#[::30]
 
 
 def event_array_maker_chunk(onsets_list, labels_list):
